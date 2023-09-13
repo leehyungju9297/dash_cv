@@ -103,7 +103,7 @@ layout = html.Div([
         ], width=3),
         dbc.Col([
             dcc.Markdown('Financial Analyst \n'
-                         'Ontario Ministry of Natural Resources and Forestry, Land and Resource - Peterborough, Canada',
+                         'Ministry of Natural Resources and Forestry, Land and Resource - Peterborough, Canada',
                          style={'white-space': 'pre'},
                          className='ms-3'),
             html.Ul([
@@ -136,7 +136,7 @@ layout = html.Div([
 
     dbc.Row([
         dbc.Col([
-            dcc.Markdown('2015 to 2016',
+            dcc.Markdown('2021 to 2022',
                          style={'textAlign': 'center'})
         ], width=3),
         dbc.Col([

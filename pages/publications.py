@@ -10,42 +10,43 @@ def layout():
 
     dbc.Row([
         dbc.Col([
-            dcc.Markdown('#### Xavier Hernández Creus'),
-            dcc.Markdown('FC Barcelona Head Coach')
-        ], width=2),
+            dcc.Markdown('#### ISPRS 2023 \n'
+                         'International Society for Photogrammetry and Remote Sensing'),
+            dcc.Markdown('Cairo, Egypt')
+        ], width=3),
         dbc.Col([
-            dcc.Markdown('Adam is very professional. I really appreciate his quick thinking '
-                         'and great teamwork. I know a coach is not supposed to say this, but '
-                         'although O. Dembélé is a great player, Adam is my Forward Favorito.',
+            dcc.Markdown('##### YUTO: A Large Scale Aerial LiDAR Data Set for Semantic Segmentation \n',
+                        # '[DOI link](https://doi.org/10.1007/978-3-031-37731-0_28)',
+                        # add DOI link later
                          className='ms-3'),
-        ], width=5)
+        ], width=6)
     ], justify='center'),
     html.Hr(),
 
     dbc.Row([
         dbc.Col([
-            dcc.Markdown('#### Ousmane Dembélé'),
-            dcc.Markdown('FC Barcelona Attacking Midfielder')
-        ], width=2),
+            dcc.Markdown('#### ICPR 2022 \n'
+                         'International Conference on Pattern Recognition'),
+            dcc.Markdown('Montreal, Canada')
+        ], width=3),
         dbc.Col([
-            dcc.Markdown('Adam is so good with the ball. Every time he has the ball, I can see the stadium rise to its feet.'
-                         ' And he always shares goal opportunities with his teammates. The opposite of selfish. I know it is not '
-                         'appropriate for a player to say this, but I wish Adam was our coach instead of Xavier.',
-                         className='ms-3'),
-        ], width=5)
+            dcc.Markdown('##### YUTO Tree-5000: A Large-scale Airborne LiDAR Data for Single Tree Detection \n'
+                         '[DOI link](https://doi.org/10.1007/978-3-031-37731-0_28)',
+                         className='ms-3')
+        ], width=6)
     ], justify='center'),
     html.Hr(),
 
     dbc.Row([
         dbc.Col([
-            dcc.Markdown('#### Eric Garcia'),
-            dcc.Markdown('FC Barcelona Defender')
-        ], width=2),
+            dcc.Markdown('#### Master Thesis \n'
+                         'York University'),
+            dcc.Markdown('Toronto, Canada')
+        ], width=3),
         dbc.Col([
-            dcc.Markdown('I feel so lucky to have a teammate like Adam on my team. People talk about Messi all the time '
-                         'but the talent Adam has for making goals is unmatched. Plus, Adam has never evaded taxes, so you '
-                         'would be lucky to have him on your team.',
-                         className='ms-3'),
-        ], width=5)
+            dcc.Markdown('##### Deep convolutional neural network based single tree detection using volumetric module from airborne liar data \n'
+                         '[link](https://yorkspace.library.yorku.ca/items/8c15e8bb-8672-4615-be4a-6b66ca6bdfdf)',
+                         className='ms-3')
+        ], width=6)
     ], justify='center')
 ])

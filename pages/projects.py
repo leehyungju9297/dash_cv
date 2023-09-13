@@ -5,7 +5,7 @@ import plotly.express as px
 import pandas as pd
 from .side_bar import sidebar
 
-dash.register_page(__name__, title='App1', order=1)
+dash.register_page(__name__, title='crimes', order=1)
 
 df = pd.read_csv('assets/Berlin_crimes.csv')
 
