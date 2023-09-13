@@ -6,7 +6,6 @@ dash.register_page(__name__, order=2)
 
 def layout():
     return html.Div([
-    html.H3("People that I've had the pleasure to work with", style={'textAlign':'center'}, className='my-3'),
     html.Hr(),
 
     dbc.Row([
