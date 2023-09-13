@@ -6,7 +6,7 @@ import base64
 dash.register_page(__name__, path='/', order=0)
 
 
-image_filename = 'assets\my_pic.jpg' # replace with your own image
+image_filename = 'assets/my_pic.jpg' # replace with your own image
 encoded_image = base64.b64encode(open(image_filename, 'rb').read())
 
 # resume sample template from https://zety.com/
