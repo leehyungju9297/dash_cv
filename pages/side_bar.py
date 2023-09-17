@@ -5,11 +5,11 @@ import dash_bootstrap_components as dbc
 def sidebar():
     nav_links = []
     for page in dash.page_registry.values():
-        if page["path"]=="/projects":
+        if page["path"]=="/tree":
             nav_links.append(
                 dbc.NavLink(
                     [
-                        html.Div("Berlin Crimes", className="ms-2"),
+                        html.Div("Test results", className="ms-2"),
                     ],
                     href=page["path"],
                     active="exact",
@@ -19,7 +19,7 @@ def sidebar():
             nav_links.append(
                 dbc.NavLink(
                     [
-                        html.Div('Tree', className="ms-2"),
+                        html.Div('Tree BBs', className="ms-2"),
                     ],
                     href=page["path"],
                     active="exact",
