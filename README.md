@@ -16,6 +16,7 @@ Open `http://127.0.0.1:8050`.
 ## Public pages
 
 - `/` Home
+- `/projects` Projects
 - `/publications` Publications
 - `/contact` Contact
 
@@ -37,10 +38,15 @@ Python version is pinned through:
 - `runtime.txt`
 - `render.yaml` (`PYTHON_VERSION=3.11.9`)
 
-## Content update checklist (monthly)
+## Content update checklist
 
-1. Update headline and summary in `pages/home.py` to match current target roles.
-2. Keep impact metrics factual and specific (number + context + source project).
-3. Keep skills honest by separating `Strong (Production)` and `Working Knowledge`.
-4. Keep Contact page role list broad (not company-specific).
-5. Validate on mobile width and check for overflow/layout breaks.
+### Monthly
+1. Update summary and headline in `pages/home.py` to reflect target roles.
+2. Keep impact metrics factual (`number + context + source`).
+3. Keep skills honest with level separation: `Strong (Production)` vs `Working Knowledge`.
+4. Check mobile layout and interaction (no overflow, no clipped cards).
+
+### Quarterly
+1. Refresh `pages/projects.py` with the newest 1-2 real outcomes.
+2. Reorder projects so the strongest/recent one appears first.
+3. Replace weaker impact cards with newer evidence when available.

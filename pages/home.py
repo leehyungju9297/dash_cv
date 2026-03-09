@@ -11,7 +11,10 @@ dash.register_page(__name__, path='/', order=0, name='Home')
 
 
 def _load_profile_image() -> str:
-    image_path = Path(__file__).resolve().parents[1] / 'assets' / 'my_pic.jpg'
+    asset_root = Path(__file__).resolve().parents[1] / 'assets'
+    image_path = asset_root / 'my_pic_web.jpg'
+    if not image_path.exists():
+        image_path = asset_root / 'my_pic.jpg'
     if not image_path.exists():
         return ''
     encoded = base64.b64encode(image_path.read_bytes()).decode()
@@ -80,6 +83,7 @@ layout = dbc.Container(
                                     target='_blank',
                                     rel='noreferrer',
                                 ),
+                                html.A('Projects', href='/projects', className='cta-secondary'),
                             ],
                         ),
                         html.Div(
@@ -103,11 +107,11 @@ layout = dbc.Container(
         html.Section(
             className='impact-row reveal-up',
             children=[
-                _impact_chip('300+', 'iOS targets', 'Supported in a white-label release ecosystem'),
-                _impact_chip('120+', 'Android flavors', 'Managed across client-specific builds and releases'),
-                _impact_chip('5,000+', 'LiDAR annotations', 'Used in ICPR benchmark dataset work'),
-                _impact_chip('2', 'Peer-reviewed publications', 'ICPR 2022 and ISPRS 2023'),
-                _impact_chip('$10M', 'Program context', 'OnTRAC collaboration research contribution'),
+                _impact_chip('300+', 'iOS targets', 'Operated within a live multi-client release ecosystem'),
+                _impact_chip('120+', 'Android flavors', 'Handled in production-oriented build/release workflows'),
+                _impact_chip('5,000+', 'LiDAR annotations', 'Benchmark-scale dataset work presented at ICPR'),
+                _impact_chip('2', 'Peer-reviewed publications', 'International venues: ICPR 2022, ISPRS 2023'),
+                _impact_chip('$10M', 'Program scale context', 'Contribution within Ontario Train Autonomy Collaboration'),
             ],
         ),
         html.Section(

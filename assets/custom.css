@@ -465,6 +465,7 @@ a:focus-visible {
     grid-template-columns: 1fr;
   }
 
+  .project-grid,
   .skill-level-grid,
   .outcome-grid {
     grid-template-columns: 1fr;
@@ -491,4 +492,43 @@ a:focus-visible {
   .exp-meta {
     text-align: left;
   }
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.project-card {
+  padding: 1rem;
+}
+
+.project-scope {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+
+.project-title {
+  margin: 0 0 0.35rem;
+}
+
+.project-tech {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 0.7rem;
+}
+
+.project-label {
+  font-weight: 700;
+  margin-bottom: 0.15rem;
+}
+
+.project-copy {
+  margin-bottom: 0.6rem;
+  line-height: 1.5;
 }

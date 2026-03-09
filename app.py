@@ -21,7 +21,7 @@ app = Dash(
 )
 server = app.server
 
-VISIBLE_PATHS = {'/', '/publications', '/contact'}
+VISIBLE_PATHS = {'/', '/projects', '/publications', '/contact'}
 
 PERSON_JSON_LD = {
     '@context': 'https://schema.org',
