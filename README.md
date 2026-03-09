@@ -20,6 +20,20 @@ Open `http://127.0.0.1:8050`.
 - `/publications` Publications
 - `/contact` Contact
 
+## GitHub Pages (Free Static Option)
+
+A static copy of the site is in `docs/` for GitHub Pages hosting without backend cold starts.
+
+Setup:
+1. Push the current branch to GitHub.
+2. Repo `Settings` -> `Pages`.
+3. Source: `Deploy from a branch`.
+4. Branch: `master` (or `main`) and folder: `/docs`.
+5. Save and wait for publish.
+
+Project site URL pattern:
+- `https://<username>.github.io/dash_cv/`
+
 ## Deploy (Render)
 
 Build command:
