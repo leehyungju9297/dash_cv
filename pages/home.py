@@ -1,5 +1,6 @@
 import base64
 from pathlib import Path
+from typing import List
 
 import dash
 from dash import dcc, html
@@ -17,151 +18,166 @@ def _load_profile_image() -> str:
     return f'data:image/jpeg;base64,{encoded}'
 
 
-def _experience_card(title: str, company: str, location: str, period: str, bullets: list[str]) -> dbc.Card:
-    return dbc.Card(
-        dbc.CardBody(
-            [
-                html.Div(
-                    [
-                        html.H5(f'{title} | {company}', className='mb-1'),
-                        html.Div(location, className='text-muted small'),
-                    ],
-                    className='mb-2',
-                ),
-                html.Div(period, className='fw-semibold mb-2'),
-                html.Ul([html.Li(item) for item in bullets], className='mb-0'),
-            ]
-        ),
-        className='mb-3 shadow-sm border-0',
+def _impact_chip(value: str, label: str):
+    return html.Div(
+        className='impact-chip',
+        children=[
+            html.Div(value, className='impact-value'),
+            html.Div(label, className='impact-label'),
+        ],
+    )
+
+
+def _experience_block(title: str, company: str, period: str, location: str, bullets: List[str]):
+    return html.Article(
+        className='glass-card experience-card reveal-up',
+        children=[
+            html.Div(
+                className='exp-head',
+                children=[
+                    html.Div(
+                        [
+                            html.H5(f'{title}', className='exp-title'),
+                            html.Div(company, className='exp-company'),
+                        ]
+                    ),
+                    html.Div([html.Div(period), html.Div(location)], className='exp-meta'),
+                ],
+            ),
+            html.Ul([html.Li(b) for b in bullets], className='exp-bullets'),
+        ],
     )
 
 
 profile_image = _load_profile_image()
 
-summary_text = (
-    'Data-focused software engineer with production experience in analytics systems, '
-    'reporting automation, and cross-source data reconciliation. Strong in Python, SQL, '
-    'and statistical problem-solving with end-to-end ownership from KPI definition to '
-    'stakeholder-facing delivery.'
-)
-
-core_skills = [
-    'Python',
-    'SQL',
-    'R',
-    'Pandas',
-    'Polars',
-    'Flask',
-    'Dash',
-    'Plotly',
-    'SQLAlchemy',
-    'Celery',
-    'PostgreSQL',
-    'MySQL',
-]
-
 layout = dbc.Container(
-    [
-        dbc.Row(
-            [
-                dbc.Col(
-                    html.Img(
-                        src=profile_image,
-                        style={
-                            'width': '180px',
-                            'height': '180px',
-                            'objectFit': 'cover',
-                            'borderRadius': '50%',
-                        },
-                        className='shadow-sm',
-                    ),
-                    width='auto',
-                ),
-                dbc.Col(
-                    [
-                        html.H2('Hyungju Lee', className='mb-1'),
-                        html.Div('Data Scientist | Backend & Analytics Engineer', className='text-muted mb-2'),
-                        html.Div('Toronto, ON, Canada | +1 (416) 706-8011 | leehyungju9297@gmail.com', className='small'),
-                        dcc.Link('linkedin.com/in/hyungju9297', href='https://www.linkedin.com/in/hyungju9297/', target='_blank'),
+    className='content-stack',
+    children=[
+        html.Section(
+            className='hero reveal-up',
+            children=[
+                html.Div(
+                    className='hero-copy',
+                    children=[
+                        html.Div('DATA SCIENTIST / BACKEND ANALYTICS', className='eyebrow'),
+                        html.H1('Hyungju Lee', className='hero-title'),
+                        html.P(
+                            'Production analytics engineer with strong Python/SQL foundations, '
+                            'focused on KPI systems, reporting automation, and high-trust data pipelines.',
+                            className='hero-subtitle',
+                        ),
+                        html.Div(
+                            className='hero-cta',
+                            children=[
+                                dcc.Link('Email', href='mailto:leehyungju9297@gmail.com', className='cta-primary'),
+                                dcc.Link('LinkedIn', href='https://www.linkedin.com/in/hyungju9297/', className='cta-secondary', target='_blank'),
+                            ],
+                        ),
+                        html.Div(
+                            'Toronto, ON, Canada  |  +1 (416) 706-8011  |  leehyungju9297@gmail.com',
+                            className='hero-contact',
+                        ),
                     ],
-                    className='align-self-center',
+                ),
+                html.Div(
+                    className='hero-photo-wrap',
+                    children=html.Img(src=profile_image, className='hero-photo') if profile_image else None,
                 ),
             ],
-            className='g-4 mb-4',
-            align='center',
         ),
-        dbc.Card(
-            dbc.CardBody(
-                [
-                    html.H4('Summary', className='mb-2'),
-                    html.P(summary_text, className='mb-0'),
-                ]
-            ),
-            className='mb-3 shadow-sm border-0',
+        html.Section(
+            className='impact-row reveal-up',
+            children=[
+                _impact_chip('300+', 'iOS targets supported'),
+                _impact_chip('120+', 'Android flavors supported'),
+                _impact_chip('5,000+', 'LiDAR annotations (ICPR)'),
+                _impact_chip('$10M', 'OnTRAC collaboration context'),
+            ],
         ),
-        dbc.Card(
-            dbc.CardBody(
-                [
-                    html.H4('Core Skills', className='mb-2'),
-                    html.Div(
-                        [
-                            dbc.Badge(skill, color='secondary', className='me-2 mb-2 p-2')
-                            for skill in core_skills
+        html.Section(
+            className='reveal-up',
+            children=[
+                html.H3('Core Skills', className='section-title'),
+                html.Div(
+                    className='skill-cloud',
+                    children=[
+                        html.Span(skill, className='skill-pill')
+                        for skill in [
+                            'Python',
+                            'SQL',
+                            'R',
+                            'Flask',
+                            'Dash',
+                            'Plotly',
+                            'SQLAlchemy',
+                            'Celery',
+                            'Pandas',
+                            'Polars',
+                            'PostgreSQL',
+                            'MySQL',
+                            'Redis',
+                            'Parquet',
                         ]
-                    ),
-                ]
-            ),
-            className='mb-3 shadow-sm border-0',
-        ),
-        html.H4('Experience', className='mt-2 mb-3'),
-        _experience_card(
-            'Software Engineer (Backend & Analytics)',
-            'MySeat Media',
-            'Toronto, ON, Canada',
-            '2023 - Present',
-            [
-                'Built and maintained Python analytics products (Flask, Dash, Plotly) for DAU/MAU, churn, engagement, geography, and revenue KPIs.',
-                'Designed and stabilized scheduled reporting workflows using Flask, Celery, and SQLAlchemy for daily and weekly executive summaries.',
-                'Improved subscription and revenue data reliability by reconciling Apple, Google Play, and Stripe/PWA data sources.',
-                'Collaborated with product and operations stakeholders to define KPI logic and deliver decision-ready dashboards.',
+                    ],
+                ),
             ],
         ),
-        _experience_card(
-            'Researcher',
-            'AUSM Lab',
-            'Toronto, ON, Canada',
-            '2019 - 2024',
-            [
-                'Published and presented at ICPR on large-scale airborne LiDAR benchmarking with 5,000+ single-tree annotations.',
-                'Built 3D-to-2D transformation pipelines for model development and evaluation in the Ontario Train Autonomy Collaboration (OnTRAC, $10M).',
-                'Worked with cross-functional collaborators to refine dataset design and model evaluation priorities.',
+        html.Section(
+            className='reveal-up',
+            children=[
+                html.H3('Experience', className='section-title'),
+                _experience_block(
+                    'Software Engineer (Backend & Analytics)',
+                    'MySeat Media',
+                    '2023 - Present',
+                    'Toronto, ON, Canada',
+                    [
+                        'Built Python analytics/reporting products for DAU/MAU, churn, engagement, geography, and revenue KPIs.',
+                        'Designed scheduled reporting workflows using Flask, Celery, and SQLAlchemy for daily/weekly executive summaries.',
+                        'Improved revenue data reliability by reconciling Apple, Google Play, and Stripe/PWA sources.',
+                        'Partnered with product and operations stakeholders to define KPI logic and deliver decision-ready dashboards.',
+                    ],
+                ),
+                _experience_block(
+                    'Researcher',
+                    'AUSM Lab',
+                    '2019 - 2024',
+                    'Toronto, ON, Canada',
+                    [
+                        'Published and presented at ICPR on large-scale airborne LiDAR benchmarking with 5,000+ single-tree annotations.',
+                        'Built 3D-to-2D transformation pipelines for model development and evaluation in OnTRAC ($10M).',
+                        'Aligned dataset design and model evaluation with changing cross-functional research requirements.',
+                    ],
+                ),
+                _experience_block(
+                    'Financial Analyst',
+                    'Ontario Ministry of Natural Resources and Forestry',
+                    '2017 - 2018',
+                    'Peterborough, ON, Canada',
+                    [
+                        'Built Oracle-based reporting workflows and supported process automation across ministry teams.',
+                        'Trained project managers and leadership stakeholders on reporting outputs and adoption.',
+                    ],
+                ),
             ],
         ),
-        _experience_card(
-            'Financial Analyst',
-            'Ontario Ministry of Natural Resources and Forestry',
-            'Peterborough, ON, Canada',
-            '2017 - 2018',
-            [
-                'Built Oracle-based financial reporting workflows and supported process automation across ministry teams.',
-                'Trained project managers and leadership stakeholders on reporting outputs and process usage.',
+        html.Section(
+            className='reveal-up',
+            children=[
+                html.H3('Education', className='section-title'),
+                html.Div(
+                    className='glass-card edu-card',
+                    children=[
+                        html.Div('M.E.Sc., Earth and Space Science & Engineering', className='edu-title'),
+                        html.Div('York University | 2020 - 2022', className='edu-meta'),
+                        html.Div('Best Master\'s Thesis Award (2022)', className='edu-note'),
+                        html.Hr(),
+                        html.Div('H.B.Sc., Statistics (Quantitative Finance Stream)', className='edu-title'),
+                        html.Div('University of Toronto | 2015 - 2020', className='edu-meta'),
+                    ],
+                ),
             ],
-        ),
-        html.H4('Education', className='mt-3 mb-2'),
-        dbc.Card(
-            dbc.CardBody(
-                [
-                    html.Ul(
-                        [
-                            html.Li('M.E.Sc., Earth and Space Science & Engineering, York University (2020 - 2022)'),
-                            html.Li('H.B.Sc., Statistics (Quantitative Finance Stream), University of Toronto (2015 - 2020)'),
-                        ],
-                        className='mb-0',
-                    )
-                ]
-            ),
-            className='mb-4 shadow-sm border-0',
         ),
     ],
-    className='py-4',
 )
