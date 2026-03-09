@@ -117,7 +117,7 @@ layout = dbc.Container(
                 _impact_chip('$733K+', 'Revenue analyzed', 'Measured subscription and IAP trends with daily peaks above $15K'),
                 _impact_chip('138', 'Clients covered', 'Delivered longitudinal analytics across a 6-year reporting window'),
                 _impact_chip('34', 'Scheduled jobs', 'Operated recurring analytics infrastructure from sub-minute to weekly'),
-                _impact_chip('3', 'Billing sources unified', 'Normalized Apple IAP, Google Play, and Stripe/PWA metrics'),
+                _impact_chip('19.6K', 'Subscription records', 'Consolidated monthly and annual subscription records across platforms'),
             ],
         ),
         html.Section(
