@@ -5,6 +5,8 @@ import dash_bootstrap_components as dbc
 app = Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.LUX])
 server = app.server
 
+VISIBLE_PATHS = {"/", "/publications", "/contact"}
+
 header = dbc.Navbar(
     dbc.Container(
         [
@@ -13,7 +15,7 @@ header = dbc.Navbar(
                     dbc.Nav([
                         dbc.NavLink(page["name"], href=page["path"])
                         for page in dash.page_registry.values()
-                        if not page["path"].startswith("/app")
+                        if page["path"] in VISIBLE_PATHS
                     ])
             ])
         ],
