@@ -64,12 +64,17 @@ layout = dbc.Container(
                 html.Div(
                     className='hero-copy',
                     children=[
-                        html.Div('SOFTWARE ENGINEERING • DATA • ANALYTICS', className='eyebrow'),
-                        html.H1('Hyungju Lee', className='hero-title'),
+                        html.Div('HYUNGJU LEE', className='hero-name'),
+                        html.Div('PRODUCT DATA SCIENTIST • PRODUCT ANALYTICS', className='eyebrow'),
+                        html.H1(
+                            'Building KPI systems for engagement, retention, and monetization',
+                            className='hero-title',
+                        ),
                         html.P(
-                            'I build production analytics and backend systems that turn messy multi-source data '
-                            'into decision-ready signals. My work spans KPI design, reporting automation, and '
-                            'data quality operations for engineering and business teams.',
+                            'Product Data Scientist with 6 years of experience building decision-ready analytics '
+                            'for product and business teams. I drive KPI design, executive reporting automation, '
+                            'engagement and retention analysis, monetization analytics, and cross-platform '
+                            'subscription reconciliation across Apple, Google Play, and Stripe/PWA.',
                             className='hero-subtitle',
                         ),
                         html.Div(
@@ -107,11 +112,12 @@ layout = dbc.Container(
         html.Section(
             className='impact-row reveal-up',
             children=[
-                _impact_chip('300+', 'iOS targets', 'Operated within a live multi-client release ecosystem'),
-                _impact_chip('120+', 'Android flavors', 'Handled in production-oriented build/release workflows'),
-                _impact_chip('5,000+', 'LiDAR annotations', 'Benchmark-scale dataset work presented at ICPR'),
-                _impact_chip('2', 'Peer-reviewed publications', 'International venues: ICPR 2022, ISPRS 2023'),
-                _impact_chip('$10M', 'Program scale context', 'Contribution within Ontario Train Autonomy Collaboration'),
+                _impact_chip('369K+', 'Users represented', 'User-level behavioral, geographic, and monetization analytics'),
+                _impact_chip('6.65M+', 'Sessions analyzed', 'Modeled engagement across 5.64B cumulative session-minutes'),
+                _impact_chip('$733K+', 'Revenue analyzed', 'Measured subscription and IAP trends with daily peaks above $15K'),
+                _impact_chip('138', 'Clients covered', 'Delivered longitudinal analytics across a 6-year reporting window'),
+                _impact_chip('34', 'Scheduled jobs', 'Operated recurring analytics infrastructure from sub-minute to weekly'),
+                _impact_chip('3', 'Billing sources unified', 'Normalized Apple IAP, Google Play, and Stripe/PWA metrics'),
             ],
         ),
         html.Section(
@@ -119,7 +125,7 @@ layout = dbc.Container(
             children=[
                 html.H3('Core Skills', className='section-title'),
                 html.P(
-                    "I don't treat all tools as equal. I separate proven production depth from working knowledge.",
+                    'Production depth in analytics systems, paired with strong product measurement and KPI execution.',
                     className='section-note',
                 ),
                 html.Div(
@@ -151,17 +157,20 @@ layout = dbc.Container(
                         html.Div(
                             className='glass-card skill-level-card',
                             children=[
-                                html.Div('Proven Delivery Skills', className='skill-level-title'),
+                                html.Div('Product & Analytics', className='skill-level-title'),
                                 html.Div(
                                     className='skill-cloud',
                                     children=[
                                         html.Span(skill, className='skill-pill')
                                         for skill in [
-                                            'Analytics Engineering',
+                                            'Product Analytics',
                                             'KPI Design',
-                                            'Reporting Automation',
+                                            'Executive Reporting',
+                                            'Revenue Analytics',
+                                            'Subscription Analytics',
                                             'Data Reconciliation',
-                                            'Stakeholder Communication',
+                                            'Quasi-Experimental Analysis',
+                                            'Dashboarding',
                                             'Monitoring & Data Quality',
                                         ]
                                     ],
@@ -203,10 +212,10 @@ layout = dbc.Container(
                         html.Div(
                             className='glass-card outcome-card',
                             children=[
-                                html.Div('Reporting Reliability', className='outcome-title'),
+                                html.Div('Executive Decision Support', className='outcome-title'),
                                 html.P(
-                                    'Implemented scheduled workflows with Flask, Celery, and SQLAlchemy for '
-                                    'daily/weekly executive reporting.',
+                                    'Automated recurring executive reporting across DAU, MAU, churn, engagement, '
+                                    'geography, membership, and revenue KPIs.',
                                     className='mb-0',
                                 ),
                             ],
@@ -214,10 +223,10 @@ layout = dbc.Container(
                         html.Div(
                             className='glass-card outcome-card',
                             children=[
-                                html.Div('Data Trust', className='outcome-title'),
+                                html.Div('Revenue & Subscription Analytics', className='outcome-title'),
                                 html.P(
-                                    'Reconciled Apple, Google Play, and Stripe/PWA subscription signals to '
-                                    'improve revenue and subscription data consistency.',
+                                    'Unified Apple App Store, Google Play, and Stripe/PWA subscription data into a '
+                                    'normalized model for cross-platform monetization visibility.',
                                     className='mb-0',
                                 ),
                             ],
@@ -225,10 +234,10 @@ layout = dbc.Container(
                         html.Div(
                             className='glass-card outcome-card',
                             children=[
-                                html.Div('Research to Production Thinking', className='outcome-title'),
+                                html.Div('Product Measurement Systems', className='outcome-title'),
                                 html.P(
-                                    'Applied large-scale dataset design and model evaluation practices from '
-                                    'research environments to production analytics problem framing.',
+                                    'Translated ambiguous product questions into KPI definitions, reporting logic, '
+                                    'and decision-ready dashboards spanning behavior, livestream, and membership.',
                                     className='mb-0',
                                 ),
                             ],
@@ -242,15 +251,18 @@ layout = dbc.Container(
             children=[
                 html.H3('Experience', className='section-title'),
                 _experience_block(
-                    'Software Engineer (Backend & Analytics)',
+                    'Product Data Scientist / Software Engineer, Analytics',
                     'MySeat Media',
                     '2023 - Present',
                     'Toronto, ON, Canada',
                     [
-                        'Built Python analytics and reporting products covering DAU/MAU, churn, engagement, geography, and revenue KPIs.',
-                        'Automated recurring executive reporting with Flask, Celery, and SQLAlchemy scheduling workflows.',
-                        'Supported release operations across a white-label environment with 300+ iOS targets and 120+ Android flavors.',
-                        'Translated stakeholder requirements into KPI definitions and decision-ready dashboards.',
+                        'Built production analytics and reporting systems across engagement, retention, geography, livestream, and subscription revenue KPIs for white-label mobile and streaming products.',
+                        'Analyzed 6.65M+ sessions and 5.64B cumulative session-minutes to model user engagement across a multi-client app ecosystem.',
+                        'Measured $733K+ in subscription and in-app purchase revenue, including daily peaks above $15K, and linked monetization trends to 33.8K membership adds and 729K downloads.',
+                        'Built a normalized subscription analytics model across Apple IAP, Google Play, and Stripe/PWA to improve cross-platform metric consistency.',
+                        'Designed quasi-experimental pre/post impact analyses for product interventions across notifications, livestreams, content, and auctions.',
+                        'Automated recurring executive reporting with Python, Flask, Celery, and SQLAlchemy for leadership visibility across DAU/MAU, churn, engagement, and revenue trends.',
+                        'Operationalized analytics delivery with curated parquet outputs and 34 scheduled jobs for dependable downstream reporting.',
                     ],
                 ),
                 _experience_block(
@@ -259,9 +271,8 @@ layout = dbc.Container(
                     '2019 - 2024',
                     'Toronto, ON, Canada',
                     [
-                        'Published and presented at ICPR on airborne LiDAR benchmarking with 5,000+ single-tree annotations.',
-                        'Built 3D-to-2D transformation pipelines for model development and evaluation in OnTRAC ($10M context).',
-                        'Coordinated with cross-functional collaborators to adapt dataset design and evaluation priorities.',
+                        'Published peer-reviewed work at ICPR 2022 and ISPRS 2023, applying rigorous experimental design and model evaluation to real-world spatial data.',
+                        'Built data transformation pipelines and collaborated cross-functionally on dataset design and evaluation priorities in an applied research environment.',
                     ],
                 ),
                 _experience_block(

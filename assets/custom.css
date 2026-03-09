@@ -160,6 +160,13 @@ a:focus-visible {
   box-shadow: 0 12px 35px rgba(15, 23, 42, 0.06);
 }
 
+.hero-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.22rem;
+}
+
 .eyebrow {
   font-size: 0.78rem;
   font-weight: 700;

@@ -8,14 +8,14 @@ import dash_bootstrap_components as dbc
 app = Dash(
     __name__,
     use_pages=True,
-    title='Hyungju Lee | Portfolio',
+    title='Hyungju Lee | Product Data Scientist',
     update_title='Loading...',
     external_stylesheets=[dbc.themes.BOOTSTRAP],
     meta_tags=[
         {'name': 'viewport', 'content': 'width=device-width, initial-scale=1'},
         {
             'name': 'description',
-            'content': 'Hyungju Lee portfolio: software engineering, data analytics, and applied ML work with production and research outcomes.',
+            'content': 'Hyungju Lee portfolio: Product Data Scientist focused on KPI design, executive reporting, engagement and retention analytics, and subscription monetization systems.',
         },
     ],
 )
@@ -27,7 +27,7 @@ PERSON_JSON_LD = {
     '@context': 'https://schema.org',
     '@type': 'Person',
     'name': 'Hyungju Lee',
-    'jobTitle': 'Software Engineer, Data & Analytics',
+    'jobTitle': 'Product Data Scientist',
     'address': {
         '@type': 'PostalAddress',
         'addressLocality': 'Toronto',
