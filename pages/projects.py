@@ -43,6 +43,11 @@ def _case_study_card(case):
                         target='_blank',
                         rel='noreferrer',
                         className='case-study-image-link',
+                        **{
+                            'data-track': 'case_study_image_expand',
+                            'data-track-location': 'case_studies_page',
+                            'data-track-label': case['slug'],
+                        },
                         children=html.Img(
                             src=case['thumbnail_src'],
                             className='case-study-image',

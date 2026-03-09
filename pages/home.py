@@ -65,6 +65,11 @@ def _case_preview_card(case, primary: bool = False):
             html.A(
                 href=f"/projects#{case['slug']}",
                 className='featured-case-image-link',
+                **{
+                    'data-track': 'featured_case_image_click',
+                    'data-track-location': 'home_featured_case',
+                    'data-track-label': case['slug'],
+                },
                 children=html.Img(
                     src=case['thumbnail_src'],
                     className='featured-case-image',
@@ -85,6 +90,11 @@ def _case_preview_card(case, primary: bool = False):
                         'View Case Study',
                         href=f"/projects#{case['slug']}",
                         className='cta-secondary featured-case-cta',
+                        **{
+                            'data-track': 'featured_case_cta_click',
+                            'data-track-location': 'home_featured_case',
+                            'data-track-label': case['slug'],
+                        },
                     ),
                 ],
             ),
@@ -119,12 +129,26 @@ layout = html.Div(
                         html.Div(
                             className='hero-cta',
                             children=[
-                                html.A('View Case Studies', href='/projects', className='cta-primary'),
+                                html.A(
+                                    'View Case Studies',
+                                    href='/projects',
+                                    className='cta-primary',
+                                    **{
+                                        'data-track': 'hero_cta_click',
+                                        'data-track-location': 'home_hero',
+                                        'data-track-label': 'view_case_studies',
+                                    },
+                                ),
                                 html.A(
                                     'Download Resume (PDF)',
                                     href='/assets/Hyungju_Lee_Resume.pdf',
                                     download='Hyungju_Lee_Resume.pdf',
                                     className='cta-secondary',
+                                    **{
+                                        'data-track': 'hero_cta_click',
+                                        'data-track-location': 'home_hero',
+                                        'data-track-label': 'download_resume',
+                                    },
                                 ),
                                 html.A(
                                     'LinkedIn',
@@ -132,6 +156,11 @@ layout = html.Div(
                                     className='cta-secondary',
                                     target='_blank',
                                     rel='noreferrer',
+                                    **{
+                                        'data-track': 'hero_cta_click',
+                                        'data-track-location': 'home_hero',
+                                        'data-track-label': 'linkedin',
+                                    },
                                 ),
                             ],
                         ),
