@@ -1,6 +1,6 @@
 # dash_cv
 
-Modern Dash-based CV site.
+Modern personal site built with Dash.
 
 ## Local run
 
@@ -19,17 +19,8 @@ Open `http://127.0.0.1:8050`.
 - `/publications` Publications
 - `/contact` Contact
 
-## Structure
+## Deploy (Render)
 
-- `app.py`: shell, header, top-level routing
-- `assets/custom.css`: full visual system (typography, color, layout, animations)
-- `pages/home.py`: hero, experience, skills, education
-- `pages/publications.py`: selected papers
-- `pages/contact.py`: contact CTA cards
-
-## Deploy (Render recommended)
-
-Service type: **Web Service**  
 Build command:
 
 ```bash
@@ -42,6 +33,14 @@ Start command:
 gunicorn app:server --workers 2 --timeout 120
 ```
 
-Notes:
-- Free instance spins down after idle and can be slow on first hit.
-- Use paid instance if you want always-on behavior.
+Python version is pinned through:
+- `runtime.txt`
+- `render.yaml` (`PYTHON_VERSION=3.11.9`)
+
+## Content update checklist (monthly)
+
+1. Update headline and summary in `pages/home.py` to match current target roles.
+2. Keep impact metrics factual and specific (number + context + source project).
+3. Refresh newest outcomes first in Experience (recent role gets strongest bullets).
+4. Keep Contact page role list broad (not company-specific).
+5. Validate on mobile width and check for overflow/layout breaks.

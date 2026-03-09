@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List
 
 import dash
-from dash import dcc, html
+from dash import html
 import dash_bootstrap_components as dbc
 
 
@@ -18,12 +18,13 @@ def _load_profile_image() -> str:
     return f'data:image/jpeg;base64,{encoded}'
 
 
-def _impact_chip(value: str, label: str):
+def _impact_chip(value: str, label: str, detail: str):
     return html.Div(
         className='impact-chip',
         children=[
             html.Div(value, className='impact-value'),
             html.Div(label, className='impact-label'),
+            html.Div(detail, className='impact-detail'),
         ],
     )
 
@@ -37,7 +38,7 @@ def _experience_block(title: str, company: str, period: str, location: str, bull
                 children=[
                     html.Div(
                         [
-                            html.H5(f'{title}', className='exp-title'),
+                            html.H5(title, className='exp-title'),
                             html.Div(company, className='exp-company'),
                         ]
                     ),
@@ -60,18 +61,25 @@ layout = dbc.Container(
                 html.Div(
                     className='hero-copy',
                     children=[
-                        html.Div('DATA SCIENTIST / BACKEND ANALYTICS', className='eyebrow'),
+                        html.Div('SOFTWARE ENGINEERING • DATA • ANALYTICS', className='eyebrow'),
                         html.H1('Hyungju Lee', className='hero-title'),
                         html.P(
-                            'Production analytics engineer with strong Python/SQL foundations, '
-                            'focused on KPI systems, reporting automation, and high-trust data pipelines.',
+                            'I build production analytics and backend systems that turn messy multi-source data '
+                            'into decision-ready signals. My work spans KPI design, reporting automation, and '
+                            'data quality operations for engineering and business teams.',
                             className='hero-subtitle',
                         ),
                         html.Div(
                             className='hero-cta',
                             children=[
-                                dcc.Link('Email', href='mailto:leehyungju9297@gmail.com', className='cta-primary'),
-                                dcc.Link('LinkedIn', href='https://www.linkedin.com/in/hyungju9297/', className='cta-secondary', target='_blank'),
+                                html.A('Email', href='mailto:leehyungju9297@gmail.com', className='cta-primary'),
+                                html.A(
+                                    'LinkedIn',
+                                    href='https://www.linkedin.com/in/hyungju9297/',
+                                    className='cta-secondary',
+                                    target='_blank',
+                                    rel='noreferrer',
+                                ),
                             ],
                         ),
                         html.Div(
@@ -82,17 +90,24 @@ layout = dbc.Container(
                 ),
                 html.Div(
                     className='hero-photo-wrap',
-                    children=html.Img(src=profile_image, className='hero-photo') if profile_image else None,
+                    children=html.Img(
+                        src=profile_image,
+                        className='hero-photo',
+                        alt='Portrait of Hyungju Lee',
+                    )
+                    if profile_image
+                    else None,
                 ),
             ],
         ),
         html.Section(
             className='impact-row reveal-up',
             children=[
-                _impact_chip('300+', 'iOS targets supported'),
-                _impact_chip('120+', 'Android flavors supported'),
-                _impact_chip('5,000+', 'LiDAR annotations (ICPR)'),
-                _impact_chip('$10M', 'OnTRAC collaboration context'),
+                _impact_chip('300+', 'iOS targets', 'Supported in a white-label release ecosystem'),
+                _impact_chip('120+', 'Android flavors', 'Managed across client-specific builds and releases'),
+                _impact_chip('5,000+', 'LiDAR annotations', 'Used in ICPR benchmark dataset work'),
+                _impact_chip('2', 'Peer-reviewed publications', 'ICPR 2022 and ISPRS 2023'),
+                _impact_chip('$10M', 'Program context', 'OnTRAC collaboration research contribution'),
             ],
         ),
         html.Section(
@@ -126,6 +141,50 @@ layout = dbc.Container(
         html.Section(
             className='reveal-up',
             children=[
+                html.H3('Selected Outcomes', className='section-title'),
+                html.Div(
+                    className='outcome-grid',
+                    children=[
+                        html.Div(
+                            className='glass-card outcome-card',
+                            children=[
+                                html.Div('Reporting Reliability', className='outcome-title'),
+                                html.P(
+                                    'Implemented scheduled workflows with Flask, Celery, and SQLAlchemy for '
+                                    'daily/weekly executive reporting.',
+                                    className='mb-0',
+                                ),
+                            ],
+                        ),
+                        html.Div(
+                            className='glass-card outcome-card',
+                            children=[
+                                html.Div('Data Trust', className='outcome-title'),
+                                html.P(
+                                    'Reconciled Apple, Google Play, and Stripe/PWA subscription signals to '
+                                    'improve revenue and subscription data consistency.',
+                                    className='mb-0',
+                                ),
+                            ],
+                        ),
+                        html.Div(
+                            className='glass-card outcome-card',
+                            children=[
+                                html.Div('Research to Production Thinking', className='outcome-title'),
+                                html.P(
+                                    'Applied large-scale dataset design and model evaluation practices from '
+                                    'research environments to production analytics problem framing.',
+                                    className='mb-0',
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+            ],
+        ),
+        html.Section(
+            className='reveal-up',
+            children=[
                 html.H3('Experience', className='section-title'),
                 _experience_block(
                     'Software Engineer (Backend & Analytics)',
@@ -133,10 +192,10 @@ layout = dbc.Container(
                     '2023 - Present',
                     'Toronto, ON, Canada',
                     [
-                        'Built Python analytics/reporting products for DAU/MAU, churn, engagement, geography, and revenue KPIs.',
-                        'Designed scheduled reporting workflows using Flask, Celery, and SQLAlchemy for daily/weekly executive summaries.',
-                        'Improved revenue data reliability by reconciling Apple, Google Play, and Stripe/PWA sources.',
-                        'Partnered with product and operations stakeholders to define KPI logic and deliver decision-ready dashboards.',
+                        'Built Python analytics and reporting products covering DAU/MAU, churn, engagement, geography, and revenue KPIs.',
+                        'Automated recurring executive reporting with Flask, Celery, and SQLAlchemy scheduling workflows.',
+                        'Supported release operations across a white-label environment with 300+ iOS targets and 120+ Android flavors.',
+                        'Translated stakeholder requirements into KPI definitions and decision-ready dashboards.',
                     ],
                 ),
                 _experience_block(
@@ -145,9 +204,9 @@ layout = dbc.Container(
                     '2019 - 2024',
                     'Toronto, ON, Canada',
                     [
-                        'Published and presented at ICPR on large-scale airborne LiDAR benchmarking with 5,000+ single-tree annotations.',
-                        'Built 3D-to-2D transformation pipelines for model development and evaluation in OnTRAC ($10M).',
-                        'Aligned dataset design and model evaluation with changing cross-functional research requirements.',
+                        'Published and presented at ICPR on airborne LiDAR benchmarking with 5,000+ single-tree annotations.',
+                        'Built 3D-to-2D transformation pipelines for model development and evaluation in OnTRAC ($10M context).',
+                        'Coordinated with cross-functional collaborators to adapt dataset design and evaluation priorities.',
                     ],
                 ),
                 _experience_block(
@@ -157,7 +216,7 @@ layout = dbc.Container(
                     'Peterborough, ON, Canada',
                     [
                         'Built Oracle-based reporting workflows and supported process automation across ministry teams.',
-                        'Trained project managers and leadership stakeholders on reporting outputs and adoption.',
+                        'Delivered training for project managers and leadership teams on reporting workflows and usage.',
                     ],
                 ),
             ],
