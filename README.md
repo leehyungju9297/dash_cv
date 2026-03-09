@@ -16,7 +16,7 @@ Open `http://127.0.0.1:8050`.
 ## Public pages
 
 - `/` Home
-- `/projects` Projects
+- `/projects` Case Studies
 - `/publications` Publications
 - `/contact` Contact
 

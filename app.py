@@ -36,7 +36,7 @@ app.index_string = """
                 <p>If the interactive app takes time to load, use these direct links:</p>
                 <p class="fallback-links">
                     <a href="/assets/Hyungju_Lee_Resume.pdf">Download Resume (PDF)</a>
-                    <a href="/projects">Projects</a>
+                    <a href="/projects">Case Studies</a>
                     <a href="mailto:leehyungju9297@gmail.com">Email</a>
                 </p>
             </div>

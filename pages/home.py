@@ -3,6 +3,8 @@ from typing import List
 import dash
 from dash import html
 
+from case_studies import CASE_STUDIES
+
 
 dash.register_page(__name__, path='/', order=0, name='Home')
 
@@ -18,6 +20,19 @@ def _impact_chip(value: str, label: str, detail: str):
     )
 
 
+def _skill_group(title: str, skills: List[str]):
+    return html.Div(
+        className='glass-card skill-level-card',
+        children=[
+            html.H4(title, className='skill-level-title'),
+            html.Div(
+                className='skill-cloud',
+                children=[html.Span(skill, className='skill-pill') for skill in skills],
+            ),
+        ],
+    )
+
+
 def _experience_block(title: str, company: str, period: str, location: str, bullets: List[str]):
     return html.Article(
         className='glass-card experience-card reveal-up',
@@ -27,7 +42,7 @@ def _experience_block(title: str, company: str, period: str, location: str, bull
                 children=[
                     html.Div(
                         [
-                            html.H5(title, className='exp-title'),
+                            html.H4(title, className='exp-title'),
                             html.Div(company, className='exp-company'),
                         ]
                     ),
@@ -35,6 +50,39 @@ def _experience_block(title: str, company: str, period: str, location: str, bull
                 ],
             ),
             html.Ul([html.Li(b) for b in bullets], className='exp-bullets'),
+        ],
+    )
+
+
+def _case_preview_card(case):
+    return html.Article(
+        className='glass-card featured-case-card',
+        children=[
+            html.A(
+                href=f"/projects#{case['slug']}",
+                className='featured-case-image-link',
+                children=html.Img(
+                    src=case['thumbnail_src'],
+                    className='featured-case-image',
+                    alt=case['thumbnail_alt'],
+                ),
+            ),
+            html.Div(
+                className='featured-case-body',
+                children=[
+                    html.H4(case['title'], className='featured-case-title'),
+                    html.P(case['problem_line'], className='featured-case-problem'),
+                    html.Ul(
+                        className='featured-case-highlights',
+                        children=[html.Li(item) for item in case['highlights']],
+                    ),
+                    html.A(
+                        'View Case Study',
+                        href=f"/projects#{case['slug']}",
+                        className='cta-secondary featured-case-cta',
+                    ),
+                ],
+            ),
         ],
     )
 
@@ -49,37 +97,31 @@ layout = html.Div(
                     className='hero-copy',
                     children=[
                         html.Div('HYUNGJU LEE', className='hero-name'),
-                        html.Div('PRODUCT DATA SCIENTIST / PRODUCT ANALYST', className='eyebrow'),
-                        html.H1(
-                            'I help product teams make better bets with decision-ready analytics.',
+                        html.H1('Product Data Scientist', className='hero-role'),
+                        html.Div(
+                            'Product Analytics • Analytics Engineering • Monetization',
+                            className='hero-role-descriptor',
+                        ),
+                        html.P(
+                            'I build decision systems that help product teams place better bets with '
+                            'decision-ready analytics.',
                             className='hero-title',
                         ),
                         html.P(
-                            'Product Data Scientist with 6 years of experience turning ambiguous product questions '
-                            'into KPI frameworks, trustworthy reporting, and clear recommendations across '
-                            'engagement, retention, and subscription monetization.',
+                            'I define product KPIs, productionize cross-platform metric pipelines, and turn noisy '
+                            'usage data into clear operating signals for leadership and product teams.',
                             className='hero-subtitle',
-                        ),
-                        html.Ul(
-                            className='hero-points',
-                            children=[
-                                html.Li('Built KPI systems used by product and leadership teams across 138 client apps.'),
-                                html.Li('Analyzed 6.65M+ sessions and 5.64B+ session-minutes to diagnose user behavior.'),
-                                html.Li('Normalized Apple, Google Play, and Stripe subscription data into one metric layer.'),
-                                html.Li('Automated recurring executive reporting for DAU, churn, engagement, and revenue.'),
-                            ],
                         ),
                         html.Div(
                             className='hero-cta',
                             children=[
+                                html.A('View Case Studies', href='/projects', className='cta-primary'),
                                 html.A(
                                     'Download Resume (PDF)',
                                     href='/assets/Hyungju_Lee_Resume.pdf',
                                     download='Hyungju_Lee_Resume.pdf',
-                                    className='cta-primary',
+                                    className='cta-secondary',
                                 ),
-                                html.A('View Projects', href='/projects', className='cta-secondary'),
-                                html.A('Email', href='mailto:leehyungju9297@gmail.com', className='cta-secondary'),
                                 html.A(
                                     'LinkedIn',
                                     href='https://www.linkedin.com/in/hyungju9297/',
@@ -90,7 +132,7 @@ layout = html.Div(
                             ],
                         ),
                         html.Div(
-                            'Toronto, ON, Canada  |  +1 (416) 706-8011  |  leehyungju9297@gmail.com',
+                            'Toronto, ON, Canada | +1 (416) 706-8011 | leehyungju9297@gmail.com',
                             className='hero-contact',
                         ),
                     ],
@@ -108,10 +150,32 @@ layout = html.Div(
         html.Section(
             className='impact-row reveal-up',
             children=[
-                _impact_chip('6', 'Years in analytics', 'Product analytics and measurement ownership across app ecosystems'),
-                _impact_chip('369K+', 'Users represented', 'Behavioral, geographic, and monetization analysis at user level'),
-                _impact_chip('6.65M+', 'Sessions analyzed', 'Modeled usage patterns over 5.64B cumulative session-minutes'),
-                _impact_chip('$733K+', 'Revenue analyzed', 'Subscription and IAP trend tracking with daily peaks above $15K'),
+                _impact_chip('6', 'Years in analytics', 'Leading product analytics and KPI operating systems across app ecosystems'),
+                _impact_chip('369K+', 'Users represented', 'Coverage across user-level behavior, geography, and membership segmentation'),
+                _impact_chip(
+                    '6.65M+',
+                    'Sessions analyzed',
+                    'Product behavior and engagement diagnostics across multi-client app ecosystems',
+                ),
+                _impact_chip(
+                    '$733K+',
+                    'Revenue analyzed',
+                    'Subscription and IAP reporting used for monetization monitoring and planning',
+                ),
+            ],
+        ),
+        html.Section(
+            className='reveal-up',
+            children=[
+                html.H3('Featured Case Studies', className='section-title'),
+                html.P(
+                    'Proof-of-work dashboards showing how I define signals, build analytics systems, and drive product decisions.',
+                    className='section-note',
+                ),
+                html.Div(
+                    className='featured-case-grid',
+                    children=[_case_preview_card(case) for case in CASE_STUDIES],
+                ),
             ],
         ),
         html.Section(
@@ -119,116 +183,30 @@ layout = html.Div(
             children=[
                 html.H3('Core Skills', className='section-title'),
                 html.P(
-                    'A practical blend of product sense, statistical rigor, and production analytics engineering.',
+                    'Three capability areas I use to move from raw product data to decisions.',
                     className='section-note',
                 ),
                 html.Div(
                     className='skill-level-grid',
                     children=[
-                        html.Div(
-                            className='glass-card skill-level-card',
-                            children=[
-                                html.Div('Analytics Engineering', className='skill-level-title'),
-                                html.Div(
-                                    className='skill-cloud',
-                                    children=[
-                                        html.Span(skill, className='skill-pill')
-                                        for skill in [
-                                            'Python',
-                                            'SQL',
-                                            'Flask',
-                                            'Celery',
-                                            'SQLAlchemy',
-                                            'Pandas',
-                                            'Polars',
-                                        ]
-                                    ],
-                                ),
+                        _skill_group(
+                            'Analytics Engineering',
+                            ['Python', 'SQL', 'Flask', 'Celery', 'SQLAlchemy', 'Pandas', 'Polars'],
+                        ),
+                        _skill_group(
+                            'Product Analytics',
+                            [
+                                'KPI Design',
+                                'Product Diagnostics',
+                                'Experiment and Quasi-Experiment Analysis',
+                                'Retention and Churn Analysis',
+                                'Monetization Analytics',
+                                'Executive KPI Reporting',
                             ],
                         ),
-                        html.Div(
-                            className='glass-card skill-level-card',
-                            children=[
-                                html.Div('Product Measurement', className='skill-level-title'),
-                                html.Div(
-                                    className='skill-cloud',
-                                    children=[
-                                        html.Span(skill, className='skill-pill')
-                                        for skill in [
-                                            'Product Analytics',
-                                            'KPI Design',
-                                            'Experiment/Quasi-Experiment Analysis',
-                                            'Executive Reporting',
-                                            'Retention & Churn Analysis',
-                                            'Monetization Analytics',
-                                        ]
-                                    ],
-                                ),
-                            ],
-                        ),
-                        html.Div(
-                            className='glass-card skill-level-card',
-                            children=[
-                                html.Div('Data Platforms', className='skill-level-title'),
-                                html.Div(
-                                    className='skill-cloud',
-                                    children=[
-                                        html.Span(skill, className='skill-pill')
-                                        for skill in [
-                                            'PostgreSQL',
-                                            'MySQL',
-                                            'Parquet',
-                                            'Redis',
-                                            'Dash/Plotly',
-                                            'Monitoring & Data Quality',
-                                        ]
-                                    ],
-                                ),
-                            ],
-                        ),
-                    ],
-                ),
-            ],
-        ),
-        html.Section(
-            className='reveal-up',
-            children=[
-                html.H3('Selected Outcomes', className='section-title'),
-                html.Div(
-                    className='outcome-grid',
-                    children=[
-                        html.Div(
-                            className='glass-card outcome-card',
-                            children=[
-                                html.Div('Executive KPI Operating Rhythm', className='outcome-title'),
-                                html.P(
-                                    'Established recurring KPI reviews spanning DAU/MAU, churn, engagement, '
-                                    'membership, and revenue to support weekly product and leadership decisions.',
-                                    className='mb-0',
-                                ),
-                            ],
-                        ),
-                        html.Div(
-                            className='glass-card outcome-card',
-                            children=[
-                                html.Div('Cross-Platform Subscription Visibility', className='outcome-title'),
-                                html.P(
-                                    'Unified Apple App Store, Google Play, and Stripe/PWA data into one '
-                                    'normalized subscription model for consistent monetization analytics.',
-                                    className='mb-0',
-                                ),
-                            ],
-                        ),
-                        html.Div(
-                            className='glass-card outcome-card',
-                            children=[
-                                html.Div('Decision-Ready Product Diagnostics', className='outcome-title'),
-                                html.P(
-                                    'Converted noisy usage and revenue logs into actionable narratives that helped '
-                                    'teams prioritize experiments and validate product interventions.',
-                                    className='mb-0',
-                                ),
-                            ],
+                        _skill_group(
+                            'Data Platforms',
+                            ['PostgreSQL', 'MySQL', 'Parquet', 'Redis', 'Dash/Plotly', 'Data Quality Monitoring'],
                         ),
                     ],
                 ),
@@ -244,10 +222,10 @@ layout = html.Div(
                     '2023 - Present',
                     'Toronto, ON, Canada',
                     [
-                        'Owned KPI definition and delivery across engagement, retention, geography, livestream, and subscription revenue metrics.',
-                        'Automated weekly and monthly executive reporting pipelines used by product and business stakeholders.',
-                        'Built cross-platform subscription reconciliation logic for Apple, Google Play, and Stripe/PWA sources.',
-                        'Led pre/post impact analyses to evaluate notification, livestream, content, and auction feature changes.',
+                        'Defined and productionized cross-platform subscription analytics to solve fragmented billing visibility, enabling consistent monetization reporting across 138 client apps.',
+                        'Built a KPI operating system spanning DAU, memberships, revenue, notifications, auctions, and livestream events, enabling weekly leadership and product decision reviews.',
+                        'Turned noisy usage logs into decision-ready diagnostics for behavior, geography, and feature performance, enabling faster experiment prioritization and trend triage.',
+                        'Automated recurring analytics pipelines and reporting workflows to reduce manual reporting overhead and improve trust in executive KPI reads.',
                     ],
                 ),
                 _experience_block(
@@ -256,8 +234,8 @@ layout = html.Div(
                     '2019 - 2024',
                     'Toronto, ON, Canada',
                     [
-                        'Published peer-reviewed research at ICPR 2022 and ISPRS 2023 with reproducible evaluation workflows.',
-                        'Built dataset transformation pipelines and benchmark logic for large-scale LiDAR annotation and detection work.',
+                        'Built reproducible LiDAR dataset and benchmark pipelines to solve inconsistent evaluation practices, enabling publication-ready experiments.',
+                        'Produced 5,000+ single-tree benchmark annotations and co-authored peer-reviewed papers at ICPR 2022 and ISPRS 2023.',
                     ],
                 ),
                 _experience_block(
@@ -266,8 +244,8 @@ layout = html.Div(
                     '2017 - 2018',
                     'Peterborough, ON, Canada',
                     [
-                        'Developed Oracle-based reporting workflows to reduce manual finance operations.',
-                        'Trained project managers and leadership teams on standardized reporting usage and interpretation.',
+                        'Built Oracle-based reporting workflows to solve repetitive manual finance operations, enabling standardized monthly reporting across offices.',
+                        'Defined reporting guidance and trained project teams to improve adoption and interpretation of financial performance outputs.',
                     ],
                 ),
             ],
@@ -281,7 +259,7 @@ layout = html.Div(
                     children=[
                         html.Div('M.E.Sc., Earth and Space Science & Engineering', className='edu-title'),
                         html.Div('York University | 2020 - 2022', className='edu-meta'),
-                        html.Div('Best Master\'s Thesis Award (2022)', className='edu-note'),
+                        html.Div("Best Master's Thesis Award (2022)", className='edu-note'),
                         html.Hr(),
                         html.Div('H.B.Sc., Statistics (Quantitative Finance Stream)', className='edu-title'),
                         html.Div('University of Toronto | 2015 - 2020', className='edu-meta'),
