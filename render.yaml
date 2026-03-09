@@ -3,7 +3,7 @@ services:
     name: dash-cv
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:server --workers 2 --timeout 120
+    startCommand: gunicorn app:server --workers 1 --timeout 120
     autoDeploy: true
     envVars:
       - key: PYTHON_VERSION

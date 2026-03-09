@@ -2,15 +2,14 @@ import json
 
 import dash
 from dash import Dash, dcc, html
-import dash_bootstrap_components as dbc
 
 
 app = Dash(
     __name__,
     use_pages=True,
+    suppress_callback_exceptions=True,
     title='Hyungju Lee | Product Data Scientist',
-    update_title='Loading...',
-    external_stylesheets=[dbc.themes.BOOTSTRAP],
+    update_title=None,
     meta_tags=[
         {'name': 'viewport', 'content': 'width=device-width, initial-scale=1'},
         {
@@ -20,6 +19,70 @@ app = Dash(
     ],
 )
 server = app.server
+
+app.index_string = """
+<!DOCTYPE html>
+<html>
+    <head>
+        {%metas%}
+        <title>{%title%}</title>
+        {%favicon%}
+        {%css%}
+    </head>
+    <body>
+        <div id="fallback-shell" class="fallback-shell">
+            <div class="fallback-card">
+                <h1>Hyungju Lee</h1>
+                <p>If the interactive app takes time to load, use these direct links:</p>
+                <p class="fallback-links">
+                    <a href="/assets/Hyungju_Lee_Resume.pdf">Download Resume (PDF)</a>
+                    <a href="/projects">Projects</a>
+                    <a href="mailto:leehyungju9297@gmail.com">Email</a>
+                </p>
+            </div>
+        </div>
+        {%app_entry%}
+        <footer>
+            {%config%}
+            {%scripts%}
+            {%renderer%}
+        </footer>
+        <script>
+            (function () {
+                function hideFallbackWhenDashReady() {
+                    var root = document.getElementById("react-entry-point");
+                    var fallback = document.getElementById("fallback-shell");
+                    if (!root || !fallback) {
+                        return false;
+                    }
+                    if (!root.querySelector("._dash-loading")) {
+                        fallback.style.display = "none";
+                        return true;
+                    }
+                    return false;
+                }
+
+                if (hideFallbackWhenDashReady()) {
+                    return;
+                }
+
+                var root = document.getElementById("react-entry-point");
+                if (!root) {
+                    return;
+                }
+
+                var observer = new MutationObserver(function () {
+                    if (hideFallbackWhenDashReady()) {
+                        observer.disconnect();
+                    }
+                });
+                observer.observe(root, { childList: true, subtree: true });
+                setTimeout(function () { observer.disconnect(); }, 20000);
+            })();
+        </script>
+    </body>
+</html>
+"""
 
 VISIBLE_PATHS = {'/', '/projects', '/publications', '/contact'}
 

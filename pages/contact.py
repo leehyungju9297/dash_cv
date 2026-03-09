@@ -1,12 +1,11 @@
 import dash
-from dash import dcc, html
-import dash_bootstrap_components as dbc
+from dash import html
 
 
 dash.register_page(__name__, order=3, name='Contact')
 
 
-layout = dbc.Container(
+layout = html.Div(
     className='content-stack',
     children=[
         html.Section(
@@ -15,7 +14,7 @@ layout = dbc.Container(
                 html.Div('LET\'S CONNECT', className='eyebrow'),
                 html.H2('Contact', className='section-hero-title'),
                 html.P(
-                    'Open to Software Engineer, Data Scientist, and Analytics Engineer opportunities.',
+                    'Open to Product Data Scientist and Product Analyst opportunities.',
                     className='section-hero-subtitle',
                 ),
             ],

@@ -20,6 +20,8 @@ Open `http://127.0.0.1:8050`.
 - `/publications` Publications
 - `/contact` Contact
 
+Legacy exploratory pages were moved to `sandbox_pages/` so they are not auto-imported by Dash in production.
+
 ## Deploy (Render)
 
 Build command:
@@ -31,7 +33,7 @@ pip install -r requirements.txt
 Start command:
 
 ```bash
-gunicorn app:server --workers 2 --timeout 120
+gunicorn app:server --workers 1 --timeout 120
 ```
 
 Python version is pinned through:

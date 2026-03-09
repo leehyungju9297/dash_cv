@@ -1,6 +1,5 @@
 import dash
-from dash import dcc, html
-import dash_bootstrap_components as dbc
+from dash import html
 from typing import Optional
 
 
@@ -8,7 +7,7 @@ dash.register_page(__name__, order=2, name='Publications')
 
 
 def _paper_block(venue: str, place: str, title: str, link: Optional[str] = None):
-    link_node = dcc.Link('Open link', href=link, target='_blank', className='paper-link') if link else None
+    link_node = html.A('Open link', href=link, target='_blank', rel='noreferrer', className='paper-link') if link else None
     return html.Article(
         className='glass-card paper-card reveal-up',
         children=[
@@ -20,7 +19,7 @@ def _paper_block(venue: str, place: str, title: str, link: Optional[str] = None)
     )
 
 
-layout = dbc.Container(
+layout = html.Div(
     className='content-stack',
     children=[
         html.Section(

@@ -1,6 +1,5 @@
 import dash
 from dash import html
-import dash_bootstrap_components as dbc
 
 
 dash.register_page(__name__, path='/projects', order=1, name='Projects')
@@ -23,7 +22,7 @@ def _project_card(title: str, scope: str, tech: str, problem: str, action: str, 
     )
 
 
-layout = dbc.Container(
+layout = html.Div(
     className='content-stack',
     children=[
         html.Section(

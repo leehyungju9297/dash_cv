@@ -1,24 +1,10 @@
-import base64
-from pathlib import Path
 from typing import List
 
 import dash
 from dash import html
-import dash_bootstrap_components as dbc
 
 
 dash.register_page(__name__, path='/', order=0, name='Home')
-
-
-def _load_profile_image() -> str:
-    asset_root = Path(__file__).resolve().parents[1] / 'assets'
-    image_path = asset_root / 'my_pic_web.jpg'
-    if not image_path.exists():
-        image_path = asset_root / 'my_pic.jpg'
-    if not image_path.exists():
-        return ''
-    encoded = base64.b64encode(image_path.read_bytes()).decode()
-    return f'data:image/jpeg;base64,{encoded}'
 
 
 def _impact_chip(value: str, label: str, detail: str):
@@ -53,9 +39,7 @@ def _experience_block(title: str, company: str, period: str, location: str, bull
     )
 
 
-profile_image = _load_profile_image()
-
-layout = dbc.Container(
+layout = html.Div(
     className='content-stack',
     children=[
         html.Section(
@@ -65,22 +49,37 @@ layout = dbc.Container(
                     className='hero-copy',
                     children=[
                         html.Div('HYUNGJU LEE', className='hero-name'),
-                        html.Div('PRODUCT DATA SCIENTIST • PRODUCT ANALYTICS', className='eyebrow'),
+                        html.Div('PRODUCT DATA SCIENTIST / PRODUCT ANALYST', className='eyebrow'),
                         html.H1(
-                            'Building KPI systems for engagement, retention, and monetization',
+                            'I help product teams make better bets with decision-ready analytics.',
                             className='hero-title',
                         ),
                         html.P(
-                            'Product Data Scientist with 6 years of experience building decision-ready analytics '
-                            'for product and business teams. I drive KPI design, executive reporting automation, '
-                            'engagement and retention analysis, monetization analytics, and cross-platform '
-                            'subscription reconciliation across Apple, Google Play, and Stripe/PWA.',
+                            'Product Data Scientist with 6 years of experience turning ambiguous product questions '
+                            'into KPI frameworks, trustworthy reporting, and clear recommendations across '
+                            'engagement, retention, and subscription monetization.',
                             className='hero-subtitle',
+                        ),
+                        html.Ul(
+                            className='hero-points',
+                            children=[
+                                html.Li('Built KPI systems used by product and leadership teams across 138 client apps.'),
+                                html.Li('Analyzed 6.65M+ sessions and 5.64B+ session-minutes to diagnose user behavior.'),
+                                html.Li('Normalized Apple, Google Play, and Stripe subscription data into one metric layer.'),
+                                html.Li('Automated recurring executive reporting for DAU, churn, engagement, and revenue.'),
+                            ],
                         ),
                         html.Div(
                             className='hero-cta',
                             children=[
-                                html.A('Email', href='mailto:leehyungju9297@gmail.com', className='cta-primary'),
+                                html.A(
+                                    'Download Resume (PDF)',
+                                    href='/assets/Hyungju_Lee_Resume.pdf',
+                                    download='Hyungju_Lee_Resume.pdf',
+                                    className='cta-primary',
+                                ),
+                                html.A('View Projects', href='/projects', className='cta-secondary'),
+                                html.A('Email', href='mailto:leehyungju9297@gmail.com', className='cta-secondary'),
                                 html.A(
                                     'LinkedIn',
                                     href='https://www.linkedin.com/in/hyungju9297/',
@@ -88,7 +87,6 @@ layout = dbc.Container(
                                     target='_blank',
                                     rel='noreferrer',
                                 ),
-                                html.A('Projects', href='/projects', className='cta-secondary'),
                             ],
                         ),
                         html.Div(
@@ -100,24 +98,20 @@ layout = dbc.Container(
                 html.Div(
                     className='hero-photo-wrap',
                     children=html.Img(
-                        src=profile_image,
+                        src='/assets/my_pic_web.jpg',
                         className='hero-photo',
                         alt='Portrait of Hyungju Lee',
-                    )
-                    if profile_image
-                    else None,
+                    ),
                 ),
             ],
         ),
         html.Section(
             className='impact-row reveal-up',
             children=[
-                _impact_chip('369K+', 'Users represented', 'User-level behavioral, geographic, and monetization analytics'),
-                _impact_chip('6.65M+', 'Sessions analyzed', 'Modeled engagement across 5.64B cumulative session-minutes'),
-                _impact_chip('$733K+', 'Revenue analyzed', 'Measured subscription and IAP trends with daily peaks above $15K'),
-                _impact_chip('138', 'Clients covered', 'Delivered longitudinal analytics across a 6-year reporting window'),
-                _impact_chip('34', 'Scheduled jobs', 'Operated recurring analytics infrastructure from sub-minute to weekly'),
-                _impact_chip('19.6K', 'Subscription records', 'Consolidated monthly and annual subscription records across platforms'),
+                _impact_chip('6', 'Years in analytics', 'Product analytics and measurement ownership across app ecosystems'),
+                _impact_chip('369K+', 'Users represented', 'Behavioral, geographic, and monetization analysis at user level'),
+                _impact_chip('6.65M+', 'Sessions analyzed', 'Modeled usage patterns over 5.64B cumulative session-minutes'),
+                _impact_chip('$733K+', 'Revenue analyzed', 'Subscription and IAP trend tracking with daily peaks above $15K'),
             ],
         ),
         html.Section(
@@ -125,7 +119,7 @@ layout = dbc.Container(
             children=[
                 html.H3('Core Skills', className='section-title'),
                 html.P(
-                    'Production depth in analytics systems, paired with strong product measurement and KPI execution.',
+                    'A practical blend of product sense, statistical rigor, and production analytics engineering.',
                     className='section-note',
                 ),
                 html.Div(
@@ -134,7 +128,7 @@ layout = dbc.Container(
                         html.Div(
                             className='glass-card skill-level-card',
                             children=[
-                                html.Div('Strong (Production)', className='skill-level-title'),
+                                html.Div('Analytics Engineering', className='skill-level-title'),
                                 html.Div(
                                     className='skill-cloud',
                                     children=[
@@ -147,8 +141,6 @@ layout = dbc.Container(
                                             'SQLAlchemy',
                                             'Pandas',
                                             'Polars',
-                                            'PostgreSQL',
-                                            'MySQL',
                                         ]
                                     ],
                                 ),
@@ -157,7 +149,7 @@ layout = dbc.Container(
                         html.Div(
                             className='glass-card skill-level-card',
                             children=[
-                                html.Div('Product & Analytics', className='skill-level-title'),
+                                html.Div('Product Measurement', className='skill-level-title'),
                                 html.Div(
                                     className='skill-cloud',
                                     children=[
@@ -165,13 +157,10 @@ layout = dbc.Container(
                                         for skill in [
                                             'Product Analytics',
                                             'KPI Design',
+                                            'Experiment/Quasi-Experiment Analysis',
                                             'Executive Reporting',
-                                            'Revenue Analytics',
-                                            'Subscription Analytics',
-                                            'Data Reconciliation',
-                                            'Quasi-Experimental Analysis',
-                                            'Dashboarding',
-                                            'Monitoring & Data Quality',
+                                            'Retention & Churn Analysis',
+                                            'Monetization Analytics',
                                         ]
                                     ],
                                 ),
@@ -180,19 +169,18 @@ layout = dbc.Container(
                         html.Div(
                             className='glass-card skill-level-card',
                             children=[
-                                html.Div('Working Knowledge', className='skill-level-title'),
+                                html.Div('Data Platforms', className='skill-level-title'),
                                 html.Div(
                                     className='skill-cloud',
                                     children=[
                                         html.Span(skill, className='skill-pill')
                                         for skill in [
-                                            'R',
-                                            'Dash/Plotly',
-                                            'Redis',
+                                            'PostgreSQL',
+                                            'MySQL',
                                             'Parquet',
-                                            'Kotlin',
-                                            'Swift',
-                                            'CI/CD Tooling',
+                                            'Redis',
+                                            'Dash/Plotly',
+                                            'Monitoring & Data Quality',
                                         ]
                                     ],
                                 ),
@@ -212,10 +200,10 @@ layout = dbc.Container(
                         html.Div(
                             className='glass-card outcome-card',
                             children=[
-                                html.Div('Executive Decision Support', className='outcome-title'),
+                                html.Div('Executive KPI Operating Rhythm', className='outcome-title'),
                                 html.P(
-                                    'Automated recurring executive reporting across DAU, MAU, churn, engagement, '
-                                    'geography, membership, and revenue KPIs.',
+                                    'Established recurring KPI reviews spanning DAU/MAU, churn, engagement, '
+                                    'membership, and revenue to support weekly product and leadership decisions.',
                                     className='mb-0',
                                 ),
                             ],
@@ -223,10 +211,10 @@ layout = dbc.Container(
                         html.Div(
                             className='glass-card outcome-card',
                             children=[
-                                html.Div('Revenue & Subscription Analytics', className='outcome-title'),
+                                html.Div('Cross-Platform Subscription Visibility', className='outcome-title'),
                                 html.P(
-                                    'Unified Apple App Store, Google Play, and Stripe/PWA subscription data into a '
-                                    'normalized model for cross-platform monetization visibility.',
+                                    'Unified Apple App Store, Google Play, and Stripe/PWA data into one '
+                                    'normalized subscription model for consistent monetization analytics.',
                                     className='mb-0',
                                 ),
                             ],
@@ -234,10 +222,10 @@ layout = dbc.Container(
                         html.Div(
                             className='glass-card outcome-card',
                             children=[
-                                html.Div('Product Measurement Systems', className='outcome-title'),
+                                html.Div('Decision-Ready Product Diagnostics', className='outcome-title'),
                                 html.P(
-                                    'Translated ambiguous product questions into KPI definitions, reporting logic, '
-                                    'and decision-ready dashboards spanning behavior, livestream, and membership.',
+                                    'Converted noisy usage and revenue logs into actionable narratives that helped '
+                                    'teams prioritize experiments and validate product interventions.',
                                     className='mb-0',
                                 ),
                             ],
@@ -256,13 +244,10 @@ layout = dbc.Container(
                     '2023 - Present',
                     'Toronto, ON, Canada',
                     [
-                        'Built production analytics and reporting systems across engagement, retention, geography, livestream, and subscription revenue KPIs for white-label mobile and streaming products.',
-                        'Analyzed 6.65M+ sessions and 5.64B cumulative session-minutes to model user engagement across a multi-client app ecosystem.',
-                        'Measured $733K+ in subscription and in-app purchase revenue, including daily peaks above $15K, and linked monetization trends to 33.8K membership adds and 729K downloads.',
-                        'Built a normalized subscription analytics model across Apple IAP, Google Play, and Stripe/PWA to improve cross-platform metric consistency.',
-                        'Designed quasi-experimental pre/post impact analyses for product interventions across notifications, livestreams, content, and auctions.',
-                        'Automated recurring executive reporting with Python, Flask, Celery, and SQLAlchemy for leadership visibility across DAU/MAU, churn, engagement, and revenue trends.',
-                        'Operationalized analytics delivery with curated parquet outputs and 34 scheduled jobs for dependable downstream reporting.',
+                        'Owned KPI definition and delivery across engagement, retention, geography, livestream, and subscription revenue metrics.',
+                        'Automated weekly and monthly executive reporting pipelines used by product and business stakeholders.',
+                        'Built cross-platform subscription reconciliation logic for Apple, Google Play, and Stripe/PWA sources.',
+                        'Led pre/post impact analyses to evaluate notification, livestream, content, and auction feature changes.',
                     ],
                 ),
                 _experience_block(
@@ -271,8 +256,8 @@ layout = dbc.Container(
                     '2019 - 2024',
                     'Toronto, ON, Canada',
                     [
-                        'Published peer-reviewed work at ICPR 2022 and ISPRS 2023, applying rigorous experimental design and model evaluation to real-world spatial data.',
-                        'Built data transformation pipelines and collaborated cross-functionally on dataset design and evaluation priorities in an applied research environment.',
+                        'Published peer-reviewed research at ICPR 2022 and ISPRS 2023 with reproducible evaluation workflows.',
+                        'Built dataset transformation pipelines and benchmark logic for large-scale LiDAR annotation and detection work.',
                     ],
                 ),
                 _experience_block(
@@ -281,8 +266,8 @@ layout = dbc.Container(
                     '2017 - 2018',
                     'Peterborough, ON, Canada',
                     [
-                        'Built Oracle-based reporting workflows and supported process automation across ministry teams.',
-                        'Delivered training for project managers and leadership teams on reporting workflows and usage.',
+                        'Developed Oracle-based reporting workflows to reduce manual finance operations.',
+                        'Trained project managers and leadership teams on standardized reporting usage and interpretation.',
                     ],
                 ),
             ],
