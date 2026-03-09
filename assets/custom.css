@@ -180,6 +180,12 @@ a:focus-visible {
   transform: translateY(-1px);
 }
 
+.top-nav-link.active {
+  color: var(--accent);
+  border-color: rgba(10, 111, 163, 0.4);
+  background: rgba(255, 255, 255, 0.88);
+}
+
 .page-wrap {
   position: relative;
   z-index: 1;
@@ -624,4 +630,8 @@ a:focus-visible {
 .project-copy {
   margin-bottom: 0.6rem;
   line-height: 1.5;
+}
+
+.mb-0 {
+  margin-bottom: 0;
 }

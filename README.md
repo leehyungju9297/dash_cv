@@ -1,54 +1,35 @@
 # dash_cv
 
-Modern personal site built with Dash.
+Static portfolio site for Vercel deployment (no Python app boot required).
 
-## Local run
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python app.py
-```
-
-Open `http://127.0.0.1:8050`.
-
-## Public pages
+## Routes
 
 - `/` Home
-- `/projects` Projects
-- `/publications` Publications
-- `/contact` Contact
+- `/projects/` Projects
+- `/publications/` Publications
+- `/contact/` Contact
 
-Legacy exploratory pages were moved to `sandbox_pages/` so they are not auto-imported by Dash in production.
-
-## Deploy (Render)
-
-Build command:
+## Local preview (static)
 
 ```bash
-pip install -r requirements.txt
+python3 -m http.server 4173
 ```
 
-Start command:
+Open `http://127.0.0.1:4173`.
 
-```bash
-gunicorn app:server --workers 1 --timeout 120
-```
+## Deploy to Vercel
 
-Python version is pinned through:
-- `runtime.txt`
-- `render.yaml` (`PYTHON_VERSION=3.11.9`)
+1. Push this repo to GitHub.
+2. In Vercel, import the repo.
+3. Framework preset: `Other` (no build command needed).
+4. Deploy.
 
-## Content update checklist
+`vercel.json` is already configured for:
+- trailing slashes (`/projects/`, `/contact/`, etc.)
+- long-term caching on `/assets/*`
+- revalidation for HTML routes
 
-### Monthly
-1. Update summary and headline in `pages/home.py` to reflect target roles.
-2. Keep impact metrics factual (`number + context + source`).
-3. Keep skills honest with level separation: `Strong (Production)` vs `Working Knowledge`.
-4. Check mobile layout and interaction (no overflow, no clipped cards).
+## Notes
 
-### Quarterly
-1. Refresh `pages/projects.py` with the newest 1-2 real outcomes.
-2. Reorder projects so the strongest/recent one appears first.
-3. Replace weaker impact cards with newer evidence when available.
+- Resume download is at `/assets/Hyungju_Lee_Resume.pdf`.
+- Legacy Dash experiment files were moved to `sandbox_pages/` and are not used by the static site.

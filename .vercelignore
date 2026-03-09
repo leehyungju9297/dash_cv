@@ -1,0 +1,10 @@
+.venv
+__pycache__
+*.pyc
+.git
+app.py
+pages
+sandbox_pages
+requirements.txt
+render.yaml
+runtime.txt
