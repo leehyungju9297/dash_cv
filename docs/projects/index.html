@@ -3,8 +3,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Projects | Hyungju Lee</title>
-    <meta name="description" content="Selected production analytics and research projects by Hyungju Lee." />
+    <title>Case Studies | Hyungju Lee</title>
+    <meta
+      name="description"
+      content="Proof-of-work case studies in product analytics, analytics engineering, KPI systems, and monetization diagnostics by Hyungju Lee."
+    />
     <link rel="stylesheet" href="../assets/custom.css" />
   </head>
   <body>
@@ -16,52 +19,265 @@
           <a class="brand-chip" href="../">HJ</a>
           <nav class="top-nav">
             <a class="top-nav-link" href="../">Home</a>
-            <a class="top-nav-link active" href="../projects/">Projects</a>
+            <a class="top-nav-link active" href="../projects/">Case Studies</a>
             <a class="top-nav-link" href="../publications/">Publications</a>
             <a class="top-nav-link" href="../contact/">Contact</a>
           </nav>
         </div>
       </header>
+
       <main class="page-wrap">
         <div class="content-stack">
           <section class="reveal-up">
-            <div class="eyebrow">SELECTED WORK</div>
-            <h2 class="section-hero-title">Projects</h2>
-            <p class="section-hero-subtitle">Case studies from production engineering and research work. Each project is framed by problem, action, and measurable context.</p>
+            <div class="eyebrow">PROOF OF WORK</div>
+            <h2 class="section-hero-title">Case Studies</h2>
+            <p class="section-hero-subtitle">
+              Production dashboards and analytics systems built to solve concrete product questions, improve decision
+              quality, and establish operational metric trust.
+            </p>
           </section>
-          <section class="project-grid">
-            <article class="glass-card project-card reveal-up">
-              <div class="project-scope">Production Analytics</div>
-              <h4 class="project-title">Subscription &amp; Revenue Reporting Platform</h4>
-              <div class="project-tech">Python, Flask, Celery, SQLAlchemy, Pandas/Polars, Dash/Plotly</div>
-              <div class="project-label">Problem</div>
-              <p class="project-copy">Billing and subscription events were spread across Apple, Google Play, and Stripe/PWA, making KPI reporting and reconciliation inconsistent.</p>
-              <div class="project-label">Action</div>
-              <p class="project-copy">Implemented scheduled backend workflows and reconciliation logic, and aligned KPI definitions with product/operations stakeholders for recurring executive reporting.</p>
-              <div class="project-label">Result</div>
-              <p class="project-copy mb-0">Enabled reliable daily/weekly reporting workflows in a white-label ecosystem supporting 300+ iOS targets and 120+ Android flavors.</p>
+
+          <section class="case-study-stack">
+            <article id="executive-kpi-monitoring" class="glass-card case-study-card reveal-up">
+              <div class="project-scope">FEATURED CASE STUDY</div>
+              <h3 class="case-study-title">Executive KPI Monitoring Across Client App Ecosystems</h3>
+              <p class="case-study-problem">
+                Built recurring product and business KPI monitoring across DAU, memberships, revenue, notifications,
+                auctions, livestreams, and timeline activity.
+              </p>
+              <figure class="case-study-figure">
+                <a class="case-study-image-link" href="../assets/case_studies/executive-kpi-monitoring.jpg" target="_blank" rel="noreferrer">
+                  <img
+                    class="case-study-image"
+                    src="../assets/case_studies/executive-kpi-monitoring.jpg"
+                    alt="Dashboard showing DAU and memberships with event overlays and summary statistics"
+                  />
+                </a>
+                <figcaption class="case-study-caption">
+                  A dual-axis KPI monitor linking user activity, memberships, and event timelines for weekly product and
+                  leadership reviews.
+                </figcaption>
+              </figure>
+              <div class="case-detail-grid">
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Overview</h4>
+                  <p class="case-detail-copy">
+                    Built a production KPI monitoring surface for a white-label app ecosystem where leadership needed
+                    daily visibility into product health and monetization movement.
+                  </p>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Business problem</h4>
+                  <p class="case-detail-copy">
+                    Core metrics lived in separate pipelines and ad-hoc reports, making trend diagnosis slow and
+                    decision-making inconsistent across client accounts.
+                  </p>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Data / system inputs</h4>
+                  <ul class="case-detail-list">
+                    <li>Daily product event logs (notifications, auctions, livestreams, timeline posts).</li>
+                    <li>Membership and subscription status snapshots.</li>
+                    <li>Revenue records from recurring app monetization flows.</li>
+                    <li>Client-level filters and date-window controls for multi-tenant analysis.</li>
+                  </ul>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">What I built</h4>
+                  <ul class="case-detail-list">
+                    <li>Defined metric contracts for DAU, memberships, downloads, new memberships, and revenue.</li>
+                    <li>Implemented multi-axis charting with event overlays to contextualize spikes and declines.</li>
+                    <li>Added aggregated summary tables for quick mean/min/max/total diagnostics.</li>
+                    <li>Shipped date-range and client selectors for leadership and PM review workflows.</li>
+                  </ul>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Analytical methods / logic</h4>
+                  <ul class="case-detail-list">
+                    <li>Metric normalization and daily aggregation pipelines.</li>
+                    <li>Comparative time-series monitoring with event annotation.</li>
+                    <li>Segmented filtering by account context to isolate client-level behavior.</li>
+                  </ul>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Outcome / impact</h4>
+                  <ul class="case-detail-list">
+                    <li>Reduced ambiguity in KPI discussions by giving leadership one shared source of truth.</li>
+                    <li>Enabled faster root-cause conversations around membership and usage swings.</li>
+                    <li>Supported recurring operating reviews with decision-ready, not raw, analytics.</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="case-tools-wrap">
+                <h4 class="case-detail-label">Tools used</h4>
+                <div class="skill-cloud">
+                  <span class="skill-pill">Python</span>
+                  <span class="skill-pill">SQL</span>
+                  <span class="skill-pill">Dash/Plotly</span>
+                  <span class="skill-pill">Pandas/Polars</span>
+                  <span class="skill-pill">Flask</span>
+                  <span class="skill-pill">Celery</span>
+                </div>
+              </div>
             </article>
-            <article class="glass-card project-card reveal-up">
-              <div class="project-scope">Applied ML Research</div>
-              <h4 class="project-title">Airborne LiDAR Benchmark Pipeline (YUTO)</h4>
-              <div class="project-tech">Python, point-cloud preprocessing, dataset engineering, object detection evaluation</div>
-              <div class="project-label">Problem</div>
-              <p class="project-copy">Research teams needed a large-scale benchmark and consistent transformation pipelines for single-tree detection and semantic segmentation work.</p>
-              <div class="project-label">Action</div>
-              <p class="project-copy">Built 3D-to-2D transformation workflows and dataset preparation/evaluation flows; collaborated across stakeholders to refine benchmark design.</p>
-              <div class="project-label">Result</div>
-              <p class="project-copy mb-0">Produced a benchmark containing 5,000+ single-tree annotations and supported 2 peer-reviewed publications (ICPR 2022, ISPRS 2023).</p>
+
+            <article id="behavior-geography-correlation" class="glass-card case-study-card reveal-up">
+              <div class="project-scope">FEATURED CASE STUDY</div>
+              <h3 class="case-study-title">Behavior, Geography, and Correlation Diagnostics</h3>
+              <p class="case-study-problem">
+                Built analysis views to connect user behavior, memberships, content activity, and geographic
+                distribution into decision-ready diagnostics.
+              </p>
+              <figure class="case-study-figure">
+                <a class="case-study-image-link" href="../assets/case_studies/behavior-geography-correlation.jpg" target="_blank" rel="noreferrer">
+                  <img
+                    class="case-study-image"
+                    src="../assets/case_studies/behavior-geography-correlation.jpg"
+                    alt="Dashboard with user location bars, DAU versus memberships scatter plot, and correlation matrix"
+                  />
+                </a>
+                <figcaption class="case-study-caption">
+                  Diagnostics panel combining top user locations, DAU-membership relationships, and correlation structure
+                  across product events.
+                </figcaption>
+              </figure>
+              <div class="case-detail-grid">
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Overview</h4>
+                  <p class="case-detail-copy">
+                    Designed an exploratory diagnostics dashboard to move from isolated KPI checks to relationship-level
+                    analysis across behavior, engagement, and monetization signals.
+                  </p>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Business problem</h4>
+                  <p class="case-detail-copy">
+                    Teams could see top-line movement but lacked reliable diagnostics to evaluate whether activity changes
+                    were noise, weak signals, or meaningful product patterns.
+                  </p>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Data / system inputs</h4>
+                  <ul class="case-detail-list">
+                    <li>Daily active user and membership time-series.</li>
+                    <li>Location-level user aggregates (city and region views).</li>
+                    <li>Event volume streams for timeline posts, notifications, and downloads.</li>
+                  </ul>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">What I built</h4>
+                  <ul class="case-detail-list">
+                    <li>Implemented location distribution charts with client/date/user-type filtering.</li>
+                    <li>Created scatter diagnostics with regression overlays for DAU-membership relationship analysis.</li>
+                    <li>Added a correlation matrix for quick scanning of directional relationships across event families.</li>
+                  </ul>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Analytical methods / logic</h4>
+                  <ul class="case-detail-list">
+                    <li>Correlation diagnostics and relationship triage.</li>
+                    <li>Segment-level slicing to detect outliers and concentration effects.</li>
+                    <li>Cross-metric pattern checks to separate coincidence from repeatable trends.</li>
+                  </ul>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Outcome / impact</h4>
+                  <ul class="case-detail-list">
+                    <li>Gave PMs a practical way to prioritize experiments around high-signal behaviors.</li>
+                    <li>Improved quality of product discussions by grounding hypotheses in comparative diagnostics.</li>
+                    <li>Surfaced non-obvious relationships to guide follow-up analysis and rollout thinking.</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="case-tools-wrap">
+                <h4 class="case-detail-label">Tools used</h4>
+                <div class="skill-cloud">
+                  <span class="skill-pill">Python</span>
+                  <span class="skill-pill">SQL</span>
+                  <span class="skill-pill">Dash/Plotly</span>
+                  <span class="skill-pill">Statistical Diagnostics</span>
+                  <span class="skill-pill">Pandas</span>
+                </div>
+              </div>
             </article>
-            <article class="glass-card project-card reveal-up">
-              <div class="project-scope">Public Sector Reporting</div>
-              <h4 class="project-title">Financial Workflow Automation</h4>
-              <div class="project-tech">Oracle, financial reporting design, stakeholder enablement</div>
-              <div class="project-label">Problem</div>
-              <p class="project-copy">Financial reporting processes were repetitive and manually intensive across multiple offices.</p>
-              <div class="project-label">Action</div>
-              <p class="project-copy">Created an Oracle-driven reporting workflow and trained project managers and leadership teams on adoption and operational usage.</p>
-              <div class="project-label">Result</div>
-              <p class="project-copy mb-0">Improved reporting consistency and enabled practical rollout through training sessions in multiple locations (including Sudbury, Guelph, and Peterborough).</p>
+
+            <article id="geo-segmented-user-intelligence" class="glass-card case-study-card reveal-up">
+              <div class="project-scope">FEATURED CASE STUDY</div>
+              <h3 class="case-study-title">Geo-Segmented User Intelligence</h3>
+              <p class="case-study-problem">
+                Built user-distribution views to understand where users are concentrated and how account or membership
+                segments differ geographically.
+              </p>
+              <figure class="case-study-figure">
+                <a class="case-study-image-link" href="../assets/case_studies/geo-segmented-user-intelligence.jpg" target="_blank" rel="noreferrer">
+                  <img
+                    class="case-study-image"
+                    src="../assets/case_studies/geo-segmented-user-intelligence.jpg"
+                    alt="Dark map of the United States showing geo-distributed user points by account type"
+                  />
+                </a>
+                <figcaption class="case-study-caption">
+                  Geo-segmented user map used to compare concentration, spread, and segment mix across regions.
+                </figcaption>
+              </figure>
+              <div class="case-detail-grid">
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Overview</h4>
+                  <p class="case-detail-copy">
+                    Built a geo-intelligence layer so product stakeholders could quickly understand audience distribution
+                    and segment density across the U.S. footprint.
+                  </p>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Business problem</h4>
+                  <p class="case-detail-copy">
+                    User distribution insight was fragmented and hard to compare across account types, which limited
+                    regional planning and launch sequencing decisions.
+                  </p>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Data / system inputs</h4>
+                  <ul class="case-detail-list">
+                    <li>User-level location records from app activity and account metadata.</li>
+                    <li>Account segmentation flags (not signed-up, signed-up, member, super user).</li>
+                    <li>Client-level controls for filtered market views.</li>
+                  </ul>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">What I built</h4>
+                  <ul class="case-detail-list">
+                    <li>Shipped a map-based user intelligence dashboard with segment color coding and layer controls.</li>
+                    <li>Standardized location and segment logic so counts were comparable across clients.</li>
+                    <li>Added interfaces to inspect regional density and identify concentration corridors.</li>
+                  </ul>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Analytical methods / logic</h4>
+                  <ul class="case-detail-list">
+                    <li>Geo-segmentation and density inspection.</li>
+                    <li>Category-level distribution comparison by account type.</li>
+                    <li>Market spread diagnostics for rollout and targeting conversations.</li>
+                  </ul>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Outcome / impact</h4>
+                  <ul class="case-detail-list">
+                    <li>Made geographic concentration visible for stakeholder planning and prioritization.</li>
+                    <li>Improved confidence in regional targeting decisions with segment-aware map evidence.</li>
+                    <li>Provided a reusable geo lens for ongoing growth and product strategy reviews.</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="case-tools-wrap">
+                <h4 class="case-detail-label">Tools used</h4>
+                <div class="skill-cloud">
+                  <span class="skill-pill">Python</span>
+                  <span class="skill-pill">SQL</span>
+                  <span class="skill-pill">Dash/Plotly Map Layers</span>
+                  <span class="skill-pill">Geo Analytics</span>
+                  <span class="skill-pill">Data Modeling</span>
+                </div>
+              </div>
             </article>
           </section>
         </div>

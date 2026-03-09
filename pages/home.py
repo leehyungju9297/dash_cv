@@ -54,9 +54,13 @@ def _experience_block(title: str, company: str, period: str, location: str, bull
     )
 
 
-def _case_preview_card(case):
+def _case_preview_card(case, primary: bool = False):
+    card_class = 'glass-card featured-case-card'
+    if primary:
+        card_class += ' featured-case-card-primary'
+
     return html.Article(
-        className='glass-card featured-case-card',
+        className=card_class,
         children=[
             html.A(
                 href=f"/projects#{case['slug']}",
@@ -71,11 +75,12 @@ def _case_preview_card(case):
                 className='featured-case-body',
                 children=[
                     html.H4(case['title'], className='featured-case-title'),
-                    html.P(case['problem_line'], className='featured-case-problem'),
+                    html.P(case['problem_line'], className='featured-case-summary'),
                     html.Ul(
                         className='featured-case-highlights',
                         children=[html.Li(item) for item in case['highlights']],
                     ),
+                    html.P(case['homepage_caption'], className='featured-case-caption'),
                     html.A(
                         'View Case Study',
                         href=f"/projects#{case['slug']}",
@@ -103,8 +108,7 @@ layout = html.Div(
                             className='hero-role-descriptor',
                         ),
                         html.P(
-                            'I build decision systems that help product teams place better bets with '
-                            'decision-ready analytics.',
+                            'I help product teams make better bets with decision-ready analytics.',
                             className='hero-title',
                         ),
                         html.P(
@@ -174,7 +178,7 @@ layout = html.Div(
                 ),
                 html.Div(
                     className='featured-case-grid',
-                    children=[_case_preview_card(case) for case in CASE_STUDIES],
+                    children=[_case_preview_card(case, primary=index == 0) for index, case in enumerate(CASE_STUDIES)],
                 ),
             ],
         ),
@@ -222,10 +226,10 @@ layout = html.Div(
                     '2023 - Present',
                     'Toronto, ON, Canada',
                     [
-                        'Defined and productionized cross-platform subscription analytics to solve fragmented billing visibility, enabling consistent monetization reporting across 138 client apps.',
-                        'Built a KPI operating system spanning DAU, memberships, revenue, notifications, auctions, and livestream events, enabling weekly leadership and product decision reviews.',
-                        'Turned noisy usage logs into decision-ready diagnostics for behavior, geography, and feature performance, enabling faster experiment prioritization and trend triage.',
-                        'Automated recurring analytics pipelines and reporting workflows to reduce manual reporting overhead and improve trust in executive KPI reads.',
+                        'Built and owned KPI systems spanning engagement, retention, geography, livestream behavior, and subscription monetization across a 138-app client ecosystem.',
+                        'Defined and productionized cross-platform subscription analytics across Apple, Google Play, and Stripe/PWA to unify monetization reporting logic and reduce reconciliation drift.',
+                        'Built recurring KPI operating reviews across DAU, memberships, revenue, notifications, auctions, and timeline activity to support product and leadership decision cadence.',
+                        'Turned noisy usage logs into decision-ready diagnostics for feature impact and trend shifts, enabling faster prioritization and more grounded intervention analysis.',
                     ],
                 ),
                 _experience_block(
