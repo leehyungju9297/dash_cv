@@ -114,26 +114,77 @@ layout = dbc.Container(
             className='reveal-up',
             children=[
                 html.H3('Core Skills', className='section-title'),
+                html.P(
+                    "I don't treat all tools as equal. I separate proven production depth from working knowledge.",
+                    className='section-note',
+                ),
                 html.Div(
-                    className='skill-cloud',
+                    className='skill-level-grid',
                     children=[
-                        html.Span(skill, className='skill-pill')
-                        for skill in [
-                            'Python',
-                            'SQL',
-                            'R',
-                            'Flask',
-                            'Dash',
-                            'Plotly',
-                            'SQLAlchemy',
-                            'Celery',
-                            'Pandas',
-                            'Polars',
-                            'PostgreSQL',
-                            'MySQL',
-                            'Redis',
-                            'Parquet',
-                        ]
+                        html.Div(
+                            className='glass-card skill-level-card',
+                            children=[
+                                html.Div('Strong (Production)', className='skill-level-title'),
+                                html.Div(
+                                    className='skill-cloud',
+                                    children=[
+                                        html.Span(skill, className='skill-pill')
+                                        for skill in [
+                                            'Python',
+                                            'SQL',
+                                            'Flask',
+                                            'Celery',
+                                            'SQLAlchemy',
+                                            'Pandas',
+                                            'Polars',
+                                            'PostgreSQL',
+                                            'MySQL',
+                                        ]
+                                    ],
+                                ),
+                            ],
+                        ),
+                        html.Div(
+                            className='glass-card skill-level-card',
+                            children=[
+                                html.Div('Proven Delivery Skills', className='skill-level-title'),
+                                html.Div(
+                                    className='skill-cloud',
+                                    children=[
+                                        html.Span(skill, className='skill-pill')
+                                        for skill in [
+                                            'Analytics Engineering',
+                                            'KPI Design',
+                                            'Reporting Automation',
+                                            'Data Reconciliation',
+                                            'Stakeholder Communication',
+                                            'Monitoring & Data Quality',
+                                        ]
+                                    ],
+                                ),
+                            ],
+                        ),
+                        html.Div(
+                            className='glass-card skill-level-card',
+                            children=[
+                                html.Div('Working Knowledge', className='skill-level-title'),
+                                html.Div(
+                                    className='skill-cloud',
+                                    children=[
+                                        html.Span(skill, className='skill-pill')
+                                        for skill in [
+                                            'R',
+                                            'Dash/Plotly',
+                                            'Redis',
+                                            'Parquet',
+                                            'Kotlin',
+                                            'Swift',
+                                            'CI/CD Tooling',
+                                        ]
+                                    ],
+                                ),
+                            ],
+                        ),
                     ],
                 ),
             ],

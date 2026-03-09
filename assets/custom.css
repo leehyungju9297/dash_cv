@@ -267,9 +267,29 @@ a:focus-visible {
   font-size: 1.36rem;
 }
 
+.section-note {
+  color: var(--muted);
+  margin: -0.35rem 0 0.7rem;
+}
+
 .section-hero-title {
   font-size: 2rem;
   margin: 0 0 0.35rem;
+}
+
+.skill-level-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.skill-level-card {
+  padding: 0.9rem;
+}
+
+.skill-level-title {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
 }
 
 .skill-cloud {
@@ -445,6 +465,7 @@ a:focus-visible {
     grid-template-columns: 1fr;
   }
 
+  .skill-level-grid,
   .outcome-grid {
     grid-template-columns: 1fr;
   }

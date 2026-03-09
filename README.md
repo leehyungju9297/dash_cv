@@ -41,6 +41,6 @@ Python version is pinned through:
 
 1. Update headline and summary in `pages/home.py` to match current target roles.
 2. Keep impact metrics factual and specific (number + context + source project).
-3. Refresh newest outcomes first in Experience (recent role gets strongest bullets).
+3. Keep skills honest by separating `Strong (Production)` and `Working Knowledge`.
 4. Keep Contact page role list broad (not company-specific).
 5. Validate on mobile width and check for overflow/layout breaks.
