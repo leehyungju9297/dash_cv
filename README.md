@@ -34,23 +34,9 @@ Setup:
 Project site URL pattern:
 - `https://<username>.github.io/dash_cv/`
 
-## Deploy (Render)
+## Deployment Scope
 
-Build command:
-
-```bash
-pip install -r requirements.txt
-```
-
-Start command:
-
-```bash
-gunicorn app:server --workers 1 --timeout 120
-```
-
-Python version is pinned through:
-- `runtime.txt`
-- `render.yaml` (`PYTHON_VERSION=3.11.9`)
+GitHub Pages only. No Vercel/Render deployment config is kept in this repository.
 
 ## Notes
 
