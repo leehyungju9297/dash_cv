@@ -1,7 +1,7 @@
 import json
 
 import dash
-from dash import Dash, dcc, html
+from dash import Dash, Input, Output, dcc, html
 
 
 app = Dash(
@@ -104,15 +104,31 @@ PERSON_JSON_LD = {
 }
 
 
-def _nav_links():
+def _normalize_path(pathname):
+    if not pathname:
+        return '/'
+
+    normalized = pathname.split('?', 1)[0].split('#', 1)[0]
+    if normalized != '/' and normalized.endswith('/'):
+        normalized = normalized[:-1]
+    return normalized or '/'
+
+
+def _nav_links(current_path='/'):
+    normalized_path = _normalize_path(current_path)
     pages = [page for page in dash.page_registry.values() if page['path'] in VISIBLE_PATHS]
     pages.sort(key=lambda x: x.get('order', 999))
-    return [dcc.Link(page['name'], href=page['path'], className='top-nav-link') for page in pages]
+    links = []
+    for page in pages:
+        class_name = 'top-nav-link active' if normalized_path == page['path'] else 'top-nav-link'
+        links.append(dcc.Link(page['name'], href=page['path'], className=class_name))
+    return links
 
 
 app.layout = html.Div(
     className='site-shell',
     children=[
+        dcc.Location(id='app-location', refresh=False),
         html.Script(json.dumps(PERSON_JSON_LD), type='application/ld+json'),
         html.Div(className='bg-orb orb-1'),
         html.Div(className='bg-orb orb-2'),
@@ -123,7 +139,7 @@ app.layout = html.Div(
                     className='header-inner',
                     children=[
                         dcc.Link('HJ', href='/', className='brand-chip'),
-                        html.Nav(className='top-nav', children=_nav_links()),
+                        html.Nav(id='top-nav', className='top-nav', children=_nav_links('/')),
                     ],
                 )
             ],
@@ -131,6 +147,11 @@ app.layout = html.Div(
         html.Main(className='page-wrap', children=[dash.page_container]),
     ],
 )
+
+
+@app.callback(Output('top-nav', 'children'), Input('app-location', 'pathname'))
+def _refresh_nav(pathname):
+    return _nav_links(pathname)
 
 
 if __name__ == '__main__':
