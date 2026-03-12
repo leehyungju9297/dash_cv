@@ -14,7 +14,7 @@ layout = html.Div(
                 html.Div('LET\'S CONNECT', className='eyebrow'),
                 html.H2('Contact', className='section-hero-title'),
                 html.P(
-                    'Open to Product Data Scientist and Product Analyst opportunities.',
+                    'I bring both the analytical depth to define what to measure and the engineering skills to build the systems that do it.',
                     className='section-hero-subtitle',
                 ),
             ],
