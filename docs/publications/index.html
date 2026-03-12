@@ -5,9 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Publications | Hyungju Lee</title>
     <meta name="description" content="Selected work in LiDAR data and computer vision by Hyungju Lee." />
+    <meta property="og:title" content="Publications | Hyungju Lee" />
+    <meta property="og:description" content="Selected work in LiDAR data, computer vision, and large-scale annotation benchmarks by Hyungju Lee." />
+    <meta property="og:type" content="website" />
+    <noscript><style>.reveal-up { opacity: 1 !important; transform: none !important; }</style></noscript>
     <link rel="stylesheet" href="../assets/custom.css" />
   </head>
   <body>
+    <div id="scroll-progress"></div>
     <div class="site-shell">
       <div class="bg-orb orb-1"></div>
       <div class="bg-orb orb-2"></div>
@@ -29,26 +34,64 @@
             <h2 class="section-hero-title">Publications</h2>
             <p class="section-hero-subtitle">Selected work in LiDAR data, computer vision, and large-scale annotation benchmarks.</p>
           </section>
+
           <article class="glass-card paper-card reveal-up">
             <div class="paper-venue">ISPRS 2023</div>
             <div class="paper-place">Cairo, Egypt</div>
             <h5 class="paper-title">YUTO: A Large Scale Aerial LiDAR Data Set for Semantic Segmentation</h5>
+            <p class="paper-abstract">
+              Introduced a large-scale aerial LiDAR benchmark dataset for semantic segmentation of urban forest scenes,
+              enabling standardized evaluation across deep learning methods and addressing the lack of publicly available
+              annotated point cloud datasets at scale.
+            </p>
           </article>
+
           <article class="glass-card paper-card reveal-up">
             <div class="paper-venue">ICPR 2022</div>
             <div class="paper-place">Montreal, Canada</div>
             <h5 class="paper-title">YUTO Tree-5000: A Large-scale Airborne LiDAR Data for Single Tree Detection</h5>
-            <a class="paper-link" href="https://doi.org/10.1007/978-3-031-37731-0_28" target="_blank" rel="noreferrer">Open link</a>
+            <p class="paper-abstract">
+              Presented YUTO Tree-5000, a large-scale annotated airborne LiDAR dataset of 5,000+ individually labeled
+              tree instances, designed to establish a reproducible benchmark for single-tree detection algorithms and
+              improve evaluation consistency across the field.
+            </p>
+            <a class="paper-link" href="https://doi.org/10.1007/978-3-031-37731-0_28" target="_blank" rel="noreferrer">Open paper →</a>
           </article>
+
           <article class="glass-card paper-card reveal-up">
             <div class="paper-venue">Master Thesis</div>
             <div class="paper-place">York University, Toronto</div>
             <h5 class="paper-title">Deep convolutional neural network based single tree detection using volumetric module from airborne LiDAR data</h5>
-            <a class="paper-link" href="https://yorkspace.library.yorku.ca/items/8c15e8bb-8672-4615-be4a-6b66ca6bdfdf" target="_blank" rel="noreferrer">Open link</a>
+            <p class="paper-abstract">
+              Developed a volumetric deep CNN architecture for detecting individual trees from airborne LiDAR point
+              clouds. Achieved state-of-the-art performance on self-benchmarked annotation data and was awarded
+              Best Master's Thesis at York University (2022).
+            </p>
+            <a class="paper-link" href="https://yorkspace.library.yorku.ca/items/8c15e8bb-8672-4615-be4a-6b66ca6bdfdf" target="_blank" rel="noreferrer">Open thesis →</a>
           </article>
         </div>
       </main>
+
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <div>
+            <div class="footer-brand">Hyungju Lee</div>
+            <div class="footer-sub">Product Data Scientist · Toronto, ON</div>
+          </div>
+          <nav class="footer-nav" aria-label="Footer navigation">
+            <a class="footer-link" href="../">Home</a>
+            <a class="footer-link" href="../projects/">Case Studies</a>
+            <a class="footer-link" href="../publications/">Publications</a>
+            <a class="footer-link" href="../contact/">Contact</a>
+          </nav>
+          <div class="footer-copy">© 2025 Hyungju Lee</div>
+        </div>
+      </footer>
     </div>
+
+    <button class="back-to-top" id="back-to-top" aria-label="Back to top">↑</button>
+
     <script defer src="../assets/tracking.js"></script>
+    <script defer src="../assets/enhancements.js"></script>
   </body>
 </html>

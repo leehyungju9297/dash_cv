@@ -8,9 +8,14 @@
       name="description"
       content="Hyungju Lee portfolio: Product Data Scientist focused on product analytics, analytics engineering, KPI systems, and monetization diagnostics."
     />
+    <meta property="og:title" content="Hyungju Lee | Product Data Scientist" />
+    <meta property="og:description" content="Product Data Scientist building analytics systems that drive product decisions. 6+ years in product analytics, KPI engineering, and monetization diagnostics." />
+    <meta property="og:type" content="website" />
+    <noscript><style>.reveal-up { opacity: 1 !important; transform: none !important; }</style></noscript>
     <link rel="stylesheet" href="./assets/custom.css" />
   </head>
   <body>
+    <div id="scroll-progress"></div>
     <div class="site-shell">
       <div class="bg-orb orb-1"></div>
       <div class="bg-orb orb-2"></div>
@@ -30,20 +35,26 @@
         <div class="content-stack">
           <section class="hero reveal-up">
             <div class="hero-copy">
+              <div class="availability-badge">
+                <span class="availability-dot"></span>Open to new opportunities
+              </div>
               <div class="hero-name">HYUNGJU LEE</div>
               <h1 class="hero-role">Product Data Scientist</h1>
               <div class="hero-role-descriptor">Product Analytics • Analytics Engineering • Monetization</div>
               <p class="hero-title">I help product teams make better bets with decision-ready analytics.</p>
               <p class="hero-subtitle">
-                I define product KPIs, productionize cross-platform metric pipelines, and turn noisy usage data into
-                clear operating signals for leadership and product teams.
+                I define product KPIs, productionize cross-platform metric pipelines, and turn noisy
+                usage data into clear operating signals for leadership and product teams.
               </p>
               <div class="hero-cta">
                 <a class="cta-primary" href="./projects/" data-track="hero_cta_click" data-track-location="home_hero" data-track-label="view_case_studies">View Case Studies</a>
                 <a class="cta-secondary" href="./assets/Hyungju_Lee_Resume.pdf" download="Hyungju_Lee_Resume.pdf" data-track="hero_cta_click" data-track-location="home_hero" data-track-label="download_resume">Download Resume (PDF)</a>
                 <a class="cta-secondary" href="https://www.linkedin.com/in/hyungju9297/" target="_blank" rel="noreferrer" data-track="hero_cta_click" data-track-location="home_hero" data-track-label="linkedin">LinkedIn</a>
               </div>
-              <div class="hero-contact">Toronto, ON, Canada | +1 (416) 706-8011 | leehyungju9297@gmail.com</div>
+              <div class="hero-contact">
+                Toronto, ON, Canada &nbsp;·&nbsp;
+                <a data-obf="bGVlaHl1bmdqdTkyOTdAZ21haWwuY29t" data-obf-type="email" href="#">email</a>
+              </div>
             </div>
             <div class="hero-photo-wrap">
               <img class="hero-photo" src="./assets/my_pic_web.jpg" alt="Portrait of Hyungju Lee" />
@@ -180,8 +191,8 @@
                 <div class="skill-cloud">
                   <span class="skill-pill">KPI Design</span>
                   <span class="skill-pill">Product Diagnostics</span>
-                  <span class="skill-pill">Experiment and Quasi-Experiment Analysis</span>
-                  <span class="skill-pill">Retention and Churn Analysis</span>
+                  <span class="skill-pill">Experiment &amp; Quasi-Experiment Analysis</span>
+                  <span class="skill-pill">Retention &amp; Churn Analysis</span>
                   <span class="skill-pill">Monetization Analytics</span>
                   <span class="skill-pill">Executive KPI Reporting</span>
                 </div>
@@ -269,7 +280,27 @@
           </section>
         </div>
       </main>
+
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <div>
+            <div class="footer-brand">Hyungju Lee</div>
+            <div class="footer-sub">Product Data Scientist · Toronto, ON</div>
+          </div>
+          <nav class="footer-nav" aria-label="Footer navigation">
+            <a class="footer-link" href="./">Home</a>
+            <a class="footer-link" href="./projects/">Case Studies</a>
+            <a class="footer-link" href="./publications/">Publications</a>
+            <a class="footer-link" href="./contact/">Contact</a>
+          </nav>
+          <div class="footer-copy">© 2025 Hyungju Lee</div>
+        </div>
+      </footer>
     </div>
+
+    <button class="back-to-top" id="back-to-top" aria-label="Back to top">↑</button>
+
     <script defer src="./assets/tracking.js"></script>
+    <script defer src="./assets/enhancements.js"></script>
   </body>
 </html>

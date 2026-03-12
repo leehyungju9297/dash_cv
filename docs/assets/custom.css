@@ -11,12 +11,19 @@
   --accent-soft: rgba(13, 93, 132, 0.1);
   --shadow-sm: 0 12px 28px rgba(17, 35, 56, 0.08);
   --shadow-md: 0 18px 42px rgba(17, 35, 56, 0.12);
+  --shadow-hover: 0 22px 52px rgba(17, 35, 56, 0.16);
   --radius-lg: 20px;
   --radius-md: 14px;
+  --transition-base: 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-slow: 620ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 html,
@@ -53,6 +60,93 @@ a:focus-visible {
   outline-offset: 2px;
   border-radius: 8px;
 }
+
+/* ── Scroll progress bar ─────────────────────────────────────────────────── */
+
+#scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), #5bb8e8);
+  z-index: 200;
+  transition: width 80ms linear;
+  pointer-events: none;
+}
+
+/* ── Availability badge ──────────────────────────────────────────────────── */
+
+.availability-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 999px;
+  padding: 0.3rem 0.78rem 0.3rem 0.52rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #16a34a;
+  margin-bottom: 0.9rem;
+  width: fit-content;
+}
+
+.availability-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  flex-shrink: 0;
+  animation: pulse-dot 2.2s ease infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.55; transform: scale(0.82); }
+}
+
+/* ── Back-to-top ─────────────────────────────────────────────────────────── */
+
+.back-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 1.5rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity var(--transition-base), transform var(--transition-base),
+    border-color var(--transition-base), color var(--transition-base);
+  z-index: 50;
+  pointer-events: none;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.back-to-top:hover {
+  border-color: rgba(13, 93, 132, 0.4);
+  color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Site shell & orbs ───────────────────────────────────────────────────── */
 
 .fallback-shell {
   max-width: 1080px;
@@ -130,6 +224,8 @@ a:focus-visible {
   background: #7ab5cd;
 }
 
+/* ── Header ──────────────────────────────────────────────────────────────── */
+
 .site-header {
   position: sticky;
   top: 0;
@@ -161,6 +257,12 @@ a:focus-visible {
   font-weight: 700;
   color: #fff;
   background: linear-gradient(140deg, #0e6a95, #0a4968);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.brand-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(10, 73, 104, 0.3);
 }
 
 .top-nav {
@@ -193,6 +295,8 @@ a:focus-visible {
   background: rgba(255, 255, 255, 0.94);
 }
 
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+
 .page-wrap {
   position: relative;
   z-index: 1;
@@ -207,6 +311,8 @@ a:focus-visible {
 .content-stack > section + section {
   margin-top: 0.8rem;
 }
+
+/* ── Hero ────────────────────────────────────────────────────────────────── */
 
 .hero {
   display: grid;
@@ -276,7 +382,8 @@ a:focus-visible {
   padding: 0.56rem 0.96rem;
   font-weight: 600;
   font-size: 0.92rem;
-  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+  transition: transform var(--transition-base), border-color var(--transition-base),
+    box-shadow var(--transition-base);
 }
 
 .cta-primary {
@@ -291,19 +398,35 @@ a:focus-visible {
   background: rgba(255, 255, 255, 0.88);
 }
 
-.cta-primary:hover,
-.cta-secondary:hover {
-  transform: translateY(-1px);
+.cta-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(12, 86, 122, 0.34);
 }
 
 .cta-secondary:hover {
+  transform: translateY(-2px);
   border-color: rgba(13, 93, 132, 0.45);
+}
+
+.cta-primary:active,
+.cta-secondary:active {
+  transform: scale(0.97);
 }
 
 .hero-contact {
   color: var(--muted);
   font-size: 0.9rem;
   line-height: 1.42;
+}
+
+.hero-contact a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.hero-contact a:hover {
+  text-decoration: underline;
 }
 
 .hero-photo-wrap {
@@ -319,7 +442,15 @@ a:focus-visible {
   border-radius: 24px;
   border: 1px solid var(--line);
   box-shadow: 0 18px 38px rgba(10, 31, 44, 0.15);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
+
+.hero-photo:hover {
+  transform: scale(1.018);
+  box-shadow: 0 24px 48px rgba(10, 31, 44, 0.22);
+}
+
+/* ── Impact row ──────────────────────────────────────────────────────────── */
 
 .impact-row {
   margin-top: 1.45rem;
@@ -334,6 +465,14 @@ a:focus-visible {
   border-radius: var(--radius-md);
   padding: 0.92rem 1rem;
   box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-base), box-shadow var(--transition-base),
+    border-color var(--transition-base);
+}
+
+.impact-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(13, 93, 132, 0.22);
 }
 
 .impact-value {
@@ -357,6 +496,8 @@ a:focus-visible {
   line-height: 1.4;
 }
 
+/* ── Section headings ────────────────────────────────────────────────────── */
+
 .section-title {
   margin: 2.2rem 0 0.86rem;
   font-size: 1.48rem;
@@ -364,7 +505,7 @@ a:focus-visible {
 
 .section-note {
   color: var(--muted);
-  margin: -0.34rem 0 1rem;
+  margin: 0 0 1rem;
 }
 
 .eyebrow {
@@ -381,12 +522,52 @@ a:focus-visible {
   margin: 0 0 0.35rem;
 }
 
+/* ── Glass card ──────────────────────────────────────────────────────────── */
+
 .glass-card {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-base), box-shadow var(--transition-base),
+    border-color var(--transition-base);
 }
+
+.glass-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+  border-color: rgba(13, 93, 132, 0.22);
+}
+
+/* ── Case study jump nav ─────────────────────────────────────────────────── */
+
+.case-jump-nav {
+  display: flex;
+  gap: 0.58rem;
+  flex-wrap: wrap;
+  margin: 1rem 0 0.4rem;
+}
+
+.case-jump-link {
+  text-decoration: none;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid rgba(13, 93, 132, 0.2);
+  border-radius: 999px;
+  padding: 0.38rem 0.84rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  transition: background var(--transition-base), border-color var(--transition-base),
+    transform var(--transition-base);
+}
+
+.case-jump-link:hover {
+  background: rgba(13, 93, 132, 0.18);
+  border-color: rgba(13, 93, 132, 0.38);
+  transform: translateY(-1px);
+}
+
+/* ── Featured case grid ──────────────────────────────────────────────────── */
 
 .featured-case-grid {
   display: grid;
@@ -402,6 +583,7 @@ a:focus-visible {
 
 .featured-case-image-link {
   display: block;
+  overflow: hidden;
   border-bottom: 1px solid var(--line);
   background: var(--surface-solid);
 }
@@ -414,6 +596,11 @@ a:focus-visible {
   object-position: 50% 50%;
   background: #0f151b;
   padding: 0.55rem;
+  transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.featured-case-image-link:hover .featured-case-image {
+  transform: scale(1.028);
 }
 
 .featured-case-body {
@@ -468,6 +655,8 @@ a:focus-visible {
   padding: 0.7rem;
 }
 
+/* ── Skills ──────────────────────────────────────────────────────────────── */
+
 .skill-level-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -498,7 +687,18 @@ a:focus-visible {
   padding: 0.32rem 0.68rem;
   font-size: 0.84rem;
   font-weight: 500;
+  cursor: default;
+  transition: transform var(--transition-base), background var(--transition-base),
+    border-color var(--transition-base);
 }
+
+.skill-pill:hover {
+  transform: scale(1.05);
+  background: rgba(13, 93, 132, 0.18);
+  border-color: rgba(13, 93, 132, 0.36);
+}
+
+/* ── Experience ──────────────────────────────────────────────────────────── */
 
 .experience-card {
   padding: 1rem 1.06rem 0.8rem;
@@ -538,6 +738,8 @@ a:focus-visible {
   margin-bottom: 0.34rem;
 }
 
+/* ── Education ───────────────────────────────────────────────────────────── */
+
 .edu-card {
   padding: 1rem;
 }
@@ -551,6 +753,14 @@ a:focus-visible {
   color: var(--muted);
   font-size: 0.94rem;
 }
+
+.edu-card hr {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 0.9rem 0;
+}
+
+/* ── Case study page ─────────────────────────────────────────────────────── */
 
 .project-scope {
   font-size: 0.75rem;
@@ -569,6 +779,11 @@ a:focus-visible {
 
 .case-study-card {
   padding: 1.12rem;
+}
+
+/* Anchor target offset for sticky header */
+article[id] {
+  scroll-margin-top: 5.5rem;
 }
 
 .case-study-title {
@@ -601,6 +816,11 @@ a:focus-visible {
   aspect-ratio: 16 / 9;
   object-fit: contain;
   padding: 0.65rem;
+  transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.case-study-image-link:hover .case-study-image {
+  transform: scale(1.022);
 }
 
 .case-study-caption {
@@ -620,6 +840,11 @@ a:focus-visible {
   border-radius: 12px;
   padding: 0.8rem 0.85rem;
   background: rgba(255, 255, 255, 0.7);
+  transition: border-color var(--transition-base);
+}
+
+.case-detail-block:hover {
+  border-color: rgba(13, 93, 132, 0.26);
 }
 
 .case-detail-label {
@@ -647,9 +872,12 @@ a:focus-visible {
   margin-top: 0.8rem;
 }
 
+/* ── Publications ────────────────────────────────────────────────────────── */
+
 .paper-card {
   padding: 1rem;
   margin-bottom: 0.8rem;
+  border-left: 3px solid var(--accent);
 }
 
 .paper-venue {
@@ -667,15 +895,34 @@ a:focus-visible {
 }
 
 .paper-title {
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.42rem;
   font-size: 1.08rem;
+}
+
+.paper-abstract {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin: 0 0 0.55rem;
 }
 
 .paper-link {
   color: var(--accent);
   text-decoration: none;
   font-weight: 600;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: gap var(--transition-base);
 }
+
+.paper-link:hover {
+  text-decoration: underline;
+  gap: 0.45rem;
+}
+
+/* ── Contact ─────────────────────────────────────────────────────────────── */
 
 .contact-grid {
   margin-top: 0.6rem;
@@ -703,34 +950,102 @@ a:focus-visible {
   word-break: break-word;
 }
 
+a.contact-value:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.contact-note {
+  color: var(--muted);
+  margin: 0.5rem 0 0;
+  font-size: 0.92rem;
+}
+
+.contact-cta-wrap {
+  margin-top: 1.4rem;
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+
+.site-footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--line);
+  margin-top: 3.5rem;
+  padding: 2rem 1rem;
+  background: rgba(242, 244, 247, 0.6);
+  backdrop-filter: blur(6px);
+}
+
+.footer-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+}
+
+.footer-brand {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 0.96rem;
+  color: var(--ink);
+}
+
+.footer-sub {
+  color: var(--muted);
+  font-size: 0.83rem;
+  margin-top: 0.18rem;
+}
+
+.footer-nav {
+  display: flex;
+  gap: 0.5rem 1.2rem;
+  flex-wrap: wrap;
+}
+
+.footer-link {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: color var(--transition-base);
+}
+
+.footer-link:hover {
+  color: var(--accent);
+}
+
+.footer-copy {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+/* ── Utility ─────────────────────────────────────────────────────────────── */
+
 .mb-0 {
   margin-bottom: 0;
 }
 
+/* ── Scroll-triggered reveal ─────────────────────────────────────────────── */
+
 .reveal-up {
-  animation: revealUp 560ms ease both;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity var(--transition-slow), transform var(--transition-slow);
 }
 
-@keyframes revealUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.reveal-up.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .reveal-up {
-    animation: none;
-  }
-
-  * {
-    scroll-behavior: auto !important;
-  }
-}
+/* ── Dark mode ───────────────────────────────────────────────────────────── */
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -744,6 +1059,7 @@ a:focus-visible {
     --accent-soft: rgba(98, 180, 223, 0.14);
     --shadow-sm: 0 12px 28px rgba(0, 0, 0, 0.34);
     --shadow-md: 0 18px 42px rgba(0, 0, 0, 0.42);
+    --shadow-hover: 0 22px 52px rgba(0, 0, 0, 0.54);
   }
 
   body {
@@ -773,10 +1089,31 @@ a:focus-visible {
     color: #bde3f8;
   }
 
+  .skill-pill:hover {
+    background: rgba(98, 180, 223, 0.24);
+    border-color: rgba(98, 180, 223, 0.42);
+  }
+
   .case-detail-block {
     background: rgba(21, 29, 36, 0.72);
   }
+
+  .availability-badge {
+    background: rgba(34, 197, 94, 0.12);
+    border-color: rgba(34, 197, 94, 0.28);
+    color: #4ade80;
+  }
+
+  .site-footer {
+    background: rgba(15, 20, 25, 0.6);
+  }
+
+  #scroll-progress {
+    background: linear-gradient(90deg, var(--accent), #a8d8f0);
+  }
 }
+
+/* ── Responsive: 980px ───────────────────────────────────────────────────── */
 
 @media (max-width: 980px) {
   .hero {
@@ -807,6 +1144,8 @@ a:focus-visible {
     aspect-ratio: 16 / 9;
   }
 }
+
+/* ── Responsive: 640px ───────────────────────────────────────────────────── */
 
 @media (max-width: 640px) {
   .content-stack {
@@ -898,5 +1237,41 @@ a:focus-visible {
 
   .case-study-title {
     font-size: 1.28rem;
+  }
+
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.9rem;
+  }
+
+  .back-to-top {
+    bottom: 1.2rem;
+    right: 1rem;
+  }
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  *,
+  .reveal-up,
+  .glass-card,
+  .cta-primary,
+  .cta-secondary,
+  .skill-pill,
+  .impact-chip,
+  .hero-photo {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .reveal-up {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

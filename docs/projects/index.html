@@ -8,9 +8,14 @@
       name="description"
       content="Proof-of-work case studies in product analytics, analytics engineering, KPI systems, and monetization diagnostics by Hyungju Lee."
     />
+    <meta property="og:title" content="Case Studies | Hyungju Lee" />
+    <meta property="og:description" content="Production dashboards and analytics systems built to solve concrete product questions, improve decision quality, and establish operational metric trust." />
+    <meta property="og:type" content="website" />
+    <noscript><style>.reveal-up { opacity: 1 !important; transform: none !important; }</style></noscript>
     <link rel="stylesheet" href="../assets/custom.css" />
   </head>
   <body>
+    <div id="scroll-progress"></div>
     <div class="site-shell">
       <div class="bg-orb orb-1"></div>
       <div class="bg-orb orb-2"></div>
@@ -35,6 +40,11 @@
               Production dashboards and analytics systems built to solve concrete product questions, improve decision
               quality, and establish operational metric trust.
             </p>
+            <nav class="case-jump-nav" aria-label="Jump to case study">
+              <a class="case-jump-link" href="#executive-kpi-monitoring">Executive KPI Monitoring</a>
+              <a class="case-jump-link" href="#behavior-geography-correlation">Behavior &amp; Geography</a>
+              <a class="case-jump-link" href="#geo-segmented-user-intelligence">Geo-Segmented Intelligence</a>
+            </nav>
           </section>
 
           <section class="case-study-stack">
@@ -282,7 +292,27 @@
           </section>
         </div>
       </main>
+
+      <footer class="site-footer">
+        <div class="footer-inner">
+          <div>
+            <div class="footer-brand">Hyungju Lee</div>
+            <div class="footer-sub">Product Data Scientist · Toronto, ON</div>
+          </div>
+          <nav class="footer-nav" aria-label="Footer navigation">
+            <a class="footer-link" href="../">Home</a>
+            <a class="footer-link" href="../projects/">Case Studies</a>
+            <a class="footer-link" href="../publications/">Publications</a>
+            <a class="footer-link" href="../contact/">Contact</a>
+          </nav>
+          <div class="footer-copy">© 2025 Hyungju Lee</div>
+        </div>
+      </footer>
     </div>
+
+    <button class="back-to-top" id="back-to-top" aria-label="Back to top">↑</button>
+
     <script defer src="../assets/tracking.js"></script>
+    <script defer src="../assets/enhancements.js"></script>
   </body>
 </html>
