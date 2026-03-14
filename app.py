@@ -14,7 +14,7 @@ app = Dash(
         {'name': 'viewport', 'content': 'width=device-width, initial-scale=1'},
         {
             'name': 'description',
-            'content': 'Hyungju Lee portfolio: Product Data Scientist focused on KPI design, executive reporting, engagement and retention analytics, and subscription monetization systems.',
+            'content': 'Hyungju Lee portfolio: Product Data Scientist focused on KPI frameworks, dashboards, retention and churn analytics, and subscription monetization systems.',
         },
     ],
 )

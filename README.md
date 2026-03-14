@@ -41,4 +41,5 @@ GitHub Pages only. No Vercel/Render deployment config is kept in this repository
 ## Notes
 
 - Resume download is at `/assets/Hyungju_Lee_Resume.pdf`.
+- Canonical resume content lives in `resume/resume.json`; rebuild PDF and DOCX with `python3 resume/build_resume.py`.
 - Legacy Dash experiment files were moved to `sandbox_pages/` so they are not auto-imported in production.

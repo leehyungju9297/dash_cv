@@ -122,8 +122,8 @@ layout = html.Div(
                             className='hero-title',
                         ),
                         html.P(
-                            'I define product KPIs, productionize cross-platform metric pipelines, and turn noisy '
-                            'usage data into clear operating signals for leadership and product teams.',
+                            'I build KPI frameworks, operational dashboards, and cross-platform analytics pipelines '
+                            'that turn noisy usage data into decision-ready signals for product and leadership teams.',
                             className='hero-subtitle',
                         ),
                         html.Div(
@@ -216,30 +216,49 @@ layout = html.Div(
             children=[
                 html.H3('Core Skills', className='section-title'),
                 html.P(
-                    'Three capability areas I use to move from raw product data to decisions.',
+                    'Four capability areas I use to move from raw product data to decision-ready systems.',
                     className='section-note',
                 ),
                 html.Div(
                     className='skill-level-grid',
                     children=[
                         _skill_group(
-                            'Analytics Engineering',
-                            ['Python', 'SQL', 'Flask', 'Celery', 'SQLAlchemy', 'Pandas', 'Polars'],
+                            'Languages & Tools',
+                            ['SQL', 'Python', 'R', 'Dash/Plotly', 'Flask', 'Celery'],
                         ),
                         _skill_group(
                             'Product Analytics',
                             [
-                                'KPI Design',
-                                'Product Diagnostics',
-                                'Experiment and Quasi-Experiment Analysis',
-                                'Retention and Churn Analysis',
+                                'KPI Frameworks',
+                                'Success Metrics',
+                                'Cohort Analysis',
+                                'Segmentation',
+                                'Retention & Churn Analytics',
                                 'Monetization Analytics',
-                                'Executive KPI Reporting',
+                                'Subscription Analytics',
                             ],
                         ),
                         _skill_group(
-                            'Data Platforms',
-                            ['PostgreSQL', 'MySQL', 'Parquet', 'Redis', 'Dash/Plotly', 'Data Quality Monitoring'],
+                            'Measurement',
+                            [
+                                'Impact Evaluation',
+                                'Quasi-Experimental Analysis',
+                                'Pre/Post Analysis',
+                                'Statistical Analysis',
+                                'Exploratory Data Analysis',
+                                'Executive Reporting',
+                            ],
+                        ),
+                        _skill_group(
+                            'Analytics Systems',
+                            [
+                                'Analytics Pipelines',
+                                'Dashboarding',
+                                'Data Quality Monitoring',
+                                'Metric Definitions/Contracts',
+                                'Data Modeling',
+                                'Scheduled Workflows',
+                            ],
                         ),
                     ],
                 ),
@@ -255,19 +274,21 @@ layout = html.Div(
                     '2023 - Present',
                     'Toronto, ON, Canada',
                     [
-                        'Built and owned KPI systems spanning engagement, retention, geography, livestream behavior, and subscription monetization across a 138-app client ecosystem.',
-                        'Defined and productionized cross-platform subscription analytics across Apple, Google Play, and Stripe/PWA to unify monetization reporting logic and reduce reconciliation drift.',
-                        'Built recurring KPI operating reviews across DAU, memberships, revenue, notifications, auctions, and timeline activity to support product and leadership decision cadence.',
-                        'Turned noisy usage logs into decision-ready diagnostics for feature impact and trend shifts, enabling faster prioritization and more grounded intervention analysis.',
+                        'Built and standardized KPI frameworks spanning engagement, retention, churn, livestream activity, and revenue across a 138-client app ecosystem, enabling shared performance decisions across product, growth, and leadership.',
+                        'Productionized SQL/Python analytics pipelines covering 6.65M+ sessions and 5.64B session-minutes to support release-cycle diagnostics and behavioral trend analysis.',
+                        'Unified longitudinal analytics across 138 clients over a 6-year window (369K+ represented users), enabling cross-client benchmarking and planning discussions.',
+                        'Led monetization reporting across $733K+ in subscription and in-app purchase revenue, linking revenue movement to membership and acquisition signals.',
+                        'Quantified intervention impact across notifications, livestreams, content, and auction changes using quasi-experimental and pre/post methods to support rollout and iteration decisions.',
+                        'Built executive dashboards and KPI operating reviews across daily active users (DAU), monthly active users (MAU), churn, engagement, and revenue to improve decision cadence and root-cause alignment.',
                     ],
                 ),
                 _experience_block(
                     'Researcher',
                     'AUSM Lab',
-                    '2019 - 2024',
+                    '2019 - 2024 (Concurrent Research)',
                     'Toronto, ON, Canada',
                     [
-                        'Built reproducible LiDAR dataset and benchmark pipelines to solve inconsistent evaluation practices, enabling publication-ready experiments.',
+                        'Built reproducible LiDAR dataset and benchmark pipelines to resolve inconsistent evaluation practices, enabling publication-ready experiments and peer-reviewed outputs.',
                         'Produced 5,000+ single-tree benchmark annotations and co-authored peer-reviewed papers at ICPR 2022 and ISPRS 2023.',
                     ],
                 ),
@@ -277,7 +298,7 @@ layout = html.Div(
                     '2017 - 2018',
                     'Peterborough, ON, Canada',
                     [
-                        'Built Oracle-based reporting workflows to solve repetitive manual finance operations, enabling standardized monthly reporting across offices.',
+                        'Built Oracle-based financial reporting workflows to standardize recurring monthly reporting across offices.',
                         'Defined reporting guidance and trained project teams to improve adoption and interpretation of financial performance outputs.',
                     ],
                 ),
