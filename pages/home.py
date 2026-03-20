@@ -4,6 +4,7 @@ import dash
 from dash import html
 
 from case_studies import CASE_STUDIES
+from profile_data import EMAIL, GITHUB_URL, LINKEDIN_URL, LOCATION, PHONE_DISPLAY
 
 
 dash.register_page(__name__, path='/', order=0, name='Home')
@@ -152,7 +153,7 @@ layout = html.Div(
                                 ),
                                 html.A(
                                     'LinkedIn',
-                                    href='https://www.linkedin.com/in/hyungju9297/',
+                                    href=LINKEDIN_URL,
                                     className='cta-secondary',
                                     target='_blank',
                                     rel='noreferrer',
@@ -162,10 +163,22 @@ layout = html.Div(
                                         'data-track-label': 'linkedin',
                                     },
                                 ),
+                                html.A(
+                                    'GitHub',
+                                    href=GITHUB_URL,
+                                    className='cta-secondary',
+                                    target='_blank',
+                                    rel='noreferrer',
+                                    **{
+                                        'data-track': 'hero_cta_click',
+                                        'data-track-location': 'home_hero',
+                                        'data-track-label': 'github',
+                                    },
+                                ),
                             ],
                         ),
                         html.Div(
-                            'Toronto, ON, Canada | +1 (416) 706-8011 | leehyungju9297@gmail.com',
+                            f'{LOCATION} | {PHONE_DISPLAY} | {EMAIL}',
                             className='hero-contact',
                         ),
                     ],

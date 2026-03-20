@@ -3,6 +3,8 @@ import json
 import dash
 from dash import Dash, Input, Output, dcc, html
 
+from profile_data import EMAIL_HREF, GITHUB_URL, LINKEDIN_URL, PHONE_SCHEMA
+
 
 app = Dash(
     __name__,
@@ -38,6 +40,7 @@ app.index_string = """
                     <a href="/assets/Hyungju_Lee_Resume.pdf">Download Resume (PDF)</a>
                     <a href="/projects">Case Studies</a>
                     <a href="mailto:leehyungju9297@gmail.com">Email</a>
+                    <a href="https://github.com/leehyungju9297" target="_blank" rel="noreferrer">GitHub</a>
                 </p>
             </div>
         </div>
@@ -97,10 +100,10 @@ PERSON_JSON_LD = {
         'addressRegion': 'ON',
         'addressCountry': 'CA',
     },
-    'email': 'mailto:leehyungju9297@gmail.com',
-    'telephone': '+1-416-706-8011',
-    'url': 'https://www.linkedin.com/in/hyungju9297/',
-    'sameAs': ['https://www.linkedin.com/in/hyungju9297/'],
+    'email': EMAIL_HREF,
+    'telephone': PHONE_SCHEMA,
+    'url': LINKEDIN_URL,
+    'sameAs': [LINKEDIN_URL, GITHUB_URL],
 }
 
 
