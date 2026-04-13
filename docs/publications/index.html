@@ -3,10 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Publications | Hyungju Lee</title>
-    <meta name="description" content="Selected work in LiDAR data and computer vision by Hyungju Lee." />
-    <meta property="og:title" content="Publications | Hyungju Lee" />
-    <meta property="og:description" content="Selected work in LiDAR data, computer vision, and large-scale annotation benchmarks by Hyungju Lee." />
+    <title>Research | Hyungju Lee</title>
+    <meta
+      name="description"
+      content="Research and publications in LiDAR, computer vision, benchmark design, and applied ML workflows by Hyungju Lee."
+    />
+    <meta property="og:title" content="Research | Hyungju Lee" />
+    <meta
+      property="og:description"
+      content="Selected work in LiDAR, computer vision, benchmark datasets, segmentation-oriented analysis, and research engineering workflows."
+    />
     <meta property="og:type" content="website" />
     <noscript><style>.reveal-up { opacity: 1 !important; transform: none !important; }</style></noscript>
     <link rel="stylesheet" href="../assets/custom.css" />
@@ -21,8 +27,8 @@
           <a class="brand-chip" href="../">HJ</a>
           <nav class="top-nav">
             <a class="top-nav-link" href="../">Home</a>
-            <a class="top-nav-link" href="../projects/">Case Studies</a>
-            <a class="top-nav-link active" href="../publications/">Publications</a>
+            <a class="top-nav-link" href="../projects/">Selected Work</a>
+            <a class="top-nav-link active" href="../publications/">Research</a>
             <a class="top-nav-link" href="../contact/">Contact</a>
           </nav>
         </div>
@@ -30,9 +36,54 @@
       <main class="page-wrap">
         <div class="content-stack">
           <section class="reveal-up">
-            <div class="eyebrow">RESEARCH OUTPUTS</div>
-            <h2 class="section-hero-title">Publications</h2>
-            <p class="section-hero-subtitle">Selected work in LiDAR data, computer vision, and large-scale annotation benchmarks.</p>
+            <div class="eyebrow">RESEARCH</div>
+            <h2 class="section-hero-title">Research and Publications</h2>
+            <p class="section-hero-subtitle">
+              Selected work in LiDAR, computer vision, benchmark datasets, segmentation-oriented analysis, and
+              research engineering workflows.
+            </p>
+          </section>
+
+          <section class="research-theme-grid">
+            <article class="glass-card research-theme-card reveal-up">
+              <h4 class="research-theme-title">3D Vision and LiDAR</h4>
+              <p class="research-theme-copy">
+                Airborne LiDAR, point cloud representations, volumetric modeling, detection workflows, and scene-level
+                spatial reasoning.
+              </p>
+              <div class="skill-cloud">
+                <span class="skill-pill">LiDAR</span>
+                <span class="skill-pill">Point Clouds</span>
+                <span class="skill-pill">3D Vision</span>
+                <span class="skill-pill">Detection</span>
+              </div>
+            </article>
+            <article class="glass-card research-theme-card reveal-up">
+              <h4 class="research-theme-title">Benchmarking and Evaluation</h4>
+              <p class="research-theme-copy">
+                Dataset design, annotation QA, benchmark protocol definition, comparative model analysis, and
+                reproducible evaluation logic.
+              </p>
+              <div class="skill-cloud">
+                <span class="skill-pill">Benchmark Design</span>
+                <span class="skill-pill">Evaluation</span>
+                <span class="skill-pill">Annotation QA</span>
+                <span class="skill-pill">Comparative Analysis</span>
+              </div>
+            </article>
+            <article class="glass-card research-theme-card reveal-up">
+              <h4 class="research-theme-title">Research Engineering</h4>
+              <p class="research-theme-copy">
+                Technical experimentation, preprocessing pipelines, methodological synthesis, and publication-grade
+                communication of results.
+              </p>
+              <div class="skill-cloud">
+                <span class="skill-pill">Experimentation</span>
+                <span class="skill-pill">Pipelines</span>
+                <span class="skill-pill">Research Synthesis</span>
+                <span class="skill-pill">Technical Writing</span>
+              </div>
+            </article>
           </section>
 
           <article class="glass-card paper-card reveal-up">
@@ -41,8 +92,7 @@
             <h5 class="paper-title">YUTO: A Large Scale Aerial LiDAR Data Set for Semantic Segmentation</h5>
             <p class="paper-abstract">
               Introduced a large-scale aerial LiDAR benchmark dataset for semantic segmentation of urban forest scenes,
-              enabling standardized evaluation across deep learning methods and addressing the lack of publicly available
-              annotated point cloud datasets at scale.
+              supporting more standardized evaluation across deep learning methods.
             </p>
           </article>
 
@@ -51,11 +101,10 @@
             <div class="paper-place">Montreal, Canada</div>
             <h5 class="paper-title">YUTO Tree-5000: A Large-scale Airborne LiDAR Data for Single Tree Detection</h5>
             <p class="paper-abstract">
-              Presented YUTO Tree-5000, a large-scale annotated airborne LiDAR dataset of 5,000+ individually labeled
-              tree instances, designed to establish a reproducible benchmark for single-tree detection algorithms and
-              improve evaluation consistency across the field.
+              Presented a large-scale annotated airborne LiDAR dataset of 5,000+ individually labeled tree instances,
+              designed to establish a reproducible benchmark for single-tree detection algorithms.
             </p>
-            <a class="paper-link" href="https://doi.org/10.1007/978-3-031-37731-0_28" target="_blank" rel="noreferrer">Open paper →</a>
+            <a class="paper-link" href="https://doi.org/10.1007/978-3-031-37731-0_28" target="_blank" rel="noreferrer">Open link</a>
           </article>
 
           <article class="glass-card paper-card reveal-up">
@@ -63,11 +112,10 @@
             <div class="paper-place">York University, Toronto</div>
             <h5 class="paper-title">Deep convolutional neural network based single tree detection using volumetric module from airborne LiDAR data</h5>
             <p class="paper-abstract">
-              Developed a volumetric deep CNN architecture for detecting individual trees from airborne LiDAR point
-              clouds. Achieved state-of-the-art performance on self-benchmarked annotation data and was awarded
-              Best Master's Thesis at York University (2022).
+              Developed a volumetric deep CNN workflow for detecting individual trees from airborne LiDAR point
+              clouds, with strong benchmark performance and a Best Master's Thesis award at York University.
             </p>
-            <a class="paper-link" href="https://yorkspace.library.yorku.ca/items/8c15e8bb-8672-4615-be4a-6b66ca6bdfdf" target="_blank" rel="noreferrer">Open thesis →</a>
+            <a class="paper-link" href="https://yorkspace.library.yorku.ca/items/8c15e8bb-8672-4615-be4a-6b66ca6bdfdf" target="_blank" rel="noreferrer">Open link</a>
           </article>
         </div>
       </main>

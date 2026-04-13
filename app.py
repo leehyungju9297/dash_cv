@@ -10,13 +10,13 @@ app = Dash(
     __name__,
     use_pages=True,
     suppress_callback_exceptions=True,
-    title='Hyungju Lee | Product Data Scientist',
+    title='Hyungju Lee | Data Scientist, Analytics Engineer',
     update_title=None,
     meta_tags=[
         {'name': 'viewport', 'content': 'width=device-width, initial-scale=1'},
         {
             'name': 'description',
-            'content': 'Hyungju Lee portfolio: Product Data Scientist focused on KPI frameworks, dashboards, retention and churn analytics, and subscription monetization systems.',
+            'content': 'Hyungju Lee portfolio spanning product analytics, analytics engineering, data systems, and applied ML / computer vision research.',
         },
     ],
 )
@@ -38,7 +38,8 @@ app.index_string = """
                 <p>If the interactive app takes time to load, use these direct links:</p>
                 <p class="fallback-links">
                     <a href="/assets/Hyungju_Lee_Resume.pdf">Download Resume (PDF)</a>
-                    <a href="/projects">Case Studies</a>
+                    <a href="/projects">Selected Work</a>
+                    <a href="/publications">Research</a>
                     <a href="mailto:leehyungju9297@gmail.com">Email</a>
                     <a href="https://github.com/leehyungju9297" target="_blank" rel="noreferrer">GitHub</a>
                 </p>
@@ -93,7 +94,7 @@ PERSON_JSON_LD = {
     '@context': 'https://schema.org',
     '@type': 'Person',
     'name': 'Hyungju Lee',
-    'jobTitle': 'Product Data Scientist',
+    'jobTitle': 'Data Scientist / Analytics Engineer / Applied ML Researcher',
     'address': {
         '@type': 'PostalAddress',
         'addressLocality': 'Toronto',

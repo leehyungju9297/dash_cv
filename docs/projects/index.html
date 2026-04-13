@@ -3,13 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Case Studies | Hyungju Lee</title>
+    <title>Selected Work | Hyungju Lee</title>
     <meta
       name="description"
-      content="Proof-of-work case studies in product analytics, analytics engineering, KPI systems, and monetization diagnostics by Hyungju Lee."
+      content="Selected work in product analytics, analytics engineering, data systems, LiDAR research, and AI/ML evaluation by Hyungju Lee."
     />
-    <meta property="og:title" content="Case Studies | Hyungju Lee" />
-    <meta property="og:description" content="Production dashboards and analytics systems built to solve concrete product questions, improve decision quality, and establish operational metric trust." />
+    <meta property="og:title" content="Selected Work | Hyungju Lee" />
+    <meta
+      property="og:description"
+      content="Selected examples spanning KPI operating systems, analytics engineering, behavioral diagnostics, LiDAR research infrastructure, and 3D vision experimentation."
+    />
     <meta property="og:type" content="website" />
     <noscript><style>.reveal-up { opacity: 1 !important; transform: none !important; }</style></noscript>
     <link rel="stylesheet" href="../assets/custom.css" />
@@ -24,8 +27,8 @@
           <a class="brand-chip" href="../">HJ</a>
           <nav class="top-nav">
             <a class="top-nav-link" href="../">Home</a>
-            <a class="top-nav-link active" href="../projects/">Case Studies</a>
-            <a class="top-nav-link" href="../publications/">Publications</a>
+            <a class="top-nav-link active" href="../projects/">Selected Work</a>
+            <a class="top-nav-link" href="../publications/">Research</a>
             <a class="top-nav-link" href="../contact/">Contact</a>
           </nav>
         </div>
@@ -34,27 +37,41 @@
       <main class="page-wrap">
         <div class="content-stack">
           <section class="reveal-up">
-            <div class="eyebrow">PROOF OF WORK</div>
-            <h2 class="section-hero-title">Case Studies</h2>
+            <div class="eyebrow">SELECTED WORK</div>
+            <h2 class="section-hero-title">Product Systems, Analytics, and Research Work</h2>
             <p class="section-hero-subtitle">
-              Production dashboards and analytics systems built to solve concrete product questions, improve decision
-              quality, and establish operational metric trust.
+              Selected examples spanning KPI operating systems, analytics engineering, behavioral diagnostics, LiDAR
+              research infrastructure, 3D vision experimentation, and evaluation methodology.
             </p>
-            <nav class="case-jump-nav" aria-label="Jump to case study">
+            <nav class="case-jump-nav" aria-label="Jump to work sample">
               <a class="case-jump-link" href="#executive-kpi-monitoring">Executive KPI Monitoring</a>
               <a class="case-jump-link" href="#behavior-geography-correlation">Behavior &amp; Geography</a>
               <a class="case-jump-link" href="#geo-segmented-user-intelligence">Geo-Segmented Intelligence</a>
+              <a class="case-jump-link" href="#lidar-benchmark-engineering">LiDAR Benchmarking</a>
+              <a class="case-jump-link" href="#volumetric-3d-vision-evaluation">3D Vision Evaluation</a>
+              <a class="case-jump-link" href="#segmentation-scene-understanding">Segmentation Analysis</a>
             </nav>
           </section>
 
           <section class="case-study-stack">
+            <div class="eyebrow section-subhead">PRODUCT ANALYTICS / DECISION SYSTEMS</div>
+            <p class="subsection-note">
+              Production-facing work in KPI systems, behavioral analysis, segmentation, and decision support.
+            </p>
+
             <article id="executive-kpi-monitoring" class="glass-card case-study-card reveal-up">
-              <div class="project-scope">FEATURED CASE STUDY</div>
+              <div class="project-scope">PRODUCT ANALYTICS / DECISION SYSTEMS</div>
               <h3 class="case-study-title">Executive KPI Monitoring Across Client App Ecosystems</h3>
               <p class="case-study-problem">
-                Built recurring product and business KPI monitoring across DAU, memberships, revenue, notifications,
-                auctions, livestreams, and timeline activity.
+                Built a multi-tenant KPI operating system spanning engagement, retention, memberships, monetization,
+                notifications, auctions, livestreams, and timeline activity.
               </p>
+              <div class="skill-cloud case-tag-cloud">
+                <span class="skill-pill">KPI Architecture</span>
+                <span class="skill-pill">Decision Systems</span>
+                <span class="skill-pill">Monetization</span>
+                <span class="skill-pill">Release Diagnostics</span>
+              </div>
               <figure class="case-study-figure">
                 <a class="case-study-image-link" href="../assets/case_studies/executive-kpi-monitoring.jpg" target="_blank" rel="noreferrer" data-track="case_study_image_expand" data-track-location="case_studies_page" data-track-label="executive-kpi-monitoring">
                   <img
@@ -73,11 +90,11 @@
                   <h4 class="case-detail-label">Overview</h4>
                   <p class="case-detail-copy">
                     Built a production KPI monitoring surface for a white-label app ecosystem where leadership needed
-                    daily visibility into product health and monetization movement.
+                    daily visibility into product health, operational movement, and revenue signals.
                   </p>
                 </div>
                 <div class="case-detail-block">
-                  <h4 class="case-detail-label">Business problem</h4>
+                  <h4 class="case-detail-label">Problem / need</h4>
                   <p class="case-detail-copy">
                     Core metrics lived in separate pipelines and ad-hoc reports, making trend diagnosis slow and
                     decision-making inconsistent across client accounts.
@@ -86,7 +103,7 @@
                 <div class="case-detail-block">
                   <h4 class="case-detail-label">Data / system inputs</h4>
                   <ul class="case-detail-list">
-                    <li>Daily product event logs (notifications, auctions, livestreams, timeline posts).</li>
+                    <li>Daily product event logs spanning notifications, auctions, livestreams, timeline posts, and downloads.</li>
                     <li>Membership and subscription status snapshots.</li>
                     <li>Revenue records from recurring app monetization flows.</li>
                     <li>Client-level filters and date-window controls for multi-tenant analysis.</li>
@@ -97,12 +114,12 @@
                   <ul class="case-detail-list">
                     <li>Defined metric contracts for DAU, memberships, downloads, new memberships, and revenue.</li>
                     <li>Implemented multi-axis charting with event overlays to contextualize spikes and declines.</li>
-                    <li>Added aggregated summary tables for quick mean/min/max/total diagnostics.</li>
+                    <li>Added summary tables for quick mean/min/max/total diagnostics.</li>
                     <li>Shipped date-range and client selectors for leadership and PM review workflows.</li>
                   </ul>
                 </div>
                 <div class="case-detail-block">
-                  <h4 class="case-detail-label">Analytical methods / logic</h4>
+                  <h4 class="case-detail-label">Methods / evaluation</h4>
                   <ul class="case-detail-list">
                     <li>Metric normalization and daily aggregation pipelines.</li>
                     <li>Comparative time-series monitoring with event annotation.</li>
@@ -114,7 +131,7 @@
                   <ul class="case-detail-list">
                     <li>Reduced ambiguity in KPI discussions by giving leadership one shared source of truth.</li>
                     <li>Enabled faster root-cause conversations around membership and usage swings.</li>
-                    <li>Supported recurring operating reviews with decision-ready, not raw, analytics.</li>
+                    <li>Turned fragmented reporting into a repeatable decision system rather than one-off dashboards.</li>
                   </ul>
                 </div>
               </div>
@@ -132,12 +149,18 @@
             </article>
 
             <article id="behavior-geography-correlation" class="glass-card case-study-card reveal-up">
-              <div class="project-scope">FEATURED CASE STUDY</div>
+              <div class="project-scope">PRODUCT ANALYTICS / DECISION SYSTEMS</div>
               <h3 class="case-study-title">Behavior, Geography, and Correlation Diagnostics</h3>
               <p class="case-study-problem">
-                Built analysis views to connect user behavior, memberships, content activity, and geographic
-                distribution into decision-ready diagnostics.
+                Built exploratory diagnostics to connect user behavior, memberships, geography, and engagement
+                relationships into decision-ready analysis.
               </p>
+              <div class="skill-cloud case-tag-cloud">
+                <span class="skill-pill">Behavioral Analytics</span>
+                <span class="skill-pill">Correlation Diagnostics</span>
+                <span class="skill-pill">Segmentation</span>
+                <span class="skill-pill">Geo Analysis</span>
+              </div>
               <figure class="case-study-figure">
                 <a class="case-study-image-link" href="../assets/case_studies/behavior-geography-correlation.jpg" target="_blank" rel="noreferrer" data-track="case_study_image_expand" data-track-location="case_studies_page" data-track-label="behavior-geography-correlation">
                   <img
@@ -147,8 +170,8 @@
                   />
                 </a>
                 <figcaption class="case-study-caption">
-                  Diagnostics panel combining top user locations, DAU-membership relationships, and correlation structure
-                  across product events.
+                  Diagnostics panel combining top user locations, DAU-membership relationships, and correlation
+                  structure across product events.
                 </figcaption>
               </figure>
               <div class="case-detail-grid">
@@ -160,18 +183,18 @@
                   </p>
                 </div>
                 <div class="case-detail-block">
-                  <h4 class="case-detail-label">Business problem</h4>
+                  <h4 class="case-detail-label">Problem / need</h4>
                   <p class="case-detail-copy">
-                    Teams could see top-line movement but lacked reliable diagnostics to evaluate whether activity changes
-                    were noise, weak signals, or meaningful product patterns.
+                    Teams could see top-line movement but lacked reliable diagnostics to evaluate whether activity
+                    changes were noise, weak signals, or meaningful product patterns.
                   </p>
                 </div>
                 <div class="case-detail-block">
                   <h4 class="case-detail-label">Data / system inputs</h4>
                   <ul class="case-detail-list">
                     <li>Daily active user and membership time-series.</li>
-                    <li>Location-level user aggregates (city and region views).</li>
-                    <li>Event volume streams for timeline posts, notifications, and downloads.</li>
+                    <li>Location-level user aggregates with city and region views.</li>
+                    <li>Event volume streams for timeline posts, notifications, downloads, and related engagement activity.</li>
                   </ul>
                 </div>
                 <div class="case-detail-block">
@@ -183,7 +206,7 @@
                   </ul>
                 </div>
                 <div class="case-detail-block">
-                  <h4 class="case-detail-label">Analytical methods / logic</h4>
+                  <h4 class="case-detail-label">Methods / evaluation</h4>
                   <ul class="case-detail-list">
                     <li>Correlation diagnostics and relationship triage.</li>
                     <li>Segment-level slicing to detect outliers and concentration effects.</li>
@@ -194,7 +217,7 @@
                   <h4 class="case-detail-label">Outcome / impact</h4>
                   <ul class="case-detail-list">
                     <li>Gave PMs a practical way to prioritize experiments around high-signal behaviors.</li>
-                    <li>Improved quality of product discussions by grounding hypotheses in comparative diagnostics.</li>
+                    <li>Improved product discussions by grounding hypotheses in comparative diagnostics.</li>
                     <li>Surfaced non-obvious relationships to guide follow-up analysis and rollout thinking.</li>
                   </ul>
                 </div>
@@ -212,12 +235,18 @@
             </article>
 
             <article id="geo-segmented-user-intelligence" class="glass-card case-study-card reveal-up">
-              <div class="project-scope">FEATURED CASE STUDY</div>
+              <div class="project-scope">PRODUCT ANALYTICS / DECISION SYSTEMS</div>
               <h3 class="case-study-title">Geo-Segmented User Intelligence</h3>
               <p class="case-study-problem">
-                Built user-distribution views to understand where users are concentrated and how account or membership
-                segments differ geographically.
+                Built geo-distribution and segment analysis views to understand where users are concentrated and how
+                membership and account mixes differ geographically.
               </p>
+              <div class="skill-cloud case-tag-cloud">
+                <span class="skill-pill">Geo Analytics</span>
+                <span class="skill-pill">Audience Intelligence</span>
+                <span class="skill-pill">Segmentation</span>
+                <span class="skill-pill">Data Visualization</span>
+              </div>
               <figure class="case-study-figure">
                 <a class="case-study-image-link" href="../assets/case_studies/geo-segmented-user-intelligence.jpg" target="_blank" rel="noreferrer" data-track="case_study_image_expand" data-track-location="case_studies_page" data-track-label="geo-segmented-user-intelligence">
                   <img
@@ -239,7 +268,7 @@
                   </p>
                 </div>
                 <div class="case-detail-block">
-                  <h4 class="case-detail-label">Business problem</h4>
+                  <h4 class="case-detail-label">Problem / need</h4>
                   <p class="case-detail-copy">
                     User distribution insight was fragmented and hard to compare across account types, which limited
                     regional planning and launch sequencing decisions.
@@ -249,7 +278,7 @@
                   <h4 class="case-detail-label">Data / system inputs</h4>
                   <ul class="case-detail-list">
                     <li>User-level location records from app activity and account metadata.</li>
-                    <li>Account segmentation flags (not signed-up, signed-up, member, super user).</li>
+                    <li>Account segmentation flags such as non-signed-up, signed-up, member, and super user.</li>
                     <li>Client-level controls for filtered market views.</li>
                   </ul>
                 </div>
@@ -262,7 +291,7 @@
                   </ul>
                 </div>
                 <div class="case-detail-block">
-                  <h4 class="case-detail-label">Analytical methods / logic</h4>
+                  <h4 class="case-detail-label">Methods / evaluation</h4>
                   <ul class="case-detail-list">
                     <li>Geo-segmentation and density inspection.</li>
                     <li>Category-level distribution comparison by account type.</li>
@@ -289,10 +318,236 @@
                 </div>
               </div>
             </article>
+
+            <div class="eyebrow section-subhead">AI / ML / RESEARCH WORK</div>
+            <p class="subsection-note">
+              Research-oriented technical work in LiDAR, point clouds, deep learning experimentation, and benchmark design.
+            </p>
+
+            <article id="lidar-benchmark-engineering" class="glass-card case-study-card reveal-up">
+              <div class="project-scope">AI / ML / RESEARCH WORK</div>
+              <h3 class="case-study-title">LiDAR Benchmark and Annotation Pipeline Engineering</h3>
+              <p class="case-study-problem">
+                Built reproducible airborne LiDAR dataset, annotation, and benchmark workflows for single-tree detection
+                and 3D perception research.
+              </p>
+              <div class="skill-cloud case-tag-cloud">
+                <span class="skill-pill">LiDAR</span>
+                <span class="skill-pill">Point Clouds</span>
+                <span class="skill-pill">Dataset Engineering</span>
+                <span class="skill-pill">Benchmark Design</span>
+              </div>
+              <div class="case-detail-grid">
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Overview</h4>
+                  <p class="case-detail-copy">
+                    Built the research data backbone for AUSM Lab work on airborne LiDAR tree detection, turning raw
+                    point clouds into benchmark-ready corpora and reproducible evaluation assets.
+                  </p>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Problem / need</h4>
+                  <p class="case-detail-copy">
+                    The field lacked public, benchmark-grade datasets and evaluation consistency, which made model
+                    comparison noisy and hard to defend.
+                  </p>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Data / system inputs</h4>
+                  <ul class="case-detail-list">
+                    <li>Airborne LiDAR point clouds and derived volumetric representations.</li>
+                    <li>Annotation workflows for tree instance labeling and quality assurance.</li>
+                    <li>Benchmark splits, metadata schemas, and evaluation artifacts.</li>
+                  </ul>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">What I built</h4>
+                  <ul class="case-detail-list">
+                    <li>Designed annotation conventions and QA loops for 5,000+ single-tree labels.</li>
+                    <li>Structured benchmark datasets and reproducible split logic for model evaluation.</li>
+                    <li>Documented preprocessing and experiment assets so research results were traceable and publication-ready.</li>
+                  </ul>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Methods / evaluation</h4>
+                  <ul class="case-detail-list">
+                    <li>3D point cloud preprocessing and volumetric feature construction.</li>
+                    <li>Dataset curation, annotation QA, and benchmark protocol design.</li>
+                    <li>Evaluation pipeline design for repeatable detection benchmarking.</li>
+                  </ul>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Outcome / impact</h4>
+                  <ul class="case-detail-list">
+                    <li>Supported peer-reviewed outputs at ICPR 2022 and downstream dataset work.</li>
+                    <li>Reduced ambiguity in model comparison by standardizing data and evaluation inputs.</li>
+                    <li>Created reusable research infrastructure instead of one-off experiments.</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="case-tools-wrap">
+                <h4 class="case-detail-label">Tools used</h4>
+                <div class="skill-cloud">
+                  <span class="skill-pill">Python</span>
+                  <span class="skill-pill">NumPy</span>
+                  <span class="skill-pill">Pandas</span>
+                  <span class="skill-pill">LiDAR / Point Cloud Processing</span>
+                  <span class="skill-pill">Annotation QA</span>
+                  <span class="skill-pill">Benchmark Design</span>
+                </div>
+              </div>
+            </article>
+
+            <article id="volumetric-3d-vision-evaluation" class="glass-card case-study-card reveal-up">
+              <div class="project-scope">AI / ML / RESEARCH WORK</div>
+              <h3 class="case-study-title">3D Vision Experimentation for Detection and Comparative Model Analysis</h3>
+              <p class="case-study-problem">
+                Designed and evaluated deep learning workflows for detecting individual trees from airborne LiDAR using
+                3D and volumetric representations.
+              </p>
+              <div class="skill-cloud case-tag-cloud">
+                <span class="skill-pill">3D Vision</span>
+                <span class="skill-pill">Deep Learning</span>
+                <span class="skill-pill">Detection</span>
+                <span class="skill-pill">Model Evaluation</span>
+              </div>
+              <div class="case-detail-grid">
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Overview</h4>
+                  <p class="case-detail-copy">
+                    Worked across model development, experiment design, and comparative evaluation for single-tree
+                    detection from airborne LiDAR data.
+                  </p>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Problem / need</h4>
+                  <p class="case-detail-copy">
+                    Detection performance was sensitive to representation choice, data quality, and evaluation setup,
+                    requiring careful experimentation rather than isolated model runs.
+                  </p>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Data / system inputs</h4>
+                  <ul class="case-detail-list">
+                    <li>Airborne LiDAR point clouds and voxelized or volumetric inputs.</li>
+                    <li>Instance-level benchmark annotations and split definitions.</li>
+                    <li>Comparative experiment outputs, metrics, and qualitative error cases.</li>
+                  </ul>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">What I built</h4>
+                  <ul class="case-detail-list">
+                    <li>Ran deep learning experiment workflows for single-tree detection using volumetric CNN-based approaches.</li>
+                    <li>Compared model behavior across input representations, thresholds, and evaluation settings.</li>
+                    <li>Synthesized results into defendable research narratives, technical reporting, and thesis outputs.</li>
+                  </ul>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Methods / evaluation</h4>
+                  <ul class="case-detail-list">
+                    <li>3D computer vision experimentation and representation design.</li>
+                    <li>Comparative model analysis and qualitative error inspection.</li>
+                    <li>Precision/recall-oriented detection evaluation and benchmark reporting.</li>
+                  </ul>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Outcome / impact</h4>
+                  <ul class="case-detail-list">
+                    <li>Produced thesis work awarded Best Master's Thesis at York University.</li>
+                    <li>Strengthened the lab's basis for model selection and follow-on dataset research.</li>
+                    <li>Expanded my profile beyond analytics into applied ML research and experiment design.</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="case-tools-wrap">
+                <h4 class="case-detail-label">Tools used</h4>
+                <div class="skill-cloud">
+                  <span class="skill-pill">Python</span>
+                  <span class="skill-pill">Deep Learning Research</span>
+                  <span class="skill-pill">3D Computer Vision</span>
+                  <span class="skill-pill">Evaluation Metrics</span>
+                  <span class="skill-pill">Experimentation</span>
+                  <span class="skill-pill">Research Synthesis</span>
+                </div>
+              </div>
+            </article>
+
+            <article id="segmentation-scene-understanding" class="glass-card case-study-card reveal-up">
+              <div class="project-scope">AI / ML / RESEARCH WORK</div>
+              <h3 class="case-study-title">Segmentation and Scene-Understanding Benchmark Analysis</h3>
+              <p class="case-study-problem">
+                Contributed to dataset and evaluation work supporting semantic segmentation and scene-understanding
+                research on large-scale aerial LiDAR data.
+              </p>
+              <div class="skill-cloud case-tag-cloud">
+                <span class="skill-pill">Semantic Segmentation</span>
+                <span class="skill-pill">Scene Understanding</span>
+                <span class="skill-pill">Perception</span>
+                <span class="skill-pill">Research Methodology</span>
+              </div>
+              <div class="case-detail-grid">
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Overview</h4>
+                  <p class="case-detail-copy">
+                    Extended research work from instance detection into segmentation-oriented dataset thinking for
+                    aerial LiDAR and urban forest scene understanding.
+                  </p>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Problem / need</h4>
+                  <p class="case-detail-copy">
+                    Segmentation research needed richer labeled point cloud corpora and clearer evaluation framing to
+                    support reproducible comparison across methods.
+                  </p>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Data / system inputs</h4>
+                  <ul class="case-detail-list">
+                    <li>Large-scale aerial LiDAR scenes with semantic class structure.</li>
+                    <li>Annotation schemas, preprocessing decisions, and benchmark metadata.</li>
+                    <li>Paper synthesis across segmentation and perception literature.</li>
+                  </ul>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">What I built</h4>
+                  <ul class="case-detail-list">
+                    <li>Supported dataset and evaluation framing for segmentation-focused LiDAR research.</li>
+                    <li>Analyzed tradeoffs around label quality, class definitions, and benchmark comparability.</li>
+                    <li>Translated technical findings into concise research communication for publication support.</li>
+                  </ul>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Methods / evaluation</h4>
+                  <ul class="case-detail-list">
+                    <li>Semantic segmentation benchmark analysis.</li>
+                    <li>Point cloud labeling strategy and dataset quality review.</li>
+                    <li>Research synthesis across 3D perception and scene-understanding literature.</li>
+                  </ul>
+                </div>
+                <div class="case-detail-block">
+                  <h4 class="case-detail-label">Outcome / impact</h4>
+                  <ul class="case-detail-list">
+                    <li>Helped broaden lab work from detection into segmentation-oriented research outputs.</li>
+                    <li>Improved clarity around how dataset design influences downstream model evaluation.</li>
+                    <li>Added visible signal in perception, scene understanding, and research methodology.</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="case-tools-wrap">
+                <h4 class="case-detail-label">Tools used</h4>
+                <div class="skill-cloud">
+                  <span class="skill-pill">Python</span>
+                  <span class="skill-pill">LiDAR Data Engineering</span>
+                  <span class="skill-pill">Semantic Segmentation</span>
+                  <span class="skill-pill">3D Perception</span>
+                  <span class="skill-pill">Benchmark Analysis</span>
+                  <span class="skill-pill">Research Writing</span>
+                </div>
+              </div>
+            </article>
           </section>
         </div>
       </main>
-
     </div>
 
     <button class="back-to-top" id="back-to-top" aria-label="Back to top">↑</button>

@@ -22,10 +22,11 @@ layout = html.Div(
         html.Section(
             className='reveal-up',
             children=[
-                html.Div('LET\'S CONNECT', className='eyebrow'),
+                html.Div('CONTACT', className='eyebrow'),
                 html.H2('Contact', className='section-hero-title'),
                 html.P(
-                    'I bring both the analytical depth to define what to measure and the engineering skills to build the systems that do it.',
+                    'I work across product analytics, analytics engineering, data systems, and AI/ML-oriented '
+                    'research engineering. Email is the fastest path for role discussions and technical opportunities.',
                     className='section-hero-subtitle',
                 ),
             ],

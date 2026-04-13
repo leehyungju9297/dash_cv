@@ -300,13 +300,57 @@ a:focus-visible {
 }
 
 .hero-subtitle,
-.section-hero-subtitle {
+.section-hero-subtitle,
+.lane-copy,
+.research-theme-copy,
+.paper-abstract {
   color: var(--muted);
 }
 
 .hero-subtitle {
   margin: 0;
   max-width: 65ch;
+}
+
+.hero-signal-row,
+.hero-track-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.52rem;
+}
+
+.hero-signal-row {
+  margin-top: 1rem;
+}
+
+.hero-signal-pill,
+.hero-track-pill {
+  border-radius: 999px;
+  font-size: 0.81rem;
+  font-weight: 700;
+  padding: 0.32rem 0.72rem;
+}
+
+.hero-signal-pill {
+  border: 1px solid rgba(108, 185, 216, 0.28);
+  background: rgba(108, 185, 216, 0.14);
+  color: var(--accent-deep);
+}
+
+.hero-track-note {
+  margin-top: 0.32rem;
+  color: var(--muted);
+  font-size: 0.87rem;
+}
+
+.hero-track-row {
+  margin-top: 0.6rem;
+}
+
+.hero-track-pill {
+  border: 1px solid rgba(227, 178, 122, 0.24);
+  background: rgba(227, 178, 122, 0.12);
+  color: #f2d3af;
 }
 
 .hero-cta {
@@ -357,6 +401,7 @@ a:focus-visible {
 }
 
 .hero-contact {
+  margin-top: 0.95rem;
   color: var(--muted);
   font-size: 0.9rem;
   line-height: 1.5;
@@ -381,7 +426,7 @@ a:focus-visible {
 .impact-row {
   margin-top: 1.4rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(225px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(205px, 1fr));
   gap: 0.82rem;
 }
 
@@ -424,6 +469,15 @@ a:focus-visible {
   color: var(--muted);
 }
 
+.subsection-note {
+  margin: -0.1rem 0 1rem;
+  color: var(--muted);
+}
+
+.section-subhead {
+  margin-top: 1.4rem;
+}
+
 .eyebrow,
 .project-scope,
 .paper-venue,
@@ -454,6 +508,35 @@ a:focus-visible {
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
+}
+
+.lane-grid,
+.research-highlight-grid,
+.resume-track-grid,
+.research-theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.95rem;
+}
+
+.lane-card,
+.research-highlight-card,
+.resume-track-card,
+.research-theme-card {
+  padding: 1rem;
+}
+
+.lane-title,
+.resume-track-title,
+.research-theme-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.04rem;
+}
+
+.lane-copy,
+.resume-track-copy,
+.research-theme-copy {
+  margin: 0 0 0.8rem;
 }
 
 .featured-case-grid {
@@ -494,27 +577,32 @@ a:focus-visible {
   padding: 1rem 1.06rem 1.08rem;
 }
 
-.featured-case-title {
+.featured-case-title,
+.research-highlight-title {
   margin: 0;
   font-size: 1.14rem;
   line-height: 1.3;
 }
 
-.featured-case-summary {
+.featured-case-summary,
+.research-highlight-summary {
   margin: 0.46rem 0 0.56rem;
   color: var(--muted);
 }
 
-.featured-case-highlights {
-  margin: 0;
+.featured-case-highlights,
+.research-highlight-list {
+  margin: 0.72rem 0 0;
   padding-left: 1.1rem;
 }
 
-.featured-case-highlights li {
+.featured-case-highlights li,
+.research-highlight-list li {
   margin-bottom: 0.28rem;
 }
 
-.featured-case-caption {
+.featured-case-caption,
+.research-highlight-caption {
   margin: 0.48rem 0 0.12rem;
   color: var(--muted);
   font-size: 0.84rem;
@@ -573,6 +661,10 @@ a:focus-visible {
   padding: 0.32rem 0.68rem;
 }
 
+.case-tag-cloud {
+  margin-bottom: 0.8rem;
+}
+
 .experience-card {
   position: relative;
   padding: 1rem 1.08rem 0.84rem;
@@ -627,6 +719,10 @@ a:focus-visible {
   margin-bottom: 0.34rem;
 }
 
+.resume-cta-wrap {
+  margin-top: 1rem;
+}
+
 .edu-card {
   padding: 1rem;
 }
@@ -651,6 +747,28 @@ a:focus-visible {
   color: var(--accent);
   font-size: 0.74rem;
   margin-bottom: 0.4rem;
+}
+
+.case-jump-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.case-jump-link {
+  text-decoration: none;
+  color: var(--accent-deep);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.42rem 0.84rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: rgba(24, 37, 49, 0.78);
+}
+
+.case-jump-link:hover {
+  border-color: rgba(108, 185, 216, 0.42);
 }
 
 .case-study-stack {
@@ -759,6 +877,10 @@ a:focus-visible {
 .paper-title {
   margin: 0 0 0.48rem;
   font-size: 1.08rem;
+}
+
+.paper-abstract {
+  margin: 0 0 0.55rem;
 }
 
 .paper-link {
@@ -956,7 +1078,6 @@ a:focus-visible {
   .case-detail-block {
     background: rgba(20, 31, 42, 0.8);
   }
-
 }
 
 @media (max-width: 980px) {
@@ -970,8 +1091,8 @@ a:focus-visible {
 
   .featured-case-grid,
   .featured-case-card-primary,
-  .skill-level-grid,
-  .case-detail-grid {
+  .case-detail-grid,
+  .contact-grid {
     grid-template-columns: 1fr;
   }
 
@@ -979,115 +1100,36 @@ a:focus-visible {
     border-right: 0;
     border-bottom: 1px solid var(--line);
   }
-
-  .featured-case-card-primary .featured-case-image {
-    aspect-ratio: 16 / 9;
-    min-height: 230px;
-  }
-
 }
 
 @media (max-width: 720px) {
   .content-stack {
-    padding-top: 1.2rem;
-  }
-
-  .top-nav {
-    gap: 0.44rem;
-  }
-
-  .top-nav-link {
-    padding: 0.44rem 0.74rem;
-    font-size: 0.82rem;
+    padding: 2rem 0.9rem 3rem;
   }
 
   .hero-copy {
-    padding: 1.25rem;
+    padding: 1.55rem;
   }
 
-  .hero-role {
-    font-size: clamp(1.84rem, 7.8vw, 2.42rem);
+  .header-inner {
+    align-items: flex-start;
   }
 
-  .hero-title {
-    font-size: 1.03rem;
+  .top-nav {
+    justify-content: flex-start;
   }
 
-  .hero-contact {
-    font-size: 0.85rem;
-  }
-
-  .section-title {
-    margin-top: 1.72rem;
-  }
-
-  .exp-meta {
-    text-align: left;
-  }
-
-  .contact-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 640px) {
-  .header-inner,
-  .content-stack,
-  .fallback-shell {
-    padding-left: 0.74rem;
-    padding-right: 0.74rem;
-  }
-
-  .content-stack {
-    padding-bottom: 2.2rem;
-  }
-
-  .hero {
-    gap: 0.95rem;
-  }
-
+  .case-jump-nav,
   .hero-cta {
     gap: 0.5rem;
   }
 
-  .hero-cta .cta-primary,
-  .hero-cta .cta-secondary {
-    width: 100%;
-  }
-
-  .impact-chip {
-    padding: 0.82rem 0.85rem;
-  }
-
-  .case-study-card {
-    padding: 0.9rem;
-  }
-
-  .case-study-image {
-    padding: 0.48rem;
-  }
-
-  .case-detail-block {
-    padding: 0.74rem;
-  }
-
-  .case-study-title {
-    font-size: 1.26rem;
-  }
-
-  .featured-case-body {
-    padding: 0.88rem 0.9rem 0.9rem;
-  }
-
-  .featured-case-image {
-    min-height: 190px;
-    padding: 0.42rem;
-  }
-
-  .back-to-top {
-    right: 0.74rem;
-    bottom: 0.74rem;
-    width: 40px;
-    height: 40px;
+  .impact-row,
+  .lane-grid,
+  .research-highlight-grid,
+  .resume-track-grid,
+  .research-theme-grid,
+  .skill-level-grid {
+    grid-template-columns: 1fr;
   }
 }

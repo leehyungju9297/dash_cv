@@ -1,10 +1,10 @@
 import dash
 from dash import html
 
-from case_studies import CASE_STUDIES
+from case_studies import CASE_STUDIES, RESEARCH_HIGHLIGHTS
 
 
-dash.register_page(__name__, path='/projects', order=1, name='Case Studies')
+dash.register_page(__name__, path='/projects', order=1, name='Selected Work')
 
 
 def _list_section(title: str, items):
@@ -27,45 +27,54 @@ def _text_section(title: str, text: str):
     )
 
 
-def _case_study_card(case):
-    return html.Article(
-        id=case['slug'],
-        className='glass-card case-study-card reveal-up',
-        children=[
-            html.Div('FEATURED CASE STUDY', className='project-scope'),
-            html.H3(case['title'], className='case-study-title'),
-            html.P(case['problem_line'], className='case-study-problem'),
+def _work_card(item):
+    children = [
+        html.Div(item['scope'], className='project-scope'),
+        html.H3(item['title'], className='case-study-title'),
+        html.P(item['problem_line'], className='case-study-problem'),
+        html.Div(
+            className='skill-cloud case-tag-cloud',
+            children=[html.Span(tag, className='skill-pill') for tag in item['tags']],
+        ),
+    ]
+
+    if item.get('thumbnail_src'):
+        children.append(
             html.Figure(
                 className='case-study-figure',
                 children=[
                     html.A(
-                        href=case['thumbnail_src'],
+                        href=item['thumbnail_src'],
                         target='_blank',
                         rel='noreferrer',
                         className='case-study-image-link',
                         **{
                             'data-track': 'case_study_image_expand',
                             'data-track-location': 'case_studies_page',
-                            'data-track-label': case['slug'],
+                            'data-track-label': item['slug'],
                         },
                         children=html.Img(
-                            src=case['thumbnail_src'],
+                            src=item['thumbnail_src'],
                             className='case-study-image',
-                            alt=case['thumbnail_alt'],
+                            alt=item['thumbnail_alt'],
                         ),
                     ),
-                    html.Figcaption(case['image_caption'], className='case-study-caption'),
+                    html.Figcaption(item['image_caption'], className='case-study-caption'),
                 ],
-            ),
+            )
+        )
+
+    children.extend(
+        [
             html.Div(
                 className='case-detail-grid',
                 children=[
-                    _text_section('Overview', case['overview']),
-                    _text_section('Business problem', case['business_problem']),
-                    _list_section('Data / system inputs', case['data_inputs']),
-                    _list_section('What I built', case['what_i_built']),
-                    _list_section('Analytical methods / logic', case['methods']),
-                    _list_section('Outcome / impact', case['impact']),
+                    _text_section('Overview', item['overview']),
+                    _text_section('Problem / need', item['problem_statement']),
+                    _list_section('Data / system inputs', item['data_inputs']),
+                    _list_section('What I built', item['what_i_built']),
+                    _list_section('Methods / evaluation', item['methods']),
+                    _list_section('Outcome / impact', item['impact']),
                 ],
             ),
             html.Div(
@@ -74,11 +83,17 @@ def _case_study_card(case):
                     html.H4('Tools used', className='case-detail-label'),
                     html.Div(
                         className='skill-cloud',
-                        children=[html.Span(tool, className='skill-pill') for tool in case['tools']],
+                        children=[html.Span(tool, className='skill-pill') for tool in item['tools']],
                     ),
                 ],
             ),
-        ],
+        ]
+    )
+
+    return html.Article(
+        id=item['slug'],
+        className='glass-card case-study-card reveal-up',
+        children=children,
     )
 
 
@@ -88,18 +103,43 @@ layout = html.Div(
         html.Section(
             className='reveal-up',
             children=[
-                html.Div('PROOF OF WORK', className='eyebrow'),
-                html.H2('Case Studies', className='section-hero-title'),
+                html.Div('SELECTED WORK', className='eyebrow'),
+                html.H2('Product Systems, Analytics, and Research Work', className='section-hero-title'),
                 html.P(
-                    'Production dashboards and analytics systems built to solve concrete product questions, '
-                    'improve decision quality, and establish operational metric trust.',
+                    'Selected examples spanning KPI operating systems, analytics engineering, behavioral diagnostics, '
+                    'LiDAR research infrastructure, 3D vision experimentation, and evaluation methodology.',
                     className='section-hero-subtitle',
+                ),
+                html.Nav(
+                    className='case-jump-nav',
+                    **{'aria-label': 'Jump to work sample'},
+                    children=[
+                        html.A('Executive KPI Monitoring', href='#executive-kpi-monitoring', className='case-jump-link'),
+                        html.A('Behavior & Geography', href='#behavior-geography-correlation', className='case-jump-link'),
+                        html.A('Geo-Segmented Intelligence', href='#geo-segmented-user-intelligence', className='case-jump-link'),
+                        html.A('LiDAR Benchmarking', href='#lidar-benchmark-engineering', className='case-jump-link'),
+                        html.A('3D Vision Evaluation', href='#volumetric-3d-vision-evaluation', className='case-jump-link'),
+                        html.A('Segmentation Analysis', href='#segmentation-scene-understanding', className='case-jump-link'),
+                    ],
                 ),
             ],
         ),
         html.Section(
             className='case-study-stack',
-            children=[_case_study_card(case) for case in CASE_STUDIES],
+            children=[
+                html.Div('PRODUCT ANALYTICS / DECISION SYSTEMS', className='eyebrow section-subhead'),
+                html.P(
+                    'Production-facing work in KPI systems, behavioral analysis, segmentation, and decision support.',
+                    className='subsection-note',
+                ),
+                *[_work_card(case) for case in CASE_STUDIES],
+                html.Div('AI / ML / RESEARCH WORK', className='eyebrow section-subhead'),
+                html.P(
+                    'Research-oriented technical work in LiDAR, point clouds, deep learning experimentation, and benchmark design.',
+                    className='subsection-note',
+                ),
+                *[_work_card(item) for item in RESEARCH_HIGHLIGHTS],
+            ],
         ),
     ],
 )
