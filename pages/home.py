@@ -269,7 +269,7 @@ layout = html.Div(
                                     },
                                 ),
                                 html.A(
-                                    'Download Hybrid Resume (PDF)',
+                                    'Resume (PDF)',
                                     href='/assets/Hyungju_Lee_Resume.pdf',
                                     download='Hyungju_Lee_Resume.pdf',
                                     className='cta-secondary',
@@ -304,11 +304,6 @@ layout = html.Div(
                                     },
                                 ),
                             ],
-                        ),
-                        html.Div('Current resume track: hybrid technical profile', className='hero-track-note'),
-                        html.Div(
-                            className='hero-track-row',
-                            children=[html.Span(track['title'], className='hero-track-pill') for track in RESUME_TRACKS],
                         ),
                         html.Div(
                             f'{LOCATION} | {PHONE_DISPLAY} | {EMAIL}',
@@ -443,7 +438,7 @@ layout = html.Div(
                 html.Div(
                     className='resume-cta-wrap',
                     children=html.A(
-                        'Download Current Resume (PDF)',
+                        'Resume (PDF)',
                         href='/assets/Hyungju_Lee_Resume.pdf',
                         download='Hyungju_Lee_Resume.pdf',
                         className='cta-primary',

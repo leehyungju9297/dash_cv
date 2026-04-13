@@ -312,8 +312,7 @@ a:focus-visible {
   max-width: 65ch;
 }
 
-.hero-signal-row,
-.hero-track-row {
+.hero-signal-row {
   display: flex;
   flex-wrap: wrap;
   gap: 0.52rem;
@@ -323,8 +322,7 @@ a:focus-visible {
   margin-top: 1rem;
 }
 
-.hero-signal-pill,
-.hero-track-pill {
+.hero-signal-pill {
   border-radius: 999px;
   font-size: 0.81rem;
   font-weight: 700;
@@ -335,22 +333,6 @@ a:focus-visible {
   border: 1px solid rgba(108, 185, 216, 0.28);
   background: rgba(108, 185, 216, 0.14);
   color: var(--accent-deep);
-}
-
-.hero-track-note {
-  margin-top: 0.32rem;
-  color: var(--muted);
-  font-size: 0.87rem;
-}
-
-.hero-track-row {
-  margin-top: 0.6rem;
-}
-
-.hero-track-pill {
-  border: 1px solid rgba(227, 178, 122, 0.24);
-  background: rgba(227, 178, 122, 0.12);
-  color: #f2d3af;
 }
 
 .hero-cta {
@@ -667,6 +649,7 @@ a:focus-visible {
 
 .experience-card {
   position: relative;
+  overflow: hidden;
   padding: 1rem 1.08rem 0.84rem;
   margin-bottom: 0.9rem;
 }
