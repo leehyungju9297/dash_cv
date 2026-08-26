@@ -18,51 +18,80 @@ import shutil
 from pathlib import Path
 
 from demo_dashboard.config import (
+    ACCENT,
+    ACCENT_DEEP,
+    ACCENT_SOFT,
     ACCENTS,
     AGGREGATE_NAMES,
+    ANOMALY_METRICS,
+    ANOMALY_Z,
+    AOV_SCALE,
     AXIS_METRICS,
     BRAND,
     BRAND_MARK,
+    BRAND_SLUG,
     BRAND_TAGLINE,
-    CLIENTS,
-    CLIENT_NAMES,
-    CORRELATION_METRICS,
+    BRANDS,
+    BRAND_NAMES,
+    CATEGORIES,
+    CHANNELS,
     DATE_PRESETS,
-    DEFAULT_CLIENT,
+    DEFAULT_BRAND,
     DEFAULT_PRESET,
+    DEFAULT_VIEW,
+    DIVERGING,
     METRICS,
-    SEGMENTS,
+    NEGATIVE,
+    NEUTRAL,
+    PALETTE,
+    POSITIVE,
+    RETENTION_SCALE,
+    RETURN_REASONS,
+    SECTIONS,
+    SEQUENTIAL,
+    SOURCE_COLORS,
+    SPLOM_METRICS,
     SURFACE,
+    VALUE_TIERS,
 )
-from demo_dashboard.data import EVENT_KINDS, get_dataset
-from demo_dashboard.figures import (
-    CHART_HEIGHTS,
-    HEATMAP_METRICS,
-    MAP_STYLE,
-    MAX_BUBBLES,
-    MEMBER_SHARE_SCALE,
+from demo_dashboard.data import DERIVED, EVENT_KINDS, SERIES_KEYS, get_dataset
+from demo_dashboard.figures import CHART_HEIGHTS, MAP_DISPLAYS, MAP_STYLE
+from demo_dashboard.geo import (
+    CHAMPION_SPEND_PERCENTILE,
+    FREQUENCY_CUT,
+    RECENCY_CUT,
+    RFM_QUADRANTS,
 )
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DOCS_DEMO = REPO_ROOT / 'docs' / 'assets' / 'demo'
-DATA_FILE = DOCS_DEMO / 'frontrow_data.json'
+DATA_FILE = DOCS_DEMO / f'{BRAND_SLUG}_data.json'
 # Assets the Dash app and the static build share verbatim. Copying them on
 # export is what keeps the two from drifting: before this, a change to
 # custom.css had to be remembered twice and silently wasn't.
 SHARED_ASSETS = ('dashboard.css', 'custom.css', 'enhancements.js', 'tracking.js',
                  'favicon.svg', 'Hyungju_Lee_Resume.pdf')
-SHARED_ASSET_DIRS = ('research', 'case_studies', 'logos')
+SHARED_ASSET_DIRS = ('research', 'logos', 'demo_shots')
 ASSETS_DIR = REPO_ROOT / 'assets'
 DOCS_ASSETS = REPO_ROOT / 'docs' / 'assets'
+
+# Whatever the exporter wrote under a previous brand is still being served until
+# it is removed, and a stale twin is worse than no twin. Rather than list old
+# names — which would keep a retired brand in the source forever — anything in
+# the demo directory that is not part of the current build is pruned.
+CURRENT_DEMO_FILES = (f'{BRAND_SLUG}_data.json', f'{BRAND_SLUG}.js')
 
 
 def build_payload() -> dict:
     """The dataset plus the config the client-side dashboard needs to render.
 
     Config travels with the data so the static page has no second source of
-    truth for metric labels, colors, or the client roster — change
-    ``demo_dashboard/config.py`` and both dashboards move together.
+    truth for metric labels, colours, thresholds or the brand roster — change
+    ``demo_dashboard/config.py`` and both builds move together. The same goes
+    for the analysis constants: the anomaly threshold and the RFM quadrant cuts
+    are shipped rather than restated, because two copies of a threshold is two
+    charts that eventually disagree.
     """
     dataset = get_dataset()
     return {
@@ -72,37 +101,63 @@ def build_payload() -> dict:
             'tagline': BRAND_TAGLINE,
         },
         'config': {
-            'clients': CLIENTS,
-            'accounts': CLIENT_NAMES,
+            'brands': BRANDS,
+            'accounts': BRAND_NAMES,
             'aggregates': AGGREGATE_NAMES,
-            'defaultClient': DEFAULT_CLIENT,
+            'defaultBrand': DEFAULT_BRAND,
             'defaultPreset': DEFAULT_PRESET,
+            'defaultView': DEFAULT_VIEW,
             'presets': [{'label': label, 'days': days} for label, days in DATE_PRESETS],
+            'sections': SECTIONS,
             'metrics': METRICS,
             'axisMetrics': AXIS_METRICS,
-            'correlationMetrics': CORRELATION_METRICS,
+            'splomMetrics': SPLOM_METRICS,
+            'anomalyMetrics': ANOMALY_METRICS,
+            'anomalyZ': ANOMALY_Z,
+            'seriesKeys': SERIES_KEYS,
+            'derived': {key: list(pair) for key, pair in DERIVED.items()},
             'accents': ACCENTS,
             'surface': SURFACE,
-            'segments': [{'name': name, 'color': color} for name, color in SEGMENTS],
+            'palette': PALETTE,
+            'sequential': SEQUENTIAL,
+            'diverging': DIVERGING,
+            'accent': ACCENT,
+            'accentDeep': ACCENT_DEEP,
+            'accentSoft': ACCENT_SOFT,
+            'positive': POSITIVE,
+            'negative': NEGATIVE,
+            'neutral': NEUTRAL,
+            'retentionScale': [[position, colour] for position, colour in RETENTION_SCALE],
+            'aovScale': [[position, colour] for position, colour in AOV_SCALE],
+            'categories': [{'name': c['name'], 'color': c['color']} for c in CATEGORIES],
+            'channels': [{'name': name, 'color': colour} for name, colour in CHANNELS],
+            'sourceColors': SOURCE_COLORS,
+            'returnReasons': [{'name': name, 'color': colour}
+                              for name, colour in RETURN_REASONS],
+            'valueTiers': [{'name': name, 'color': colour} for name, colour in VALUE_TIERS],
+            'rfm': {
+                'recencyCut': RECENCY_CUT,
+                'frequencyCut': FREQUENCY_CUT,
+                'championPercentile': CHAMPION_SPEND_PERCENTILE,
+                'quadrants': RFM_QUADRANTS,
+            },
             'eventKinds': {
-                kind: {'color': spec['color'], 'metrics': sorted(spec['amp'])}
+                kind: {'color': spec['color'], 'terms': sorted(spec['amp'])}
                 for kind, spec in EVENT_KINDS.items()
             },
-            # Heatmap constants travel with the data so the static twin's map
+            # Chart geometry travels with the data so the static twin's cards
             # cannot drift from the Dash page's.
             'chartHeights': CHART_HEIGHTS,
-            'heatmap': {
-                'mapStyle': MAP_STYLE,
-                'maxBubbles': MAX_BUBBLES,
-                'memberShareScale': MEMBER_SHARE_SCALE,
-                'metrics': {key: {'label': label, 'column': column}
-                            for key, (label, column) in HEATMAP_METRICS.items()},
+            'map': {
+                'style': MAP_STYLE,
+                'displays': [{'value': value, 'label': label}
+                             for value, label in MAP_DISPLAYS],
             },
         },
         'dates': dataset['dates'],
-        'startDate': dataset['start_date'],
-        'endDate': dataset['end_date'],
-        'clients': dataset['clients'],
+        'startDate': dataset['start'],
+        'endDate': dataset['end'],
+        'brands': dataset['brands'],
     }
 
 
@@ -114,6 +169,11 @@ def main() -> None:
 
     size_kb = DATA_FILE.stat().st_size / 1024
     print(f'wrote {DATA_FILE.relative_to(REPO_ROOT)}  ({size_kb:,.0f} KB)')
+
+    for stale in sorted(DOCS_DEMO.iterdir()):
+        if stale.is_file() and stale.name not in CURRENT_DEMO_FILES:
+            stale.unlink()
+            print(f'removed stale docs/assets/demo/{stale.name}')
 
     for name in SHARED_ASSETS:
         source = ASSETS_DIR / name

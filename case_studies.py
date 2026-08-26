@@ -7,8 +7,6 @@ WorkItem = Dict[str, object]
 CASE_STUDIES: List[WorkItem] = [
     {
         'slug': 'executive-kpi-monitoring',
-        # Rendered as a link to /dashboard, the interactive rebuild of this work.
-        'has_demo': True,
         'scope': 'PRODUCT ANALYTICS / DECISION SYSTEMS',
         'title': 'Executive KPI Monitoring Across Client App Ecosystems',
         'problem_line': 'Built a multi-tenant KPI operating system spanning engagement, retention, memberships, monetization, notifications, auctions, livestreams, and timeline activity.',
@@ -19,9 +17,6 @@ CASE_STUDIES: List[WorkItem] = [
         ],
         'tags': ['KPI Architecture', 'Decision Systems', 'Monetization', 'Release Diagnostics'],
         'homepage_caption': 'Decision-ready analytics operating layer for a 138-client app ecosystem.',
-        'thumbnail_src': '/assets/case_studies/executive-kpi-monitoring.jpg',
-        'thumbnail_alt': 'Dashboard overview: a downloads headline, supporting KPI tiles, and a dual-axis activity chart with release-calendar markers.',
-        'image_caption': 'The KPI overview — one headline metric, supporting tiles, and a dual-axis trend with the release calendar overlaid, so a spike can be read against what shipped that week.',
         'overview': (
             'Built a production KPI monitoring surface for a white-label app ecosystem where leadership needed '
             'daily visibility into product health, operational movement, and revenue signals.'
@@ -61,8 +56,6 @@ CASE_STUDIES: List[WorkItem] = [
     },
     {
         'slug': 'behavior-geography-correlation',
-        # Rendered as a link to /dashboard, the interactive rebuild of this work.
-        'has_demo': True,
         'scope': 'PRODUCT ANALYTICS / DECISION SYSTEMS',
         'title': 'Behavior, Geography, and Correlation Diagnostics',
         'problem_line': 'Built exploratory diagnostics to connect user behavior, memberships, geography, and engagement relationships into decision-ready analysis.',
@@ -73,9 +66,6 @@ CASE_STUDIES: List[WorkItem] = [
         ],
         'tags': ['Behavioral Analytics', 'Correlation Diagnostics', 'Segmentation', 'Geo Analysis'],
         'homepage_caption': 'Integrated diagnostic layer for product triage, hypothesis generation, and follow-up analysis.',
-        'thumbnail_src': '/assets/case_studies/behavior-geography-correlation.jpg',
-        'thumbnail_alt': 'Relationship scatter with a least-squares fit, above a correlation matrix across product event families.',
-        'image_caption': 'Relationship diagnostics — a least-squares fit over daily observations above the correlation structure across event families, where weak signals separate from repeatable ones.',
         'overview': (
             'Designed an exploratory diagnostics dashboard to move from isolated KPI checks to relationship-level '
             'analysis across behavior, engagement, and monetization signals.'
@@ -110,8 +100,6 @@ CASE_STUDIES: List[WorkItem] = [
     },
     {
         'slug': 'geo-segmented-user-intelligence',
-        # Rendered as a link to /dashboard, the interactive rebuild of this work.
-        'has_demo': True,
         'scope': 'PRODUCT ANALYTICS / DECISION SYSTEMS',
         'title': 'Geo-Segmented User Intelligence',
         'problem_line': 'Built geo-distribution and segment analysis views to understand where users are concentrated and how membership and account mixes differ geographically.',
@@ -122,9 +110,6 @@ CASE_STUDIES: List[WorkItem] = [
         ],
         'tags': ['Geo Analytics', 'Audience Intelligence', 'Segmentation', 'Data Visualization'],
         'homepage_caption': 'Geographic intelligence layer for segment-aware audience analysis across regions.',
-        'thumbnail_src': '/assets/case_studies/geo-segmented-user-intelligence.jpg',
-        'thumbnail_alt': 'Dark map with market bubbles sized by audience and coloured by member share, above a reach and member-density KPI strip.',
-        'image_caption': 'The audience heatmap — markets sized by audience and coloured by member share, with reach, spread, and member density read off the strip above it.',
         'overview': (
             'Built a geo-intelligence layer so product stakeholders could quickly understand audience distribution '
             'and segment density across the U.S. footprint.'
@@ -161,6 +146,62 @@ CASE_STUDIES: List[WorkItem] = [
         ],
     },
 ]
+
+
+# --------------------------------------------------------------------------
+# Live demo
+# --------------------------------------------------------------------------
+# A standalone build, not a reconstruction of anything. It exists to show how an
+# analytics surface gets designed and shipped end to end — the domain is chosen,
+# the data is generated, and every number on the page comes out of the generator
+# in this repository.
+LIVE_DEMO: WorkItem = {
+    'slug': 'tidepool-commerce-analytics',
+    'scope': 'PRODUCT ANALYTICS / DATA VISUALIZATION',
+    'title': 'Tidepool Commerce Analytics — Live Retail Dashboard',
+    'problem_line': (
+        'Designed and built a multi-brand direct-to-consumer analytics surface end '
+        'to end: the synthetic dataset, the analysis, the chart craft, and two '
+        'independent front ends that agree to the last digit.'
+    ),
+    'tags': ['Cohort Retention', 'RFM Segmentation', 'Driver Decomposition',
+             'Event Study', 'Geospatial', 'Data Visualization'],
+    'highlights': [
+        'Nine views across sales performance, customers, marketing and operations.',
+        'Retention triangles, RFM quadrants, revenue driver walks and event studies.',
+        'Ships twice — a Dash app and a plotly.js build — from one dataset.',
+    ],
+    'homepage_caption': (
+        'A working retail analytics product, built from generated data.'
+    ),
+    'href': '/dashboard',
+    'shots': [
+        {
+            'src': '/assets/demo_shots/trading-performance.jpg',
+            'alt': 'Revenue and orders on independent axes with promotion markers '
+                   'and outliers ringed on the series.',
+            'caption': 'Trading performance — two metrics on independent axes with '
+                       'the promotion calendar overlaid and outliers called out in '
+                       'place, so a spike can be read against what ran that week.',
+        },
+        {
+            'src': '/assets/demo_shots/cohort-retention.jpg',
+            'alt': 'A cohort retention triangle: acquisition month down the side, '
+                   'months since first order across the top.',
+            'caption': 'Cohort retention — repeat rate by acquisition month. A '
+                       'triangle rather than a rectangle, because a cohort acquired '
+                       'last month has exactly one observed month.',
+        },
+        {
+            'src': '/assets/demo_shots/fulfillment-geography.jpg',
+            'alt': 'A light map of North America with market bubbles sized by order '
+                   'volume and coloured by average order value.',
+            'caption': 'Fulfillment geography — bubble size is order volume and '
+                       'colour is average order value, so a market that is large and '
+                       'cheap reads differently from one that is small and rich.',
+        },
+    ],
+}
 
 
 RESEARCH_HIGHLIGHTS: List[WorkItem] = [

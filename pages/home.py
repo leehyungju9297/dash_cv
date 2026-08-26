@@ -3,7 +3,7 @@ from typing import List
 import dash
 from dash import html
 
-from case_studies import CASE_STUDIES, RESEARCH_HIGHLIGHTS
+from case_studies import CASE_STUDIES, LIVE_DEMO, RESEARCH_HIGHLIGHTS
 from profile_data import EMAIL, GITHUB_URL, LINKEDIN_URL, LOCATION, PHONE_DISPLAY
 
 
@@ -182,9 +182,9 @@ def _case_preview_card(case, primary: bool = False):
     if primary:
         card_class += ' featured-case-card-primary'
 
-    return html.Article(
-        className=card_class,
-        children=[
+    children = []
+    if case.get('thumbnail_src'):
+        children.append(
             # The card's button below points at the same anchor, so the image
             # link is hidden from assistive tech and the tab order rather than
             # announced as a second, unlabelled copy of it.
@@ -203,7 +203,14 @@ def _case_preview_card(case, primary: bool = False):
                     className='featured-case-image',
                     alt=case['thumbnail_alt'],
                 ),
-            ),
+            )
+        )
+    else:
+        card_class += ' featured-case-card-textual'
+
+    return html.Article(
+        className=card_class,
+        children=children + [
             html.Div(
                 className='featured-case-body',
                 children=[
@@ -224,6 +231,61 @@ def _case_preview_card(case, primary: bool = False):
                             'data-track': 'featured_case_cta_click',
                             'data-track-location': 'home_featured_case',
                             'data-track-label': case['slug'],
+                        },
+                    ),
+                ],
+            ),
+        ],
+    )
+
+
+def _demo_preview_card():
+    """The live demo, leading the featured row.
+
+    It is the only item on the page with a screenshot, because it is the only
+    one whose software this repository actually contains.
+    """
+    shot = LIVE_DEMO['shots'][0]
+    return html.Article(
+        className='glass-card featured-case-card featured-case-card-primary',
+        children=[
+            html.A(
+                href='/dashboard',
+                className='featured-case-image-link',
+                tabIndex='-1',
+                **{
+                    'aria-hidden': 'true',
+                    'data-track': 'featured_case_image_click',
+                    'data-track-location': 'home_featured_case',
+                    'data-track-label': LIVE_DEMO['slug'],
+                },
+                children=html.Img(
+                    src=shot['src'],
+                    className='featured-case-image',
+                    alt=shot['alt'],
+                ),
+            ),
+            html.Div(
+                className='featured-case-body',
+                children=[
+                    html.Div(LIVE_DEMO['scope'], className='project-scope'),
+                    html.H4(LIVE_DEMO['title'], className='featured-case-title'),
+                    html.P(LIVE_DEMO['problem_line'], className='featured-case-summary'),
+                    _tag_cloud(LIVE_DEMO['tags']),
+                    html.Ul(
+                        className='featured-case-highlights',
+                        children=[html.Li(item) for item in LIVE_DEMO['highlights']],
+                    ),
+                    html.P(LIVE_DEMO['homepage_caption'],
+                           className='featured-case-caption'),
+                    html.A(
+                        'Open the live demo \u2192',
+                        href='/dashboard',
+                        className='cta-secondary featured-case-cta',
+                        **{
+                            'data-track': 'featured_case_cta_click',
+                            'data-track-location': 'home_featured_case',
+                            'data-track-label': LIVE_DEMO['slug'],
                         },
                     ),
                 ],
@@ -418,7 +480,9 @@ layout = html.Div(
                 ),
                 html.Div(
                     className='featured-case-grid',
-                    children=[_case_preview_card(case, primary=index == 0) for index, case in enumerate(CASE_STUDIES)],
+                    children=[_demo_preview_card()] + [
+                        _case_preview_card(case) for case in CASE_STUDIES
+                    ],
                 ),
                 html.Div('AI / ML / RESEARCH WORK', className='eyebrow section-subhead'),
                 html.P(

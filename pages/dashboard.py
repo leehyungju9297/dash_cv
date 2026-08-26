@@ -1,42 +1,44 @@
-"""Live demo: the Frontrow Analytics product dashboard.
+"""Live demo: the Tidepool Commerce Analytics dashboard.
 
-An interactive, fully wired rebuild of the multi-tenant product analytics
-dashboard described in the Selected Work case studies, running on a deterministic
-synthetic dataset (see :mod:`demo_dashboard.data`). Same structure as the
-production system it mirrors — client scoping, KPI monitoring with a release
-overlay, audience geography, behavioral diagnostics, revenue and retention — with
-every name and number invented for this portfolio.
+A multi-brand direct-to-consumer retail analytics surface, fully wired, running
+on a deterministic synthetic dataset (see :mod:`demo_dashboard.data`). Sales
+performance, revenue drivers and category mix; cohort retention and customer
+value; channel attribution and promotion lift; fulfillment geography and returns.
 
-All four sections stay mounted and are toggled with a class, so every control
-keeps its callback wiring instead of being torn down when a section is hidden.
+Two structural decisions worth naming:
+
+* **Every view stays mounted and is toggled with a class.** Tearing a view down
+  when its tab is hidden would tear its callbacks down with it, so every control
+  would lose its state on the way back. Nine hidden ``div``s cost nothing; nine
+  re-initialised control groups cost the reader their place.
+
+* **Figures are built in :mod:`demo_dashboard.figures`, never here.** This module
+  is layout and wiring. That is what lets the static twin mirror one file instead
+  of reimplementing the page.
 """
 
 import dash
-from dash import Input, Output, State, callback, dash_table, dcc, html
+from dash import ALL, Input, Output, State, callback, ctx, dash_table, dcc, html
 
 from demo_dashboard.config import (
     AXIS_METRICS,
     BRAND,
     BRAND_MARK,
     BRAND_TAGLINE,
-    CLIENTS,
-    CLIENT_NAMES,
+    BRANDS,
     DATE_PRESETS,
-    DEFAULT_CLIENT,
+    DEFAULT_BRAND,
     DEFAULT_PRESET,
-    SEGMENT_COLORS,
-    SEGMENT_NAMES,
-    metric_format,
+    DEFAULT_VIEW,
+    SECTIONS,
+    SECTION_OF_VIEW,
+    VIEW_KEYS,
+    VIEWS_OF_SECTION,
     metric_label,
 )
-from demo_dashboard.data import (
-    delta_pct,
-    get_dataset,
-    summarize,
-    window_indices,
-)
+from demo_dashboard.data import EVENT_ORDER, get_dataset, window_indices
 from demo_dashboard import figures as fig_builders
-from demo_dashboard.figures import CHART_HEIGHTS, fmt_compact, fmt_value, group
+from demo_dashboard.figures import CHART_HEIGHTS, MAP_DISPLAYS, group
 
 
 dash.register_page(
@@ -44,117 +46,72 @@ dash.register_page(
     path='/dashboard',
     order=2,
     name='Live Demo',
-    title='Live Demo | Frontrow Analytics Dashboard',
+    title=f'Live Demo | {BRAND}',
 )
 
 
 DATASET = get_dataset()
 PRESET_DAYS = dict(DATE_PRESETS)
 
-SECTIONS = [
-    ('overview', 'Overview', 'Portfolio KPIs and the release calendar'),
-    ('audience', 'Audience Heatmap', 'Where the fanbase is and how it converts'),
-    ('behavior', 'Behavior', 'Relationships between product signals'),
-    ('revenue', 'Revenue & Retention', 'Monetization, churn, and tenure'),
-]
-
 GRAPH_CONFIG = {'displayModeBar': False, 'showTips': False, 'responsive': True}
 
-# Every account shares the same 24-month window, so the transport can be built
-# once rather than rebuilt whenever the client changes.
-GROWTH_MONTHS = fig_builders.growth_timeline(DATASET, DEFAULT_CLIENT)
+METRIC_OPTIONS = [{'label': metric_label(key), 'value': key} for key in AXIS_METRICS]
+GRAIN_OPTIONS = [{'label': label, 'value': value} for label, value in
+                 (('Daily', 'daily'), ('Weekly', 'weekly'),
+                  ('Monthly', 'monthly'), ('Quarterly', 'quarterly'))]
+DISPLAY_OPTIONS = [{'label': label, 'value': value} for value, label in MAP_DISPLAYS]
+LEVEL_OPTIONS = [{'label': label, 'value': value} for value, label in
+                 (('city', 'City'), ('region', 'State / Region'), ('country', 'Country'))]
+STUDY_METRIC_OPTIONS = [{'label': metric_label(key), 'value': key} for key in
+                        ('revenue', 'orders', 'visits', 'conversion', 'aov')]
+
+GROWTH_MONTHS = fig_builders.growth_timeline(DATASET, DEFAULT_BRAND)
 GROWTH_MARKS = {
     index: {'label': month if index % 6 == 0 or index == len(GROWTH_MONTHS) - 1 else ''}
     for index, month in enumerate(GROWTH_MONTHS)
 }
 
-METRIC_OPTIONS = [{'label': metric_label(key), 'value': key} for key in AXIS_METRICS]
-
-TABLE_STYLE = {'overflowX': 'auto'}
 TABLE_HEADER = {
-    'backgroundColor': '#141a24',
-    'color': '#aab4c3',
-    'fontWeight': '600',
-    'textTransform': 'uppercase',
-    'letterSpacing': '0.06em',
-    'fontSize': '11px',
+    'backgroundColor': 'transparent',
     'border': 'none',
-    'borderBottom': '1px solid #263244',
+    'borderBottom': '1px solid #E4E0D9',
+    'color': '#6B6862',
+    'fontSize': '11px',
+    'fontWeight': '600',
+    'letterSpacing': '0.06em',
+    'textTransform': 'uppercase',
     'padding': '10px 12px',
 }
 TABLE_CELL = {
     'backgroundColor': 'transparent',
-    'color': '#e8eef6',
     'border': 'none',
-    'borderBottom': '1px solid rgba(148, 163, 184, 0.10)',
-    'padding': '9px 12px',
-    'fontSize': '12.5px',
+    'borderBottom': '1px solid rgba(26, 26, 24, 0.06)',
+    'color': '#1A1A18',
     'fontFamily': 'Public Sans, sans-serif',
+    'fontSize': '12.5px',
+    'padding': '9px 12px',
     'textAlign': 'right',
 }
-TABLE_CONDITIONAL = [
-    {'if': {'column_id': 'Metric'}, 'textAlign': 'left', 'fontWeight': '600'},
-    {'if': {'column_id': 'Fan'}, 'textAlign': 'left', 'fontWeight': '600'},
-    {'if': {'column_id': 'Account'}, 'textAlign': 'left'},
-    {'if': {'column_id': 'Location'}, 'textAlign': 'left'},
-    {'if': {'column_id': 'Market'}, 'textAlign': 'left'},
-    {'if': {'column_id': 'Tier'}, 'textAlign': 'left'},
-    {'if': {'row_index': 'odd'}, 'backgroundColor': 'rgba(148, 163, 184, 0.035)'},
-]
 
 
 # --------------------------------------------------------------------------
-# Small presentational builders
+# Layout helpers
 # --------------------------------------------------------------------------
 def _card(*children, title=None, subtitle=None, className=''):
     body = list(children)
     if title:
-        header = [html.H3(title, className='fr-card-title')]
+        header = [html.H3(title, className='tp-card-title')]
         if subtitle:
-            header.append(html.P(subtitle, className='fr-card-subtitle'))
-        body = [html.Div(header, className='fr-card-header'), *body]
-    return html.Div(body, className=f'fr-card {className}'.strip())
+            header.append(html.P(subtitle, className='tp-card-subtitle'))
+        body = [html.Div(header, className='tp-card-header'), *body]
+    return html.Div(body, className=f'tp-card {className}'.strip())
 
 
 def _control(label, control, grow=False):
     return html.Div(
-        [html.Label(label, className='fr-control-label'), control],
-        className='fr-control' + (' fr-control--grow' if grow else ''),
+        [html.Label(label, className='tp-control-label'), control],
+        className='tp-control' + (' tp-control--grow' if grow else ''),
     )
-
-
-def _kpi_tile(slot_id, label, accent):
-    return html.Div(
-        [
-            html.Div(label, className='fr-tile-label'),
-            html.Div('—', id=f'{slot_id}-value', className='fr-tile-value'),
-            html.Div('—', id=f'{slot_id}-delta', className='fr-tile-delta'),
-        ],
-        className=f'fr-tile fr-tile--{accent}',
-    )
-
-
-def _segment_options(disabled=False):
-    """Segment filters as labelled swatches rather than a row of tick boxes.
-
-    The swatch is the same colour the segment is drawn in on the map, so the
-    control reads as a legend that can be switched off — which is what it is.
-    """
-    return [
-        {
-            'label': html.Span(
-                [
-                    html.Span(className='fr-segment-dot',
-                              style={'backgroundColor': SEGMENT_COLORS[name]}),
-                    html.Span(name, className='fr-segment-name'),
-                ],
-                className='fr-segment-face',
-            ),
-            'value': name,
-            'disabled': disabled,
-        }
-        for name in SEGMENT_NAMES
-    ]
 
 
 def _graph(graph_id, chart):
@@ -165,1111 +122,857 @@ def _graph(graph_id, chart):
     height, and the SVG then paints over the card below it. Reading the number
     from ``CHART_HEIGHTS`` keeps the two from drifting apart.
     """
-    return dcc.Graph(
-        id=graph_id,
-        config=GRAPH_CONFIG,
-        style={'height': f"{CHART_HEIGHTS[chart]}px"},
+    return dcc.Graph(id=graph_id, config=GRAPH_CONFIG,
+                     style={'height': f'{CHART_HEIGHTS[chart]}px'})
+
+
+def _stat_blocks(block_id):
+    """A row of plain bordered stat blocks, filled by callback."""
+    return html.Div(id=block_id, className='tp-stats')
+
+
+def _render_stats(rows):
+    return [
+        html.Div(
+            [
+                html.Div(row['label'], className='tp-stat-label'),
+                html.Div(row['value'], className='tp-stat-value'),
+                html.Div(row.get('note', ''), className='tp-stat-note'),
+            ],
+            className='tp-stat',
+        )
+        for row in rows
+    ]
+
+
+def _delta_chip(value, comparison):
+    """Direction and magnitude for a headline number."""
+    if abs(value) < 0.05:
+        return f'no change {comparison}', 'flat'
+    arrow = '▲' if value > 0 else '▼'
+    return f'{arrow} {group(abs(value), 1)}% {comparison}', 'up' if value > 0 else 'down'
+
+
+def _panel(view_key, *children):
+    return html.Section(
+        list(children),
+        id=f'tp-panel-{view_key}',
+        className='tp-panel tp-panel--hidden',
     )
 
 
-def _delta_chip(value):
-    """Direction + magnitude for a KPI tile. Returns (text, class suffix)."""
-    if abs(value) < 0.05:
-        return 'flat vs. prior half', 'flat'
-    arrow = '▲' if value > 0 else '▼'
-    return f'{arrow} {group(abs(value), 1)}% vs. prior half', 'up' if value > 0 else 'down'
-
-
 # --------------------------------------------------------------------------
-# Sidebar + global controls
+# Shell
 # --------------------------------------------------------------------------
-sidebar = html.Aside(
-    className='fr-sidebar',
+topbar = html.Div(
+    className='tp-topbar',
     children=[
         html.Div(
             [
-                html.Div(BRAND_MARK, className='fr-brand-mark'),
+                html.Div(BRAND_MARK, className='tp-brand-mark'),
                 html.Div(
                     [
-                        html.Div(BRAND, className='fr-brand-name'),
-                        html.Div(BRAND_TAGLINE, className='fr-brand-tagline'),
+                        html.Div(BRAND, className='tp-brand-name'),
+                        html.Div(BRAND_TAGLINE, className='tp-brand-tagline'),
                     ]
                 ),
             ],
-            className='fr-brand',
-        ),
-        dcc.RadioItems(
-            id='fr-section',
-            options=[
-                {
-                    'label': html.Span(
-                        [
-                            html.Span(title, className='fr-nav-title'),
-                            html.Span(blurb, className='fr-nav-blurb'),
-                        ]
-                    ),
-                    'value': key,
-                }
-                for key, title, blurb in SECTIONS
-            ],
-            value='overview',
-            className='fr-nav',
-            inputClassName='fr-nav-input',
-            labelClassName='fr-nav-link',
+            className='tp-brand',
         ),
         html.Div(
-            [
-                html.Div('DATA WINDOW', className='fr-sidebar-tag'),
-                html.Div(
-                    f"{DATASET['start_date']} → {DATASET['end_date']}",
-                    className='fr-sidebar-value',
-                ),
-                html.Div('SOURCE', className='fr-sidebar-tag'),
-                html.Div('Synthetic · seeded', className='fr-sidebar-value'),
-            ],
-            className='fr-sidebar-footer',
-        ),
-    ],
-)
-
-
-global_controls = html.Div(
-    className='fr-control-bar',
-    children=[
-        _control(
-            'Client account',
-            dcc.Dropdown(
-                id='fr-client',
-                options=[{'label': name, 'value': name} for name in CLIENTS],
-                value=DEFAULT_CLIENT,
-                clearable=False,
-                className='fr-dropdown',
-            ),
-            grow=True,
-        ),
-        _control(
-            'Date window',
-            dcc.RadioItems(
-                id='fr-preset',
-                options=[{'label': label, 'value': label} for label, _ in DATE_PRESETS],
-                value=DEFAULT_PRESET,
-                className='fr-segmented',
-                inputClassName='fr-segmented-input',
-                labelClassName='fr-segmented-label',
-            ),
-        ),
-    ],
-)
-
-
-# --------------------------------------------------------------------------
-# Section: Overview
-# --------------------------------------------------------------------------
-panel_overview = html.Div(
-    id='fr-panel-overview',
-    className='fr-panel',
-    children=[
-        html.Div(
-            className='fr-hero',
+            className='tp-topbar-controls',
             children=[
-                html.Div(
-                    className='fr-hero-primary',
-                    children=[
-                        html.Div(id='fr-hero-client', className='fr-hero-client'),
-                        html.Div(id='fr-hero-period', className='fr-hero-period'),
-                        html.Div('—', id='fr-hero-value', className='fr-hero-value'),
-                        html.Div('Downloads', className='fr-hero-label'),
-                        html.Div(id='fr-hero-insight', className='fr-hero-insight'),
+                _control('Brand', dcc.Dropdown(
+                    id='tp-brand',
+                    options=[{'label': name, 'value': name} for name in BRANDS],
+                    value=DEFAULT_BRAND, clearable=False, searchable=False,
+                    className='tp-dropdown')),
+                _control('Date window', dcc.RadioItems(
+                    id='tp-preset',
+                    options=[{'label': label, 'value': label} for label, _ in DATE_PRESETS],
+                    value=DEFAULT_PRESET, className='tp-segmented',
+                    inputClassName='tp-segmented-input',
+                    labelClassName='tp-segmented-label')),
+            ],
+        ),
+    ],
+)
+
+tabs = html.Nav(
+    className='tp-tabs',
+    children=[
+        html.Button(
+            section['label'],
+            id={'type': 'tp-section', 'section': section['key']},
+            className='tp-tab', n_clicks=0,
+        )
+        for section in SECTIONS
+    ],
+)
+
+subtabs = html.Nav(id='tp-subtabs', className='tp-subtabs')
+
+kpi_strip = html.Div(id='tp-kpis', className='tp-kpis')
+
+
+# --------------------------------------------------------------------------
+# Sales Performance — Revenue & Orders
+# --------------------------------------------------------------------------
+panel_revenue = _panel(
+    'revenue',
+    _card(
+        html.Div(
+            className='tp-controls',
+            children=[
+                _control('Left axis', dcc.Dropdown(
+                    id='tp-trend-left', options=METRIC_OPTIONS, value='revenue',
+                    clearable=False, searchable=False, className='tp-dropdown')),
+                _control('Right axis', dcc.Dropdown(
+                    id='tp-trend-right', options=METRIC_OPTIONS, value='orders',
+                    clearable=False, searchable=False, className='tp-dropdown')),
+                _control('Interval', dcc.Dropdown(
+                    id='tp-trend-grain', options=GRAIN_OPTIONS, value='daily',
+                    clearable=False, searchable=False, className='tp-dropdown')),
+                _control('Annotate', dcc.Checklist(
+                    id='tp-trend-marks',
+                    options=[
+                        {'label': 'Promotion calendar', 'value': 'events'},
+                        {'label': 'Outliers', 'value': 'anomalies'},
                     ],
-                ),
-                html.Div(
-                    className='fr-tile-grid',
-                    children=[
-                        _kpi_tile('fr-kpi-dau', 'Avg Daily Active Users', 'blue'),
-                        _kpi_tile('fr-kpi-members', 'Current Memberships', 'green'),
-                        _kpi_tile('fr-kpi-revenue', 'Revenue', 'gold'),
-                        _kpi_tile('fr-kpi-posts', 'Timeline Posts', 'violet'),
-                    ],
-                ),
+                    value=['events', 'anomalies'], className='tp-checklist',
+                    inputClassName='tp-checkbox', labelClassName='tp-checklabel')),
             ],
         ),
-        _card(
-            html.Div(
-                className='fr-inline-controls',
-                children=[
-                    _control(
-                        'Left axis',
-                        dcc.Dropdown(id='fr-left-metric', options=METRIC_OPTIONS,
-                                     value='dau', clearable=False, className='fr-dropdown'),
-                    ),
-                    _control(
-                        'Right axis',
-                        dcc.Dropdown(id='fr-right-metric', options=METRIC_OPTIONS,
-                                     value='memberships', clearable=False,
-                                     className='fr-dropdown'),
-                    ),
-                    _control(
-                        'Interval',
-                        dcc.Dropdown(
-                            id='fr-grain',
-                            options=[{'label': g, 'value': g}
-                                     for g in ('Daily', 'Weekly', 'Monthly', 'Quarterly')],
-                            value='Daily', clearable=False, className='fr-dropdown',
-                        ),
-                    ),
-                    _control(
-                        'Overlay',
-                        dcc.Checklist(
-                            id='fr-show-events',
-                            options=[{'label': 'Release calendar', 'value': 'on'}],
-                            value=['on'],
-                            className='fr-checklist',
-                            inputClassName='fr-checkbox',
-                            labelClassName='fr-checklist-label',
-                        ),
-                    ),
-                ],
-            ),
-            _graph('fr-trend', 'trend'),
-            title='Activity Trends',
-            subtitle=('Two metrics on independent axes with the release calendar '
-                      'overlaid, so a spike can be read against what shipped that week.'),
-        ),
-        _card(
-            html.Div(id='fr-summary-table'),
-            title='Period Summary',
-            subtitle='Mean, range, and totals for the selected window.',
-        ),
-    ],
+        _graph('tp-trend', 'trend'),
+        title='Trading Performance',
+        subtitle=('Two metrics on independent axes with the promotion calendar '
+                  'overlaid, and outliers marked in place — so a spike can be '
+                  'read against what ran that week.'),
+    ),
+    _card(
+        html.Div(id='tp-anomaly-log', className='tp-log'),
+        title='Detected Anomalies',
+        subtitle=('Days that sit far from their own trailing level, in robust z '
+                  'units. Median and MAD rather than mean and standard deviation, '
+                  'so one large spike does not raise the bar past every other one.'),
+    ),
 )
 
 
 # --------------------------------------------------------------------------
-# Section: Audience Heatmap
+# Sales Performance — Revenue Drivers
 # --------------------------------------------------------------------------
-DISPLAY_OPTIONS = [
-    {'label': 'Market bubbles', 'value': 'market'},
-    {'label': 'Density heatmap', 'value': 'density'},
-    {'label': 'Individual users', 'value': 'individual'},
-]
+panel_drivers = _panel(
+    'drivers',
+    _card(
+        html.Div(id='tp-driver-note', className='tp-callout'),
+        _graph('tp-driver', 'driver'),
+        title='What Moved Revenue',
+        subtitle=('Revenue is exactly site visits x conversion rate x average '
+                  'order value, so the change against the prior period splits by '
+                  'substituting one factor at a time. The bars sum to the total '
+                  'with no residual.'),
+    ),
+    _card(
+        _graph('tp-splom', 'splom'),
+        title='How the Metrics Move Together',
+        subtitle=('Every pair of core metrics, coloured by position in the '
+                  'window. A widening cone means the spread grows with the '
+                  'level, a hook means saturation, and a detached cluster is '
+                  'usually the promotion calendar.'),
+    ),
+)
 
-LEVEL_OPTIONS = [
-    {'label': 'City', 'value': 'city'},
-    {'label': 'Region', 'value': 'region'},
-    {'label': 'Country', 'value': 'country'},
-]
 
-METRIC_VIEW_OPTIONS = [
-    {'label': label, 'value': key}
-    for key, (label, _) in fig_builders.HEATMAP_METRICS.items()
-]
-
-panel_audience = html.Div(
-    id='fr-panel-audience',
-    className='fr-panel',
-    children=[
+# --------------------------------------------------------------------------
+# Sales Performance — Category Mix
+# --------------------------------------------------------------------------
+panel_category = _panel(
+    'category',
+    _card(
+        _graph('tp-category-waterfall', 'category_waterfall'),
+        title='Category Contribution to the Change',
+        subtitle=('Which parts of the catalogue carried the revenue change '
+                  'against the prior period, largest mover first.'),
+    ),
+    _card(
         html.Div(
-            className='fr-tile-grid fr-tile-grid--wide',
+            className='tp-controls',
             children=[
-                _kpi_tile('fr-geo-users', 'Mapped users', 'blue'),
-                _kpi_tile('fr-geo-markets', 'Markets reached', 'violet'),
-                _kpi_tile('fr-geo-share', 'Member share', 'green'),
-                _kpi_tile('fr-geo-top', 'Largest market', 'gold'),
+                _control('Measure', dcc.RadioItems(
+                    id='tp-category-mode',
+                    options=[{'label': 'Share of revenue', 'value': 'share'},
+                             {'label': 'Revenue', 'value': 'absolute'}],
+                    value='share', className='tp-segmented',
+                    inputClassName='tp-segmented-input',
+                    labelClassName='tp-segmented-label')),
             ],
         ),
-        _card(
-            html.Div(
-                className='fr-inline-controls',
-                children=[
-                    _control(
-                        'Display',
-                        dcc.Dropdown(id='fr-map-display', options=DISPLAY_OPTIONS,
-                                     value='market', clearable=False,
-                                     className='fr-dropdown'),
-                    ),
-                    _control(
-                        'Size by',
-                        dcc.Dropdown(id='fr-map-metric', options=METRIC_VIEW_OPTIONS,
-                                     value='users', clearable=False,
-                                     className='fr-dropdown'),
-                    ),
-                    _control(
-                        'Location level',
-                        dcc.Dropdown(id='fr-loc-level', options=LEVEL_OPTIONS,
-                                     value='city', clearable=False,
-                                     className='fr-dropdown'),
-                    ),
-                    _control(
-                        'Lifecycle segments',
-                        dcc.Checklist(
-                            id='fr-segments',
-                            options=_segment_options(),
-                            value=list(SEGMENT_NAMES),
-                            className='fr-segment-toggles',
-                            inputClassName='fr-segment-input',
-                            labelClassName='fr-segment-toggle',
-                            # dcc.Checklist writes display:block onto each label
-                            # inline, which no stylesheet rule can outrank.
-                            labelStyle={'display': 'inline-flex',
-                                        'alignItems': 'center'},
-                        ),
-                        grow=True,
-                    ),
-                ],
-            ),
-            html.Div(id='fr-map-hint', className='fr-note fr-note--tight'),
-            _graph('fr-map', 'map'),
-            html.Div(id='fr-map-detail', className='fr-detail'),
-            title='Audience Heatmap',
-            subtitle=('Market bubbles size each location by the selected metric and '
-                      'color it by member share; the density view drops the boundaries '
-                      'to show where activity actually concentrates. Click a market to '
-                      'drill into it.'),
-        ),
-        _card(
-            html.Div(
-                className='fr-playback',
-                children=[
-                    html.Button(
-                        '\u25b6  Play',
-                        id='fr-growth-play',
-                        className='fr-play-button',
-                        n_clicks=0,
-                        **{'aria-label': 'Play the month-by-month replay'},
-                    ),
-                    dcc.Slider(
-                        id='fr-growth-month',
-                        min=0,
-                        max=len(GROWTH_MONTHS) - 1,
-                        step=1,
-                        value=len(GROWTH_MONTHS) - 1,
-                        marks=GROWTH_MARKS,
-                        included=True,
-                        updatemode='drag',
-                        className='fr-scrub',
-                    ),
-                ],
-            ),
-            html.Div(id='fr-growth-readout', className='fr-readout'),
-            _graph('fr-growth', 'growth'),
-            # Drives playback. Disabled until the play button is pressed, so an
-            # idle page is not re-rendering a map every 420ms.
-            dcc.Interval(id='fr-growth-timer', interval=420, disabled=True),
-            title='Audience Growth by Month',
-            subtitle=('Where the audience had reached by the end of each month. Bubble '
-                      'size is the market\u2019s audience at that point, on a scale '
-                      'pinned to the final month, so growth reads as growth.'),
-        ),
-        _card(
-            html.Div(id='fr-top-markets'),
-            title='Top Markets',
-            subtitle='The largest markets at the selected location level.',
-        ),
-        _card(
-            _graph('fr-segment-mix', 'segment_mix'),
-            html.Div(id='fr-segment-note', className='fr-note'),
-            title='Lifecycle Mix',
-            subtitle='Share of the audience at each stage, from install to super user.',
-        ),
-        _card(
-            html.Div(
-                className='fr-inline-controls',
-                children=[
-                    _control(
-                        'Segment',
-                        dcc.Dropdown(
-                            id='fr-loc-segment',
-                            options=([{'label': 'All users', 'value': 'All'}]
-                                     + [{'label': name, 'value': name} for name in SEGMENT_NAMES]),
-                            value='All', clearable=False, className='fr-dropdown',
-                        ),
-                    ),
-                ],
-            ),
-            _graph('fr-location-bar', 'location_bar'),
-            title='Market Ranking by Segment',
-            subtitle='The same geography filtered to one stage of the lifecycle.',
-        ),
-    ],
+        _graph('tp-category-share', 'category_share'),
+        title='Category Mix Over Time',
+        subtitle='How the catalogue has rebalanced month by month.',
+    ),
 )
 
 
 # --------------------------------------------------------------------------
-# Section: Behavior
+# Customers — Cohort Retention
 # --------------------------------------------------------------------------
-panel_behavior = html.Div(
-    id='fr-panel-behavior',
-    className='fr-panel',
-    children=[
-        _card(
-            html.Div(
-                className='fr-inline-controls',
-                children=[
-                    _control(
-                        'X metric',
-                        dcc.Dropdown(id='fr-x-metric', options=METRIC_OPTIONS,
-                                     value='dau', clearable=False, className='fr-dropdown'),
-                    ),
-                    _control(
-                        'Y metric',
-                        dcc.Dropdown(id='fr-y-metric', options=METRIC_OPTIONS,
-                                     value='memberships', clearable=False,
-                                     className='fr-dropdown'),
-                    ),
-                ],
-            ),
-            _graph('fr-scatter', 'scatter'),
-            html.Div(id='fr-scatter-readout', className='fr-readout'),
-            title='Relationship Diagnostics',
-            subtitle=('Daily observations with a least-squares fit. Co-movement is '
-                      'not causation — this is a triage tool for what to test next.'),
-        ),
-        _card(
-            _graph('fr-correlation', 'correlation'),
-            title='Correlation Structure',
-            subtitle='Pearson correlation across the product event families in the window.',
-        ),
-        _card(
-            _graph('fr-engagement', 'engagement'),
-            title='Depth vs. Reach',
-            subtitle=('Average session length against DAU/MAU stickiness — whether the '
-                      'audience is growing wider or getting more engaged.'),
-        ),
-    ],
+panel_cohorts = _panel(
+    'cohorts',
+    _card(
+        _stat_blocks('tp-cohort-stats'),
+        _graph('tp-cohort', 'cohort'),
+        title='Cohort Retention',
+        subtitle=('Share of each acquisition month that ordered again, by months '
+                  'since their first order. A triangle rather than a rectangle: a '
+                  'cohort acquired last month has one observed month, and the '
+                  'unobserved cells stay blank instead of being filled with zero.'),
+    ),
+    _card(
+        _graph('tp-cohort-curves', 'cohort_curves'),
+        title='Retention Curves',
+        subtitle=('The same data read as curves. Recent cohorts are drawn '
+                  'darkest, so a change in the shape of the acquisition base '
+                  'shows without reading numbers out of cells.'),
+    ),
 )
 
 
 # --------------------------------------------------------------------------
-# Section: Revenue & Retention
+# Customers — Customer Value
 # --------------------------------------------------------------------------
-panel_revenue = html.Div(
-    id='fr-panel-revenue',
-    className='fr-panel',
-    children=[
+panel_value = _panel(
+    'value',
+    _card(
+        _stat_blocks('tp-value-stats'),
+        _graph('tp-rfm', 'rfm'),
+        title='Recency, Frequency and Spend',
+        subtitle=('One point per customer: how long since their last order, how '
+                  'many they have placed, and — as marker area — what they have '
+                  'spent. The four quadrants are labelled because that is the '
+                  'part anyone acts on.'),
+    ),
+    _card(
+        _graph('tp-decile', 'decile'),
+        title='Revenue Concentration',
+        subtitle=('Share of revenue by customer spend decile, with the '
+                  'cumulative curve. A mean spend figure hides this entirely.'),
+    ),
+)
+
+
+# --------------------------------------------------------------------------
+# Marketing — Channel Attribution
+# --------------------------------------------------------------------------
+panel_channels = _panel(
+    'channels',
+    _card(
         html.Div(
-            className='fr-tile-grid fr-tile-grid--wide',
+            className='tp-controls',
             children=[
-                _kpi_tile('fr-rev-total', 'Revenue in window', 'gold'),
-                _kpi_tile('fr-rev-arpm', 'Revenue per member / mo', 'amber'),
-                _kpi_tile('fr-rev-churn', 'Latest monthly churn', 'coral'),
-                _kpi_tile('fr-rev-tenure', 'Median membership tenure', 'green'),
+                _control('Measure', dcc.RadioItems(
+                    id='tp-channel-mode',
+                    options=[{'label': 'Revenue', 'value': 'absolute'},
+                             {'label': 'Share', 'value': 'share'}],
+                    value='absolute', className='tp-segmented',
+                    inputClassName='tp-segmented-input',
+                    labelClassName='tp-segmented-label')),
             ],
         ),
-        _card(
-            html.Div(
-                className='fr-inline-controls',
-                children=[
-                    _control(
-                        'Interval',
-                        dcc.Dropdown(
-                            id='fr-rev-grain',
-                            options=[{'label': g, 'value': g}
-                                     for g in ('Daily', 'Weekly', 'Monthly', 'Quarterly')],
-                            value='Monthly', clearable=False, className='fr-dropdown',
-                        ),
-                    ),
-                ],
-            ),
-            _graph('fr-revenue', 'revenue'),
-            title='Revenue Trend',
-            subtitle='Gross in-app revenue for the selected account and window.',
-        ),
-        html.Div(
-            className='fr-split',
-            children=[
-                _card(_graph('fr-mix-type', 'mix_donut'), title='Revenue by Type',
-                      subtitle='Product mix across the full history.'),
-                _card(_graph('fr-mix-platform', 'mix_donut'), title='Revenue by Platform',
-                      subtitle='Store split across the full history.'),
-            ],
-        ),
-        _card(
-            html.Div(
-                className='fr-inline-controls',
-                children=[
-                    _control(
-                        'Compare accounts',
-                        dcc.Dropdown(
-                            id='fr-churn-clients',
-                            options=[{'label': name, 'value': name} for name in CLIENTS],
-                            value=list(CLIENT_NAMES[:3]),
-                            multi=True,
-                            className='fr-dropdown',
-                        ),
-                        grow=True,
-                    ),
-                ],
-            ),
-            _graph('fr-churn', 'churn'),
-            html.P(
-                'Lost members are the residual of the membership stock '
-                '(start + joins − end), so churn can never disagree with the '
-                'membership line on the Overview tab.',
-                className='fr-note',
-            ),
-            title='Monthly Membership Churn',
-            subtitle='Share of the starting membership base lost each month.',
-        ),
-        _card(
-            _graph('fr-lifetime', 'lifetime'),
-            title='Membership Tenure',
-            subtitle='How long current members have been subscribed.',
-        ),
-        _card(
-            html.Div(id='fr-top-users'),
-            title='Most Engaged Fans',
-            subtitle='Leaderboard by time in app for the selected account.',
-        ),
-    ],
+        _graph('tp-channel-area', 'channel_area'),
+        title='Where Orders Are Placed',
+        subtitle='Revenue by order channel, month by month.',
+    ),
+    _card(
+        _graph('tp-source-bars', 'source_bars'),
+        title='Acquisition Source Value',
+        subtitle=('First-order and repeat revenue stacked separately, with '
+                  'acquisition spend marked. A source that looks expensive on '
+                  'first orders alone can be the best one in the portfolio once '
+                  'its customers come back.'),
+    ),
+    _card(
+        html.Div(id='tp-source-table', className='tp-table'),
+        title='Attribution Detail',
+        subtitle='Customers acquired, what they returned, and what they cost.',
+    ),
 )
 
 
 # --------------------------------------------------------------------------
-# Page layout
+# Marketing — Promotion Lift
 # --------------------------------------------------------------------------
+panel_promotions = _panel(
+    'promotions',
+    _card(
+        _stat_blocks('tp-promo-stats'),
+        html.Div(
+            className='tp-controls',
+            children=[
+                _control('Response metric', dcc.Dropdown(
+                    id='tp-study-metric', options=STUDY_METRIC_OPTIONS,
+                    value='revenue', clearable=False, searchable=False,
+                    className='tp-dropdown')),
+                _control('Promotion types', dcc.Dropdown(
+                    id='tp-study-kinds',
+                    options=[{'label': kind, 'value': kind} for kind in EVENT_ORDER],
+                    value=[], multi=True, placeholder='All types',
+                    className='tp-dropdown'), grow=True),
+            ],
+        ),
+        _graph('tp-event-study', 'event_study'),
+        title='Event Study',
+        subtitle=('Every occurrence of a promotion type aligned on the day it ran '
+                  'and indexed to the day before, so the answer is a shape: '
+                  'whether the lift is instant or builds, whether it decays back '
+                  'to baseline or leaves a step, and whether the days before show '
+                  'pull-forward. The band is a 95% interval across occurrences.'),
+    ),
+    _card(
+        _graph('tp-promo-bars', 'promo_bars'),
+        title='Promoted Days Against Baseline',
+        subtitle=('Promoted days compared with the non-promoted days of the same '
+                  'window. Measured against an annual average, a November '
+                  'promotion would be credited with November.'),
+    ),
+    _card(
+        _graph('tp-discount', 'discount'),
+        title='Discount Codes',
+        subtitle='Revenue kept against the discount given back, by code.',
+    ),
+)
+
+
+# --------------------------------------------------------------------------
+# Operations — Fulfillment & Regions
+# --------------------------------------------------------------------------
+panel_fulfillment = _panel(
+    'fulfillment',
+    _card(
+        _stat_blocks('tp-geo-stats'),
+        html.Div(
+            className='tp-controls',
+            children=[
+                _control('Display', dcc.Dropdown(
+                    id='tp-map-display', options=DISPLAY_OPTIONS, value='market',
+                    clearable=False, searchable=False, className='tp-dropdown')),
+                _control('Level', dcc.Dropdown(
+                    id='tp-map-level', options=LEVEL_OPTIONS, value='city',
+                    clearable=False, searchable=False, className='tp-dropdown')),
+                html.Div(id='tp-map-hint', className='tp-hint'),
+            ],
+        ),
+        _graph('tp-map', 'map'),
+        title='Where Orders Ship',
+        subtitle=('Bubble size is order volume and colour is average order value, '
+                  'so a market that is large and cheap reads differently from one '
+                  'that is small and rich.'),
+    ),
+    _card(
+        html.Div(
+            className='tp-playback',
+            children=[
+                html.Button('▶  Play', id='tp-growth-play', n_clicks=0,
+                            className='tp-play-button'),
+                dcc.Slider(id='tp-growth-month', min=0, max=len(GROWTH_MONTHS) - 1,
+                           step=1, value=len(GROWTH_MONTHS) - 1, marks=GROWTH_MARKS,
+                           included=True, updatemode='drag', className='tp-scrub'),
+            ],
+        ),
+        html.Div(id='tp-growth-readout', className='tp-readout'),
+        _graph('tp-growth', 'growth_map'),
+        dcc.Interval(id='tp-growth-timer', interval=420, disabled=True),
+        title='Order Footprint by Month',
+        subtitle=('Every order placed up to the end of the selected month, one '
+                  'marker each. Individual orders rather than market bubbles: '
+                  'resizing blobs shows a market growing, but only points can '
+                  'show the footprint spreading into new ground.'),
+    ),
+    _card(
+        _graph('tp-market-bars', 'market_bars'),
+        title='Largest Markets',
+        subtitle='Ordered by volume, coloured by average order value.',
+    ),
+)
+
+
+# --------------------------------------------------------------------------
+# Operations — Returns
+# --------------------------------------------------------------------------
+panel_returns = _panel(
+    'returns',
+    _card(
+        _stat_blocks('tp-return-stats'),
+        html.Div(
+            className='tp-controls',
+            children=[
+                _control('Interval', dcc.Dropdown(
+                    id='tp-return-grain', options=GRAIN_OPTIONS[1:], value='weekly',
+                    clearable=False, searchable=False, className='tp-dropdown')),
+            ],
+        ),
+        _graph('tp-return-trend', 'return_trend'),
+        title='Returns Over Time',
+        subtitle=('Counts as bars, rate as a line. The rate is summed returns '
+                  'over summed orders per bucket — averaging daily rates would '
+                  'let a quiet Tuesday outvote a sale week.'),
+    ),
+    _card(
+        _graph('tp-return-category', 'return_category'),
+        title='Return Rate by Category',
+        subtitle='Where the returns concentrate, and what value is at stake.',
+    ),
+    _card(
+        _graph('tp-return-reason', 'return_reason'),
+        title='Why Orders Come Back',
+        subtitle='Returned value by stated reason.',
+    ),
+)
+
+
+PANELS = {
+    'revenue': panel_revenue,
+    'drivers': panel_drivers,
+    'category': panel_category,
+    'cohorts': panel_cohorts,
+    'value': panel_value,
+    'channels': panel_channels,
+    'promotions': panel_promotions,
+    'fulfillment': panel_fulfillment,
+    'returns': panel_returns,
+}
+
+
+# --------------------------------------------------------------------------
+# Page
+# --------------------------------------------------------------------------
+SPEC_ROWS = (
+    ('Built with', 'JavaScript and plotly.js'),
+    ('Also implemented as', 'a Dash app (Python)'),
+    ('Experience', 'React · TypeScript · FastAPI · deck.gl'),
+    ('Dataset', '730 days · 5 brands · 3 rollups · seeded'),
+    ('Functions', ' · '.join(section['label'] for section in SECTIONS)),
+)
+
 layout = html.Div(
-    className='content-stack fr-page',
+    className='content-stack tp-page',
     children=[
-        html.Section(
-            className='reveal-up',
+        html.Header(
+            className='section-hero tp-hero',
             children=[
-                html.Div(
-                    className='fr-intro',
-                    children=[
-                        html.Div(
-                            [
-                                html.Div('LIVE DEMO', className='eyebrow'),
-                                html.H2('Frontrow Analytics — Product Dashboard',
-                                        className='section-hero-title'),
-                                html.P(
-                                    'A working rebuild of the multi-tenant product analytics '
-                                    'system described in the case studies below: client-scoped '
-                                    'KPI monitoring with a release overlay, audience geography, '
-                                    'behavioral diagnostics, and revenue/retention analysis. '
-                                    'Every control is live.',
-                                    className='section-hero-subtitle',
-                                ),
-                            ]
-                        ),
-                        # Counts are read from the dataset rather than written down, so
-                        # the panel cannot describe a build it is not running on.
-                        html.Dl(
-                            className='fr-spec',
-                            children=[
-                                item
-                                for label, value in (
-                                    ('This build', 'Python · Dash · Plotly'),
-                                    # The demo genuinely ships twice from one
-                                    # dataset; the static twin is what the
-                                    # published site serves.
-                                    ('Also ships as',
-                                     'Static plotly.js build, same dataset'),
-                                    # Names the real system this demo rebuilds,
-                                    # not this page — see the case studies.
-                                    ('Original system',
-                                     'React · TypeScript · FastAPI · deck.gl'),
-                                    ('Dataset',
-                                     f"{len(DATASET['dates'])} days · "
-                                     f'{len(CLIENTS)} accounts · seeded'),
-                                    ('Surfaces',
-                                     ' · '.join(title for _, title, _ in SECTIONS)),
-                                )
-                                for item in (
-                                    html.Dt(label, className='fr-spec-label'),
-                                    html.Dd(value, className='fr-spec-value'),
-                                )
-                            ],
-                        ),
-                    ],
-                ),
                 html.Div(
                     [
-                        html.Span('Synthetic data', className='fr-banner-tag'),
-                        html.Span(
-                            'Frontrow and every account, fan, and figure on this page are '
-                            'invented for this portfolio. The structure mirrors production '
-                            'work, and the distributions behind it — stickiness, churn, store '
-                            'mix, market concentration, content cadence — are calibrated '
-                            'against a real client base. No real name, record, or value '
-                            'appears anywhere.',
-                            className='fr-banner-copy',
+                        html.P('LIVE DEMO', className='section-hero-eyebrow'),
+                        html.H2(f'{BRAND} — Retail Dashboard',
+                                className='section-hero-title'),
+                        html.P(
+                            'A multi-brand direct-to-consumer analytics surface: '
+                            'trading performance and revenue drivers, cohort '
+                            'retention and customer value, channel attribution and '
+                            'promotion lift, fulfillment geography and returns. '
+                            'Every control is live.',
+                            className='section-hero-lede',
                         ),
                     ],
-                    className='fr-banner',
+                    className='tp-hero-copy',
+                ),
+                html.Dl(
+                    className='tp-spec',
+                    children=[
+                        item for label, value in SPEC_ROWS
+                        for item in (html.Dt(label, className='tp-spec-label'),
+                                     html.Dd(value, className='tp-spec-value'))
+                    ],
+                ),
+            ],
+        ),
+        html.Aside(
+            className='tp-disclaimer',
+            children=[
+                html.P(
+                    [
+                        html.Strong('Synthetic data', className='tp-disclaimer-tag'),
+                        ' — every brand, customer, order, and figure on this page is '
+                        'invented for this portfolio. No real name, record, or value '
+                        'appears anywhere.',
+                    ],
+                    className='tp-disclaimer-body',
+                ),
+                html.P(
+                    'A self-contained demonstration built from generated data to '
+                    'show how I approach retention, revenue, and channel analytics.',
+                    className='tp-disclaimer-note',
                 ),
             ],
         ),
         html.Div(
-            className='fr-shell',
+            className='tp-shell',
             children=[
-                sidebar,
-                html.Div(
-                    className='fr-main',
-                    children=[
-                        global_controls,
-                        panel_overview,
-                        panel_audience,
-                        panel_behavior,
-                        panel_revenue,
-                    ],
-                ),
+                topbar,
+                tabs,
+                subtabs,
+                kpi_strip,
+                html.Main(list(PANELS.values()), className='tp-views'),
             ],
         ),
+        dcc.Store(id='tp-view', data=DEFAULT_VIEW),
     ],
 )
 
 
-# --------------------------------------------------------------------------
-# Callbacks
-# --------------------------------------------------------------------------
+# ==========================================================================
+# Navigation
+# ==========================================================================
 @callback(
-    [Output(f'fr-panel-{key}', 'className') for key, _, _ in SECTIONS],
-    Input('fr-section', 'value'),
+    Output('tp-view', 'data'),
+    Input({'type': 'tp-section', 'section': ALL}, 'n_clicks'),
+    Input({'type': 'tp-view-tab', 'view': ALL}, 'n_clicks'),
+    State('tp-view', 'data'),
+    prevent_initial_call=True,
 )
-def toggle_sections(active):
-    """Show one section at a time.
+def switch_view(_section_clicks, _view_clicks, current):
+    """Clicking a function tab lands on that function's first view."""
+    trigger = ctx.triggered_id
+    if not isinstance(trigger, dict):
+        return current
+    if trigger.get('type') == 'tp-section':
+        views = VIEWS_OF_SECTION.get(trigger['section'], [])
+        return views[0] if views else current
+    return trigger.get('view', current)
 
-    Panels are hidden with a class rather than replaced, so every control in a
-    hidden section stays mounted and its callbacks keep firing — the alternative
-    (rendering the active panel only) breaks any callback whose input is
-    currently off-screen.
-    """
-    return ['fr-panel' if key == active else 'fr-panel fr-panel--hidden'
-            for key, _, _ in SECTIONS]
+
+@callback(
+    Output('tp-subtabs', 'children'),
+    [Output({'type': 'tp-section', 'section': section['key']}, 'className')
+     for section in SECTIONS],
+    Input('tp-view', 'data'),
+)
+def render_navigation(view):
+    """The view row under the tabs, plus the active state on the tabs."""
+    active_section = SECTION_OF_VIEW.get(view, SECTIONS[0]['key'])
+    section = next(s for s in SECTIONS if s['key'] == active_section)
+
+    children = [
+        html.Button(
+            [
+                html.Span(item['label'], className='tp-subtab-label'),
+                html.Span(item['blurb'], className='tp-subtab-blurb'),
+            ],
+            id={'type': 'tp-view-tab', 'view': item['key']},
+            n_clicks=0,
+            className='tp-subtab' + (' tp-subtab--active' if item['key'] == view else ''),
+        )
+        for item in section['views']
+    ]
+    classes = ['tp-tab' + (' tp-tab--active' if s['key'] == active_section else '')
+               for s in SECTIONS]
+    return [children, *classes]
+
+
+@callback(
+    [Output(f'tp-panel-{key}', 'className') for key in VIEW_KEYS],
+    Input('tp-view', 'data'),
+)
+def toggle_panels(view):
+    return ['tp-panel' if key == view else 'tp-panel tp-panel--hidden'
+            for key in VIEW_KEYS]
 
 
 def _window(preset):
     return window_indices(DATASET['dates'], PRESET_DAYS.get(preset, 365))
 
 
-def _series(client):
-    return DATASET['clients'][client]['series']
-
-
-# ---- Overview -------------------------------------------------------------
+# ==========================================================================
+# Headline strip
+# ==========================================================================
 @callback(
-    Output('fr-hero-client', 'children'),
-    Output('fr-hero-period', 'children'),
-    Output('fr-hero-value', 'children'),
-    Output('fr-hero-insight', 'children'),
-    Output('fr-kpi-dau-value', 'children'),
-    Output('fr-kpi-dau-delta', 'children'),
-    Output('fr-kpi-dau-delta', 'className'),
-    Output('fr-kpi-members-value', 'children'),
-    Output('fr-kpi-members-delta', 'children'),
-    Output('fr-kpi-members-delta', 'className'),
-    Output('fr-kpi-revenue-value', 'children'),
-    Output('fr-kpi-revenue-delta', 'children'),
-    Output('fr-kpi-revenue-delta', 'className'),
-    Output('fr-kpi-posts-value', 'children'),
-    Output('fr-kpi-posts-delta', 'children'),
-    Output('fr-kpi-posts-delta', 'className'),
-    Input('fr-client', 'value'),
-    Input('fr-preset', 'value'),
+    Output('tp-kpis', 'children'),
+    Input('tp-brand', 'value'),
+    Input('tp-preset', 'value'),
 )
-def update_hero(client, preset):
+def update_kpis(brand, preset):
     lo, hi = _window(preset)
-    series = _series(client)
-    dates = DATASET['dates']
-    bundle = DATASET['clients'][client]
-
-    downloads = summarize(series['downloads'][lo:hi])['total']
-    dau = summarize(series['dau'][lo:hi])['mean']
-    members = series['memberships'][hi - 1]
-    revenue = summarize(series['revenue'][lo:hi])['total']
-    posts = summarize(series['posts'][lo:hi])['total']
-
-    top_market = bundle['locations'][0]['city'] if bundle['locations'] else '—'
-    insight = f'Top market · {top_market}'
-
-    tiles = []
-    for value, key, window in (
-        (dau, 'dau', series['dau'][lo:hi]),
-        (members, 'memberships', series['memberships'][lo:hi]),
-        (revenue, 'revenue', series['revenue'][lo:hi]),
-        (posts, 'posts', series['posts'][lo:hi]),
-    ):
-        text, direction = _delta_chip(delta_pct(window))
-        tiles.extend([
-            fmt_compact(value, metric_format(key)),
-            text,
-            f'fr-tile-delta fr-tile-delta--{direction}',
-        ])
-
-    return (
-        client,
-        f'{dates[lo]} → {dates[hi - 1]}',
-        fmt_compact(downloads),
-        insight,
-        *tiles,
-    )
+    comparison = fig_builders.comparison_label(lo, hi)
+    children = []
+    for tile in fig_builders.kpi_tiles(DATASET, brand, lo, hi):
+        text, tone = _delta_chip(tile['delta'], comparison)
+        children.append(html.Div(
+            [
+                html.Div(tile['label'], className='tp-kpi-label'),
+                html.Div(tile['value'], className='tp-kpi-value'),
+                html.Div(text, className=f'tp-kpi-delta tp-kpi-delta--{tone}'),
+            ],
+            className='tp-kpi',
+        ))
+    return children
 
 
+# ==========================================================================
+# Sales Performance
+# ==========================================================================
 @callback(
-    Output('fr-trend', 'figure'),
-    Input('fr-client', 'value'),
-    Input('fr-preset', 'value'),
-    Input('fr-left-metric', 'value'),
-    Input('fr-right-metric', 'value'),
-    Input('fr-grain', 'value'),
-    Input('fr-show-events', 'value'),
+    Output('tp-trend', 'figure'),
+    Input('tp-brand', 'value'), Input('tp-preset', 'value'),
+    Input('tp-trend-left', 'value'), Input('tp-trend-right', 'value'),
+    Input('tp-trend-grain', 'value'), Input('tp-trend-marks', 'value'),
 )
-def update_trend(client, preset, left, right, grain, show_events):
+def update_trend(brand, preset, left, right, grain, marks):
     lo, hi = _window(preset)
+    marks = marks or []
     return fig_builders.trend_figure(
-        DATASET, client, lo, hi, left, right, grain, bool(show_events)
-    )
+        DATASET, brand, lo, hi, left, right, grain,
+        overlay='events' in marks, mark_anomalies='anomalies' in marks)
 
 
 @callback(
-    Output('fr-summary-table', 'children'),
-    Input('fr-client', 'value'),
-    Input('fr-preset', 'value'),
+    Output('tp-anomaly-log', 'children'),
+    Input('tp-brand', 'value'), Input('tp-preset', 'value'),
 )
-def update_summary(client, preset):
+def update_anomaly_log(brand, preset):
     lo, hi = _window(preset)
-    series = _series(client)
-    rows = []
-    for key in ('downloads', 'dau', 'mau', 'memberships', 'new_memberships',
-                'revenue', 'posts', 'notifications', 'livestreams', 'auctions'):
-        stats = summarize(series[key][lo:hi])
-        kind = metric_format(key)
-        # Totals are meaningless for stock metrics (a membership count is not
-        # additive across days), so those rows show the closing level instead.
-        is_stock = key in fig_builders.STOCK_METRICS
-        rows.append({
-            'Metric': metric_label(key),
-            'Mean': fmt_value(stats['mean'], kind),
-            'Min': fmt_value(stats['min'], kind),
-            'Max': fmt_value(stats['max'], kind),
-            'Total': ('—' if is_stock else fmt_value(stats['total'], kind)),
-            'Latest': fmt_value(stats['last'], kind),
-        })
+    rows, total = fig_builders.anomaly_log(DATASET, brand, lo, hi)
+    if not rows:
+        return html.P('Nothing in this window sits far enough from its own '
+                      'trailing level to flag.', className='tp-empty')
 
-    return dash_table.DataTable(
+    items = []
+    for row in rows:
+        tone = 'up' if row['direction'] == 'high' else 'down'
+        context = (f" · alongside {row['context']}" if row['context']
+                   else ' · no promotion within three days')
+        items.append(html.Li(
+            [
+                html.Div(
+                    [
+                        html.Span(row['date'], className='tp-log-date'),
+                        html.Span(row['metric'], className='tp-log-metric'),
+                    ],
+                    className='tp-log-head',
+                ),
+                html.Div(
+                    [
+                        html.Span(row['value'], className='tp-log-value'),
+                        html.Span(f" against a {row['baseline']} baseline",
+                                  className='tp-log-baseline'),
+                    ],
+                    className='tp-log-body',
+                ),
+                html.Div(
+                    [
+                        html.Span(
+                            ('+' if row['pct'] >= 0 else '') + group(row['pct'], 1) + '%',
+                            className=f'tp-log-delta tp-log-delta--{tone}'),
+                        html.Span(f"{row['z']:+.1f} robust z{context}",
+                                  className='tp-log-note'),
+                    ],
+                    className='tp-log-foot',
+                ),
+            ],
+            className='tp-log-item',
+        ))
+
+    body = [html.Ol(items, className='tp-log-list')]
+    if total > len(rows):
+        body.append(html.P(f'Showing the {len(rows)} largest of {total} flagged '
+                           f'points across five metrics.', className='tp-log-footer'))
+    return body
+
+
+@callback(
+    Output('tp-driver', 'figure'),
+    Output('tp-driver-note', 'children'),
+    Input('tp-brand', 'value'), Input('tp-preset', 'value'),
+)
+def update_drivers(brand, preset):
+    lo, hi = _window(preset)
+    summary = fig_builders.driver_summary(DATASET, brand, lo, hi)
+    note = summary['text'] if summary else 'Not enough history for a prior period.'
+    return fig_builders.driver_waterfall(DATASET, brand, lo, hi), note
+
+
+@callback(
+    Output('tp-splom', 'figure'),
+    Input('tp-brand', 'value'), Input('tp-preset', 'value'),
+)
+def update_splom(brand, preset):
+    lo, hi = _window(preset)
+    return fig_builders.metric_splom(DATASET, brand, lo, hi)
+
+
+@callback(
+    Output('tp-category-waterfall', 'figure'),
+    Input('tp-brand', 'value'), Input('tp-preset', 'value'),
+)
+def update_category_waterfall(brand, preset):
+    lo, hi = _window(preset)
+    return fig_builders.category_waterfall(DATASET, brand, lo, hi)
+
+
+@callback(
+    Output('tp-category-share', 'figure'),
+    Input('tp-brand', 'value'), Input('tp-category-mode', 'value'),
+)
+def update_category_share(brand, mode):
+    return fig_builders.category_share_area(DATASET, brand, normalise=(mode == 'share'))
+
+
+# ==========================================================================
+# Customers
+# ==========================================================================
+@callback(
+    Output('tp-cohort', 'figure'),
+    Output('tp-cohort-curves', 'figure'),
+    Output('tp-cohort-stats', 'children'),
+    Input('tp-brand', 'value'),
+)
+def update_cohorts(brand):
+    return (fig_builders.cohort_triangle(DATASET, brand),
+            fig_builders.cohort_curves(DATASET, brand),
+            _render_stats(fig_builders.cohort_summary(DATASET, brand)))
+
+
+@callback(
+    Output('tp-rfm', 'figure'),
+    Output('tp-decile', 'figure'),
+    Output('tp-value-stats', 'children'),
+    Input('tp-brand', 'value'),
+)
+def update_value(brand):
+    return (fig_builders.rfm_scatter(DATASET, brand),
+            fig_builders.value_decile_bars(DATASET, brand),
+            _render_stats(fig_builders.value_summary(DATASET, brand)))
+
+
+# ==========================================================================
+# Marketing
+# ==========================================================================
+@callback(
+    Output('tp-channel-area', 'figure'),
+    Input('tp-brand', 'value'), Input('tp-channel-mode', 'value'),
+)
+def update_channel_area(brand, mode):
+    return fig_builders.channel_area(DATASET, brand, normalise=(mode == 'share'))
+
+
+@callback(
+    Output('tp-source-bars', 'figure'),
+    Output('tp-source-table', 'children'),
+    Input('tp-brand', 'value'),
+)
+def update_sources(brand):
+    rows = fig_builders.source_table(DATASET, brand)
+    columns = list(rows[0].keys()) if rows else []
+    table = dash_table.DataTable(
         data=rows,
-        columns=[{'name': column, 'id': column}
-                 for column in ('Metric', 'Mean', 'Min', 'Max', 'Total', 'Latest')],
-        style_table=TABLE_STYLE,
+        columns=[{'name': name, 'id': name} for name in columns],
+        style_as_list_view=True,
+        style_table={'overflowX': 'auto'},
         style_header=TABLE_HEADER,
         style_cell=TABLE_CELL,
-        style_data_conditional=TABLE_CONDITIONAL,
-        cell_selectable=False,
+        style_cell_conditional=[{'if': {'column_id': 'Source'}, 'textAlign': 'left'}],
     )
+    return fig_builders.source_bars(DATASET, brand), table
 
 
-# ---- Audience Heatmap -----------------------------------------------------
+@callback(
+    Output('tp-event-study', 'figure'),
+    Input('tp-brand', 'value'), Input('tp-study-metric', 'value'),
+    Input('tp-study-kinds', 'value'),
+)
+def update_event_study(brand, metric, kinds):
+    return fig_builders.event_study_chart(DATASET, brand, metric, kinds or ())
+
+
+@callback(
+    Output('tp-promo-bars', 'figure'),
+    Output('tp-discount', 'figure'),
+    Output('tp-promo-stats', 'children'),
+    Input('tp-brand', 'value'), Input('tp-preset', 'value'),
+)
+def update_promotions(brand, preset):
+    lo, hi = _window(preset)
+    return (fig_builders.promotion_lift_bars(DATASET, brand, lo, hi),
+            fig_builders.discount_bars(DATASET, brand),
+            _render_stats(fig_builders.promotion_summary(DATASET, brand, lo, hi)))
+
+
+# ==========================================================================
+# Operations
+# ==========================================================================
 _DISPLAY_HINTS = {
-    'market': 'One bubble per market, sized by the selected metric and colored by '
-              'member share. Click a bubble to drill into that market.',
-    'density': 'A continuous surface weighted by the selected metric — no market '
-               'boundaries implied. Click a hotspot to drill into it.',
-    'individual': 'Every mapped user, colored by lifecycle segment — not a sample. '
-                  'Markers are generated deterministically from the market '
-                  'aggregates, so the same seed always draws the same cloud. At '
-                  'this density a single fan cannot be hovered; use the market or '
-                  'density view to drill in.',
+    'market': 'One bubble per market, sized by orders and coloured by average '
+              'order value.',
+    'orders': 'One marker per order, banded by order value.',
+    'density': 'Market boundaries dropped, so only where orders concentrate '
+               'remains.',
 }
 
 
 @callback(
-    Output('fr-geo-users-value', 'children'),
-    Output('fr-geo-users-delta', 'children'),
-    Output('fr-geo-markets-value', 'children'),
-    Output('fr-geo-markets-delta', 'children'),
-    Output('fr-geo-share-value', 'children'),
-    Output('fr-geo-share-delta', 'children'),
-    Output('fr-geo-top-value', 'children'),
-    Output('fr-geo-top-delta', 'children'),
-    Input('fr-client', 'value'),
-    Input('fr-loc-level', 'value'),
+    Output('tp-map', 'figure'),
+    Output('tp-map-hint', 'children'),
+    Output('tp-geo-stats', 'children'),
+    Output('tp-market-bars', 'figure'),
+    Input('tp-brand', 'value'), Input('tp-map-display', 'value'),
+    Input('tp-map-level', 'value'),
 )
-def update_geo_kpis(client, level):
-    summary = fig_builders.heatmap_summary(DATASET, client, level)
-    return (
-        fmt_compact(summary['users']), 'located from app activity',
-        group(summary['markets']), f'at {level} level',
-        fmt_value(summary['member_share'], 'percent'), 'of mapped users are members',
-        summary['top_label'].split(',')[0],
-        f"{fmt_compact(summary['top_users'])} users · top 5 hold "
-        f"{fmt_value(summary['concentration'], 'percent')}",
-    )
+def update_map(brand, display, level):
+    return (fig_builders.fulfillment_map(DATASET, brand, level, display),
+            _DISPLAY_HINTS.get(display, ''),
+            _render_stats(fig_builders.fulfillment_summary(DATASET, brand, level)),
+            fig_builders.market_bars(DATASET, brand, level))
 
 
 @callback(
-    Output('fr-map', 'figure'),
-    Output('fr-map-hint', 'children'),
-    Input('fr-client', 'value'),
-    Input('fr-map-display', 'value'),
-    Input('fr-map-metric', 'value'),
-    Input('fr-loc-level', 'value'),
-    Input('fr-segments', 'value'),
-)
-def update_map(client, display, metric, level, segments):
-    figure = fig_builders.heatmap_map(
-        DATASET, client, display, metric, level, segments or SEGMENT_NAMES,
-    )
-    return figure, _DISPLAY_HINTS.get(display, '')
-
-
-@callback(
-    Output('fr-map-metric', 'disabled'),
-    Output('fr-segments', 'options'),
-    Input('fr-map-display', 'value'),
-)
-def sync_map_controls(display):
-    """Grey out the controls a display mode does not use.
-
-    The individual view has no metric to size by, and the aggregate views have no
-    per-user markers to filter — leaving those live would let the viewer change
-    something the map ignores.
-    """
-    individual = display == 'individual'
-    return individual, _segment_options(disabled=not individual)
-
-
-@callback(
-    Output('fr-map-detail', 'children'),
-    Input('fr-map', 'clickData'),
-    Input('fr-client', 'value'),
-    Input('fr-loc-level', 'value'),
-    Input('fr-map-display', 'value'),
-)
-def update_map_detail(click_data, client, level, display):
-    if display == 'individual':
-        return html.Div(
-            'Switch to Market bubbles or Density to drill into a market.',
-            className='fr-detail-empty',
-        )
-    if not click_data or not click_data.get('points'):
-        return html.Div('Click a market on the map to break it down.',
-                        className='fr-detail-empty')
-
-    payload = click_data['points'][0].get('customdata')
-    # Market bubbles carry the market name alone; density points carry
-    # [name, users] so their hover can show a count.
-    name = payload[0] if isinstance(payload, (list, tuple)) else payload
-    detail = fig_builders.location_detail(DATASET, client, level, name)
-    if detail is None:
-        return html.Div('That market is not in the current selection.',
-                        className='fr-detail-empty')
-
-    rows = [
-        ('Users', fmt_value(detail['users'])),
-        ('Share of audience', fmt_value(detail['share_of_audience'], 'percent')),
-        ('Members', f"{fmt_value(detail['members'])} "
-                    f"({fmt_value(detail['member_share'], 'percent')})"),
-        ('Engagement index', fmt_value(detail['engagement'])),
-        ('Engagement per user', group(detail['engagement_per_user'], 2)),
-    ]
-    return html.Div(
-        className='fr-detail-body',
-        children=[
-            html.Div(detail['label'], className='fr-detail-title'),
-            html.Div(
-                className='fr-detail-rows',
-                children=[
-                    html.Div(
-                        [html.Span(label, className='fr-detail-label'),
-                         html.Span(value, className='fr-detail-value')],
-                        className='fr-detail-row',
-                    )
-                    for label, value in rows
-                ],
-            ),
-            html.Div(
-                className='fr-detail-rows',
-                children=[
-                    html.Div(
-                        [html.Span(segment, className='fr-detail-label'),
-                         html.Span(fmt_value(count), className='fr-detail-value')],
-                        className='fr-detail-row',
-                    )
-                    for segment, count in detail['segments'].items()
-                ],
-            ),
-        ],
-    )
-
-
-@callback(
-    Output('fr-growth-timer', 'disabled'),
-    Output('fr-growth-play', 'children'),
-    Input('fr-growth-play', 'n_clicks'),
-    prevent_initial_call=True,
+    Output('tp-growth-timer', 'disabled'),
+    Output('tp-growth-play', 'children'),
+    Input('tp-growth-play', 'n_clicks'),
 )
 def toggle_growth_playback(clicks):
     playing = bool(clicks) and clicks % 2 == 1
-    return not playing, ('\u275a\u275a  Pause' if playing else '\u25b6  Play')
+    return (not playing), ('❚❚  Pause' if playing else '▶  Play')
 
 
 @callback(
-    Output('fr-growth-month', 'value'),
-    Input('fr-growth-timer', 'n_intervals'),
-    State('fr-growth-month', 'value'),
+    Output('tp-growth-month', 'value'),
+    Input('tp-growth-timer', 'n_intervals'),
+    State('tp-growth-month', 'value'),
     prevent_initial_call=True,
 )
 def advance_growth_month(_ticks, month):
-    """Step the timeline, wrapping so the replay loops rather than stopping on
-    the last month with the button still reading Pause."""
     return 0 if month is None or month >= len(GROWTH_MONTHS) - 1 else month + 1
 
 
 @callback(
-    Output('fr-growth', 'figure'),
-    Output('fr-growth-readout', 'children'),
-    Input('fr-client', 'value'),
-    Input('fr-loc-level', 'value'),
-    Input('fr-growth-month', 'value'),
+    Output('tp-growth', 'figure'),
+    Output('tp-growth-readout', 'children'),
+    Input('tp-brand', 'value'), Input('tp-map-level', 'value'),
+    Input('tp-growth-month', 'value'),
 )
-def update_growth(client, level, month):
-    figure = fig_builders.growth_map(DATASET, client, level, month)
-    totals = fig_builders.growth_totals(DATASET, client, level, month)
-    readout = (
-        f"{totals['period']} \u00b7 {fmt_value(totals['users'])} users across "
-        f"{group(totals['markets'])} markets \u2014 "
-        f"{fmt_value(totals['share'], 'percent')} of the final audience."
-    )
+def update_growth(brand, level, month):
+    figure = fig_builders.growth_map(DATASET, brand, level, month)
+    totals = fig_builders.growth_totals(DATASET, brand, level, month)
+    if not totals:
+        return figure, ''
+    readout = (f"{totals['period']} · {group(totals['orders'])} orders placed across "
+               f"{group(totals['markets'])} of {group(totals['total_markets'])} markets "
+               f"— {group(totals['share'] * 100, 1)}% of every order in the dataset, "
+               f"worth {fig_builders.fmt_compact(totals['value'], 'money')}.")
     return figure, readout
 
 
 @callback(
-    Output('fr-top-markets', 'children'),
-    Input('fr-client', 'value'),
-    Input('fr-loc-level', 'value'),
+    Output('tp-return-trend', 'figure'),
+    Output('tp-return-category', 'figure'),
+    Output('tp-return-reason', 'figure'),
+    Output('tp-return-stats', 'children'),
+    Input('tp-brand', 'value'), Input('tp-preset', 'value'),
+    Input('tp-return-grain', 'value'),
 )
-def update_top_markets(client, level):
-    rows = [
-        {
-            '#': row['rank'],
-            'Market': row['label'],
-            'Users': fmt_value(row['users']),
-            'Signed-up': fmt_value(row['signed_up']),
-            'Members': fmt_value(row['members']),
-            'Member share': fmt_value(row['member_share'], 'percent'),
-            'Engagement': fmt_value(row['engagement']),
-        }
-        for row in fig_builders.top_locations(DATASET, client, level)
-    ]
-    return dash_table.DataTable(
-        data=rows,
-        columns=[{'name': column, 'id': column} for column in
-                 ('#', 'Market', 'Users', 'Signed-up', 'Members', 'Member share', 'Engagement')],
-        style_table=TABLE_STYLE,
-        style_header=TABLE_HEADER,
-        style_cell=TABLE_CELL,
-        style_data_conditional=TABLE_CONDITIONAL,
-        cell_selectable=False,
-    )
-
-
-@callback(
-    Output('fr-segment-mix', 'figure'),
-    Output('fr-segment-note', 'children'),
-    Input('fr-client', 'value'),
-)
-def update_segment_mix(client):
-    rows = DATASET['clients'][client]['locations']
-    totals = {name: sum(r['segments'][name] for r in rows) for name in SEGMENT_NAMES}
-    grand = sum(totals.values()) or 1
-    member_share = (totals['Member'] + totals['Super User']) / grand * 100
-    note = (f'{fmt_value(grand)} mapped users · '
-            f'{fmt_value(member_share, "percent")} have converted to a paid membership.')
-    return fig_builders.segment_mix(DATASET, client), note
-
-
-@callback(
-    Output('fr-location-bar', 'figure'),
-    Input('fr-client', 'value'),
-    Input('fr-loc-level', 'value'),
-    Input('fr-loc-segment', 'value'),
-)
-def update_location_bar(client, level, segment):
-    return fig_builders.location_bar(DATASET, client, level, segment)
-
-
-# ---- Behavior -------------------------------------------------------------
-@callback(
-    Output('fr-scatter', 'figure'),
-    Output('fr-scatter-readout', 'children'),
-    Input('fr-client', 'value'),
-    Input('fr-preset', 'value'),
-    Input('fr-x-metric', 'value'),
-    Input('fr-y-metric', 'value'),
-)
-def update_scatter(client, preset, x_metric, y_metric):
+def update_returns(brand, preset, grain):
     lo, hi = _window(preset)
-    figure = fig_builders.relationship_scatter(DATASET, client, lo, hi, x_metric, y_metric)
-
-    series = _series(client)
-    xs, ys = series[x_metric][lo:hi], series[y_metric][lo:hi]
-    from demo_dashboard.data import linear_fit
-
-    slope, _, r2 = linear_fit(list(xs), list(ys))
-    if r2 >= 0.5:
-        strength = 'strong co-movement'
-    elif r2 >= 0.2:
-        strength = 'moderate co-movement'
-    else:
-        strength = 'weak or no linear relationship'
-    readout = (
-        f'R² = {group(r2, 2)} — {strength}. A one-unit rise in {metric_label(x_metric)} '
-        f'is associated with {"+" if slope >= 0 else ""}{group(slope, 3)} '
-        f'in {metric_label(y_metric)} across {hi - lo} days.'
-    )
-    return figure, readout
-
-
-@callback(
-    Output('fr-correlation', 'figure'),
-    Input('fr-client', 'value'),
-    Input('fr-preset', 'value'),
-)
-def update_correlation(client, preset):
-    lo, hi = _window(preset)
-    return fig_builders.correlation_heatmap(DATASET, client, lo, hi)
-
-
-@callback(
-    Output('fr-engagement', 'figure'),
-    Input('fr-client', 'value'),
-    Input('fr-preset', 'value'),
-)
-def update_engagement(client, preset):
-    lo, hi = _window(preset)
-    grain = 'Daily' if hi - lo <= 95 else 'Weekly'
-    return fig_builders.engagement_trend(DATASET, client, lo, hi, grain)
-
-
-# ---- Revenue & Retention --------------------------------------------------
-@callback(
-    Output('fr-rev-total-value', 'children'),
-    Output('fr-rev-total-delta', 'children'),
-    Output('fr-rev-total-delta', 'className'),
-    Output('fr-rev-arpm-value', 'children'),
-    Output('fr-rev-arpm-delta', 'children'),
-    Output('fr-rev-arpm-delta', 'className'),
-    Output('fr-rev-churn-value', 'children'),
-    Output('fr-rev-churn-delta', 'children'),
-    Output('fr-rev-churn-delta', 'className'),
-    Output('fr-rev-tenure-value', 'children'),
-    Output('fr-rev-tenure-delta', 'children'),
-    Output('fr-rev-tenure-delta', 'className'),
-    Input('fr-client', 'value'),
-    Input('fr-preset', 'value'),
-)
-def update_revenue_kpis(client, preset):
-    lo, hi = _window(preset)
-    bundle = DATASET['clients'][client]
-    series = bundle['series']
-
-    revenue = summarize(series['revenue'][lo:hi])['total']
-    rev_text, rev_dir = _delta_chip(delta_pct(series['revenue'][lo:hi]))
-
-    members = summarize(series['memberships'][lo:hi])['mean'] or 1
-    days = max(hi - lo, 1)
-    arpm = revenue / members / days * 30.44
-
-    churn_rows = [r for r in bundle['churn'] if r['start'] > 50]
-    if churn_rows:
-        latest = churn_rows[-1]
-        churn_value = fmt_value(latest['churn_pct'], 'percent')
-        churn_note = (f"{group(latest['lost'])} of {group(latest['start'])} members "
-                      f"in {latest['period']}")
-        prior = churn_rows[-2]['churn_pct'] if len(churn_rows) > 1 else latest['churn_pct']
-        churn_dir = 'down' if latest['churn_pct'] < prior else (
-            'up' if latest['churn_pct'] > prior else 'flat')
-        # Falling churn is good news, so the chip color is inverted here.
-        churn_dir = {'down': 'up', 'up': 'down', 'flat': 'flat'}[churn_dir]
-    else:
-        churn_value, churn_note, churn_dir = '—', 'not enough history', 'flat'
-
-    lifetime = bundle['lifetime']
-    tenure_value = f"{group(lifetime['median_days'])} days"
-    tenure_note = (f"mean {group(lifetime['mean_days'])} days · "
-                   f"{group(lifetime['active_members'])} members")
-
-    return (
-        fmt_compact(revenue, 'money'), rev_text, f'fr-tile-delta fr-tile-delta--{rev_dir}',
-        f'${group(arpm, 2)}', 'per member per 30 days', 'fr-tile-delta fr-tile-delta--flat',
-        churn_value, churn_note, f'fr-tile-delta fr-tile-delta--{churn_dir}',
-        tenure_value, tenure_note, 'fr-tile-delta fr-tile-delta--flat',
-    )
-
-
-@callback(
-    Output('fr-revenue', 'figure'),
-    Input('fr-client', 'value'),
-    Input('fr-preset', 'value'),
-    Input('fr-rev-grain', 'value'),
-)
-def update_revenue(client, preset, grain):
-    lo, hi = _window(preset)
-    return fig_builders.revenue_trend(DATASET, client, lo, hi, grain)
-
-
-@callback(
-    Output('fr-mix-type', 'figure'),
-    Output('fr-mix-platform', 'figure'),
-    Input('fr-client', 'value'),
-)
-def update_revenue_mix(client):
-    return (
-        fig_builders.revenue_mix_donut(DATASET, client, 'revenue_type'),
-        fig_builders.revenue_mix_donut(DATASET, client, 'platform'),
-    )
-
-
-@callback(
-    Output('fr-churn', 'figure'),
-    Input('fr-churn-clients', 'value'),
-)
-def update_churn(clients):
-    return fig_builders.churn_lines(DATASET, clients or [])
-
-
-@callback(
-    Output('fr-lifetime', 'figure'),
-    Input('fr-client', 'value'),
-)
-def update_lifetime(client):
-    return fig_builders.lifetime_bars(DATASET, client)
-
-
-@callback(
-    Output('fr-top-users', 'children'),
-    Input('fr-client', 'value'),
-)
-def update_top_users(client):
-    records = DATASET['clients'][client]['top_users'][:12]
-    show_account = any('client' in record for record in records)
-
-    rows = []
-    for record in records:
-        row = {
-            '#': record['rank'],
-            'Fan': f"@{record['handle']}",
-            'Tier': record['membership'],
-            'Location': record['city'],
-            'Sessions': f"{record['sessions']:,}",
-            'Time in app': f"{record['minutes'] / 60:,.0f} h",
-            'Posts': f"{record['posts']:,}",
-            'Spend': f"${record['spend']:,.0f}",
-        }
-        if show_account:
-            row['Account'] = record.get('client', client)
-        rows.append(row)
-
-    columns = ['#', 'Fan', 'Tier', 'Location', 'Sessions', 'Time in app', 'Posts', 'Spend']
-    if show_account:
-        columns.insert(2, 'Account')
-
-    return dash_table.DataTable(
-        data=rows,
-        columns=[{'name': column, 'id': column} for column in columns],
-        style_table=TABLE_STYLE,
-        style_header=TABLE_HEADER,
-        style_cell=TABLE_CELL,
-        style_data_conditional=TABLE_CONDITIONAL,
-        cell_selectable=False,
-    )
+    return (fig_builders.return_rate_trend(DATASET, brand, lo, hi, grain),
+            fig_builders.return_category_bars(DATASET, brand),
+            fig_builders.return_reason_bars(DATASET, brand),
+            _render_stats(fig_builders.returns_summary(DATASET, brand, lo, hi)))

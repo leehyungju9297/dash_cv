@@ -1,20 +1,22 @@
-"""Frontrow Analytics — a self-contained, synthetic-data demo dashboard.
+"""Tidepool Commerce Analytics — a self-contained, synthetic-data demo dashboard.
 
-This package powers the interactive case-study demo shipped with the portfolio
-site. It reproduces the structure of a production multi-tenant product analytics
-dashboard (KPI overview, audience geography, behavioral diagnostics, revenue and
-retention) against a deterministic synthetic dataset. No real client data, names,
-or numbers appear anywhere in this package.
+This package powers the interactive demo shipped with the portfolio site: a
+multi-brand direct-to-consumer retail analytics surface covering sales
+performance, cohort retention and customer value, marketing attribution and
+promotion lift, and fulfillment and returns — all against a deterministic
+synthetic dataset. Every brand, customer, order and figure is generated. No real
+name, record or value appears anywhere in this package.
 
 Modules
 -------
-config   Brand, client roster, metric registry, and the color system.
+config   Brand roster, metric registry, information architecture, color system.
 data     Deterministic synthetic dataset generation (standard library only).
+geo      Shared PRNG and geography helpers, mirrored bit-for-bit in JavaScript.
 figures  Plotly figure builders shared by the Dash page.
 export   Dumps the dataset to JSON for the static (client-side) twin.
 """
 
-from demo_dashboard.config import BRAND, CLIENTS, DEFAULT_CLIENT
+from demo_dashboard.config import BRAND, BRANDS, DEFAULT_BRAND
 from demo_dashboard.data import get_dataset
 
-__all__ = ['BRAND', 'CLIENTS', 'DEFAULT_CLIENT', 'get_dataset']
+__all__ = ['BRAND', 'BRANDS', 'DEFAULT_BRAND', 'get_dataset']

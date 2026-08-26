@@ -1,22 +1,25 @@
-"""Geography helpers shared by the Dash dashboard and its static twin.
+"""Geography and point-generation helpers shared by the Dash app and its twin.
 
-The Audience Heatmap needs far more map markers than it would be sensible to ship
-in the exported JSON (individual view alone plots thousands of points), so the
-markers are *generated* from the compact per-city rows instead of transported.
+The fulfillment map plots one marker per order, and the customer-value scatter
+one point per sampled customer. Shipping either as data would dominate the
+exported payload, so both are *generated* from compact per-market and per-brand
+parameters instead.
 
 That only works if both implementations generate the same points. Everything in
 this module is therefore built on a 32-bit linear congruential generator using
 integer arithmetic that JavaScript reproduces exactly (``Math.imul`` + ``>>> 0``),
-and jitter is a sum of uniforms rather than a Box-Muller normal — no ``log``,
-``sqrt`` or ``cos``, whose last-bit behavior is not guaranteed to match across
-language runtimes. See the mirror of this file in ``docs/assets/demo/frontrow.js``.
+and every draw avoids ``log``, ``sqrt``, ``cos`` and ``sin``, whose last-bit
+behavior is not guaranteed to match across language runtimes: jitter is a sum of
+uniforms, directions come from rejection sampling, and heavy tails come from
+repeated multiplication rather than an inverse-CDF. See the mirror of this file
+in ``docs/assets/demo/tidepool.js``.
 """
 
 from __future__ import annotations
 
 from typing import Dict, List, Sequence
 
-from demo_dashboard.config import SEGMENT_NAMES
+from demo_dashboard.config import VALUE_TIER_NAMES
 
 
 _MASK = 0xFFFFFFFF
@@ -52,7 +55,7 @@ class Lcg:
 
 
 def string_seed(text: str) -> int:
-    """FNV-1a 32-bit. Used to derive a stable per-city/per-client seed."""
+    """FNV-1a 32-bit. Used to derive a stable per-market/per-brand seed."""
     h = 2166136261
     for ch in text:
         h ^= ord(ch) & 0xFF
@@ -61,17 +64,19 @@ def string_seed(text: str) -> int:
 
 
 # --------------------------------------------------------------------------
-# Location aggregation
+# Market aggregation
 # --------------------------------------------------------------------------
 LEVEL_KEYS = {'city': 'city', 'region': 'region', 'country': 'country'}
 
 
 def aggregate_by_level(locations: Sequence[Dict], level: str) -> List[Dict]:
-    """Roll city rows up to the requested location level.
+    """Roll city rows up to the requested shipping level.
 
-    Coordinates become the user-weighted centroid of the member cities, so a
-    region bubble sits where its audience actually is rather than at the
-    geometric middle of the region.
+    Coordinates become the order-weighted centroid of the member cities, so a
+    region bubble sits where its orders actually ship rather than at the
+    geometric middle of the region. Average order value re-blends from summed
+    revenue over summed orders — averaging the member averages would give a
+    hundred-order town the same say as a hundred-thousand-order metro.
     """
     key = LEVEL_KEYS.get(level, 'city')
     merged: Dict[str, Dict] = {}
@@ -85,47 +90,43 @@ def aggregate_by_level(locations: Sequence[Dict], level: str) -> List[Dict]:
                 'city': row['city'],
                 'region': row['region'],
                 'country': row['country'],
-                'users': 0,
-                'engagement': 0,
+                'orders': 0,
+                'revenue': 0.0,
                 'lat_weight': 0.0,
                 'lon_weight': 0.0,
-                'segments': {seg: 0 for seg in SEGMENT_NAMES},
                 'seed': row['seed'],
                 'ramp_lag': row['ramp_lag'],
+                '_top': 0,
             }
             merged[name] = entry
-        entry['users'] += row['users']
-        entry['engagement'] += row['engagement']
-        entry['lat_weight'] += row['lat'] * row['users']
-        entry['lon_weight'] += row['lon'] * row['users']
-        for seg in SEGMENT_NAMES:
-            entry['segments'][seg] += row['segments'][seg]
-        # A rolled-up market inherits the lag of its largest contributor.
-        if row['users'] > entry.get('_top_users', 0):
-            entry['_top_users'] = row['users']
+        entry['orders'] += row['orders']
+        entry['revenue'] += row['revenue']
+        entry['lat_weight'] += row['lat'] * row['orders']
+        entry['lon_weight'] += row['lon'] * row['orders']
+        # A rolled-up market inherits the identity of its largest contributor.
+        if row['orders'] > entry['_top']:
+            entry['_top'] = row['orders']
             entry['ramp_lag'] = row['ramp_lag']
             entry['seed'] = row['seed']
 
     out = []
     for entry in merged.values():
-        users = entry['users'] or 1
-        members = entry['segments']['Member'] + entry['segments']['Super User']
+        orders = entry['orders'] or 1
         out.append({
             'name': entry['name'],
             'label': _place_label(level, entry),
-            'lat': round(entry['lat_weight'] / users, 4),
-            'lon': round(entry['lon_weight'] / users, 4),
-            'users': entry['users'],
-            'engagement': entry['engagement'],
-            'members': members,
-            'signed_up': entry['segments']['Signed-Up'],
-            'super_users': entry['segments']['Super User'],
-            'member_share': members / users,
-            'segments': entry['segments'],
+            # Carried through because the marker spread is wider outside the US,
+            # where a "market" covers a much larger delivery area.
+            'country': entry['country'],
+            'lat': round(entry['lat_weight'] / orders, 4),
+            'lon': round(entry['lon_weight'] / orders, 4),
+            'orders': entry['orders'],
+            'revenue': round(entry['revenue'], 2),
+            'aov': round(entry['revenue'] / orders, 2),
             'seed': entry['seed'],
             'ramp_lag': entry['ramp_lag'],
         })
-    out.sort(key=lambda r: -r['users'])
+    out.sort(key=lambda r: -r['orders'])
     return out
 
 
@@ -138,39 +139,82 @@ def _place_label(level: str, entry: Dict) -> str:
 
 
 # --------------------------------------------------------------------------
-# Individual markers
+# Individual order markers
 # --------------------------------------------------------------------------
-# How far the tail of a market reaches. Most users land far inside this — see
-# the concentration term in spread_within_city — so it is the outer extent, not
-# the radius of the cloud.
+# How far the tail of a market reaches. Most orders land far inside this — see
+# the squared radial term below — so it is the outer extent of the delivery
+# footprint, not the radius of the cloud.
 _SPREAD_DEGREES = 0.95
 _SPREAD_INTERNATIONAL = 1.35
 
-
-# Three decimals is about 100 m, two orders of magnitude finer than the jitter
-# spread below — the extra digit only inflated the payload.
+# Three decimals is about 100 m, two orders of magnitude finer than the spread
+# below — the extra digit only inflated the payload.
 _COORD_DECIMALS = 3
 
 
-def spread_within_city(rows: Sequence[Dict], salt: str = '') -> List[Dict]:
-    """One deterministic marker per mapped user, scattered around their city.
-
-    Every user gets a marker rather than a sampled subset: MapLibre draws the
-    full ~270k cloud in about the same time it draws 5,000, and the density is
-    the point of the view. The markers carry no per-point label — at this scale
-    an individual fan cannot be hovered anyway, and the strings were more than
-    half the payload. Drill-down lives in the market and density views.
+def _market_shape(rng: Lcg, base: float):
+    """Delivery geometry for one market, drawn once.
 
     The scatter is deliberately not a disc. Jittering each coordinate
     independently and uniformly draws every metro as the same round blob, which
-    is exactly what a city-centroid fallback looks like when geolocation has
-    failed — the one thing this view must not be mistaken for. Instead each
-    market gets two to four population centres, an elliptical bias, and a
-    squared radial term that puts most users near a centre and a thin tail well
-    beyond it.
+    is what a city-centroid fallback looks like when geocoding has failed — the
+    one thing this view must not be mistaken for. Instead each market gets two to
+    four population centres and an elliptical bias, so deliveries cluster the way
+    a metro's suburbs actually do.
+    """
+    stretch_x = 0.75 + rng.next_float() * 0.9
+    stretch_y = 0.75 + rng.next_float() * 0.9
+    centre_count = 2 + int(rng.next_float() * 3)
+    centres = []
+    for index in range(centre_count):
+        # The first centre is the city itself; the rest are satellites.
+        offset = 0.0 if index == 0 else 0.34
+        centres.append((
+            rng.jitter(base * offset) * stretch_y,
+            rng.jitter(base * offset) * stretch_x * 1.3,
+            0.45 + rng.next_float(),          # relative pull
+        ))
+    return stretch_x, stretch_y, centres
 
-    Every draw is integer-LCG arithmetic with no transcendental functions, so
-    the JavaScript mirror produces the identical cloud.
+
+def _cumulative_arrival(ramp: Sequence[float], lag: float) -> List[float]:
+    """A market's own cumulative order curve across the month grid.
+
+    A market that opened late compresses its whole ramp into the months it
+    actually had, rather than being cut off mid-curve — otherwise every late
+    market would appear to stop growing at the end of the window.
+    """
+    span = max(len(ramp) - 1, 1)
+    offset = lag * span
+    out = []
+    for index in range(len(ramp)):
+        if index < offset:
+            out.append(0.0)
+            continue
+        local = (index - offset) / max(span - offset, 1e-9)
+        out.append(_interpolate(ramp, local * span))
+    # Force monotone and end at exactly 1 so the last month holds every order.
+    peak = out[-1] or 1.0
+    running = 0.0
+    for index, value in enumerate(out):
+        running = max(running, value / peak)
+        out[index] = running
+    return out
+
+
+def scatter_orders(rows: Sequence[Dict], salt: str = '',
+                   ramp: Sequence[float] = ()) -> List[Dict]:
+    """One deterministic marker per order, scattered across its market.
+
+    Every order gets a marker rather than a sampled subset: MapLibre draws the
+    full cloud in about the same time it draws five thousand points, and the
+    density is the point of the view. Each marker carries its own order value, so
+    the individual view uses the same continuous value scale as the market
+    bubbles instead of a separate categorical legend.
+
+    When ``ramp`` is supplied each marker also gets the month it was placed in,
+    which is what lets the replay show orders accumulating rather than a set of
+    blobs resizing.
     """
     points: List[Dict] = []
 
@@ -178,36 +222,12 @@ def spread_within_city(rows: Sequence[Dict], salt: str = '') -> List[Dict]:
         rng = Lcg(row['seed'] ^ string_seed(salt))
         base = (_SPREAD_DEGREES if row['country'] == 'United States'
                 else _SPREAD_INTERNATIONAL)
-
-        # Market shape, drawn once: how elongated it is, and where its
-        # population centres sit relative to the nominal city point.
-        stretch_x = 0.75 + rng.next_float() * 0.9
-        stretch_y = 0.75 + rng.next_float() * 0.9
-        centre_count = 2 + int(rng.next_float() * 3)
-        centres = []
-        for index in range(centre_count):
-            # The first centre is the city itself; the rest are satellites.
-            offset = 0.0 if index == 0 else 0.34
-            centres.append((
-                rng.jitter(base * offset) * stretch_y,
-                rng.jitter(base * offset) * stretch_x * 1.3,
-                0.45 + rng.next_float(),          # relative pull
-            ))
+        stretch_x, stretch_y, centres = _market_shape(rng, base)
         pull_total = sum(c[2] for c in centres)
+        arrival = _cumulative_arrival(ramp, row['ramp_lag']) if ramp else ()
+        aov = row['aov']
 
-        weights = [max(row['segments'][seg], 0) + 0.5 for seg in SEGMENT_NAMES]
-        pool = sum(weights)
-
-        for _ in range(row['users']):
-            draw = rng.next_float() * pool
-            segment = SEGMENT_NAMES[-1]
-            running = 0.0
-            for name, weight in zip(SEGMENT_NAMES, weights):
-                running += weight
-                if draw < running:
-                    segment = name
-                    break
-
+        for _ in range(row['orders']):
             pick = rng.next_float() * pull_total
             running = 0.0
             centre = centres[-1]
@@ -229,59 +249,37 @@ def spread_within_city(rows: Sequence[Dict], salt: str = '') -> List[Dict]:
             # Squared radius: dense core, thin tail.
             reach = rng.next_float()
             reach *= reach
-            # A small share live well outside the metro. Without them every
-            # market ends at a hard edge and the country between cities is
-            # empty, which real location data never is.
+            # A small share of orders ship well outside the metro. Without them
+            # every market ends at a hard edge and the country between cities is
+            # empty, which no real delivery footprint is.
             if rng.next_float() < 0.05:
                 reach *= 3.0 + rng.next_float() * 4.0
 
-            points.append({
+            # Order value around the market mean, right-skewed: a few large
+            # baskets, most near the middle.
+            spread = (rng.next_float() + rng.next_float() + rng.next_float()) / 3.0
+            value = aov * (0.45 + spread * 1.1)
+            if rng.next_float() < 0.04:
+                value *= 1.8 + rng.next_float() * 2.2
+
+            point = {
                 'lat': round(row['lat'] + centre[0]
                              + dy * base * reach * stretch_y, _COORD_DECIMALS),
                 'lon': round(row['lon'] + centre[1]
                              + dx * base * reach * stretch_x * 1.3, _COORD_DECIMALS),
-                'segment': segment,
-            })
+                'value': round(value, 2),
+            }
+            if arrival:
+                u = rng.next_float()
+                month = len(arrival) - 1
+                for index, reached in enumerate(arrival):
+                    if u <= reached:
+                        month = index
+                        break
+                point['month'] = month
+            points.append(point)
 
     return points
-
-
-# --------------------------------------------------------------------------
-# Growth animation frames
-# --------------------------------------------------------------------------
-def growth_frames(monthly_ramp: Sequence[Dict], markets: Sequence[Dict]) -> List[Dict]:
-    """Cumulative arrivals per market, one frame per month.
-
-    A market's audience at month *m* is its final size scaled by the client's
-    cumulative install curve, shifted by that market's own lag — so the map fills
-    in the order markets actually opened up rather than all at once.
-    """
-    frames = []
-    span = max(len(monthly_ramp) - 1, 1)
-
-    for index, step in enumerate(monthly_ramp):
-        rows = []
-        for market in markets:
-            lag = market['ramp_lag'] * span
-            if index < lag:
-                continue
-            # Re-read the client curve at the market's own (lagged, rescaled)
-            # position so late markets compress their whole ramp into the
-            # remaining months instead of being cut off mid-curve.
-            local = (index - lag) / max(span - lag, 1e-9)
-            fraction = _interpolate([s['frac'] for s in monthly_ramp], local * span)
-            users = market['users'] * fraction
-            if users < 1:
-                continue
-            rows.append({
-                'label': market['label'],
-                'lat': market['lat'],
-                'lon': market['lon'],
-                'users': int(round(users)),
-                'member_share': market['member_share'],
-            })
-        frames.append({'period': step['period'], 'markets': rows})
-    return frames
 
 
 def _interpolate(values: Sequence[float], position: float) -> float:
@@ -296,6 +294,108 @@ def _interpolate(values: Sequence[float], position: float) -> float:
     return values[low] * (1 - weight) + values[low + 1] * weight
 
 
+# --------------------------------------------------------------------------
+# Customer value points
+# --------------------------------------------------------------------------
+# Quadrant thresholds on the RFM plane. Recency is a fraction of the window;
+# frequency is a lifetime order count. These two cuts define the four quadrants
+# the scatter labels, and the monetary term splits the best quadrant in two —
+# which is what the M in RFM is for, and what marker size alone cannot say.
+RECENCY_CUT = 0.25
+FREQUENCY_CUT = 2
+CHAMPION_SPEND_PERCENTILE = 0.72
+
+
+def rfm_points(params: Dict[str, object], salt: str = '') -> List[Dict]:
+    """One point per sampled customer: recency, frequency, lifetime spend, tier.
+
+    Spend follows a Pareto-ish tail — a minority of customers carry the majority
+    of revenue, which is the fact the whole view exists to show — drawn by
+    repeated multiplication rather than an inverse power so the two languages
+    agree to the last bit. Frequency is geometric: most customers order once and
+    never return, and a value view that smooths that away is lying.
+    """
+    if not params:
+        return []
+
+    rng = Lcg(int(params['seed']) ^ string_seed(salt))
+    sample = int(params['sample'])
+    window = float(params['window_days'])
+    mean_spend = float(params['mean_spend'])
+    decay = float(params['repeat_decay'])
+
+    points: List[Dict] = []
+    for _ in range(sample):
+        # Frequency: geometric tail, at least one order.
+        frequency = 1
+        while frequency < 24 and rng.next_float() < decay:
+            frequency += 1
+
+        # Recency: customers who order more are, on average, more recent — but
+        # only on average. A third of the base has stopped regardless of how
+        # much they used to buy, and those are precisely the customers the
+        # At Risk quadrant exists to surface; coupling recency to frequency
+        # tightly would empty that quadrant and make the chart useless.
+        pull = rng.next_float()
+        pull *= pull
+        if rng.next_float() < 0.34:
+            churned = 0.35 + rng.next_float() * 0.65
+            recency = churned * window
+        else:
+            recency = pull * window / (0.6 + 0.4 * frequency)
+        recency = min(recency, window)
+
+        # Spend: a heavy right tail built from repeated multiplication.
+        magnitude = 0.55 + rng.next_float() * 0.9
+        for _ in range(3):
+            if rng.next_float() < 0.28:
+                magnitude *= 1.35 + rng.next_float() * 1.4
+        spend = mean_spend * frequency * magnitude * 0.62
+
+        points.append({
+            'recency': round(recency, 1),
+            'frequency': frequency,
+            'spend': round(spend, 2),
+        })
+
+    # The champion cut is a percentile of this sample, so it adapts to the brand
+    # rather than hard-coding a dollar figure that would be wrong for four of the
+    # five brands. Computed on a sorted copy, which both languages agree on.
+    ordered = sorted(point['spend'] for point in points)
+    cut_index = min(int(len(ordered) * CHAMPION_SPEND_PERCENTILE), len(ordered) - 1)
+    champion_spend = ordered[cut_index] if ordered else 0.0
+
+    for point in points:
+        recent = point['recency'] <= window * RECENCY_CUT
+        frequent = point['frequency'] >= FREQUENCY_CUT
+        if recent and frequent:
+            # Top-right quadrant, split by spend.
+            tier = VALUE_TIER_NAMES[0] if point['spend'] >= champion_spend \
+                else VALUE_TIER_NAMES[1]
+        elif recent:
+            tier = VALUE_TIER_NAMES[2]        # Promising — bought once, recently
+        elif frequent:
+            tier = VALUE_TIER_NAMES[3]        # At Risk — bought often, gone quiet
+        else:
+            tier = VALUE_TIER_NAMES[4]        # Lapsed
+        point['tier'] = tier
+
+    return points
+
+
+# The four quadrant labels the scatter draws, as (recency side, frequency side).
+RFM_QUADRANTS = [
+    {'recent': True, 'frequent': True, 'label': 'Champions & Loyal',
+     'note': 'Recent and repeat'},
+    {'recent': False, 'frequent': True, 'label': 'At Risk',
+     'note': 'Bought often, gone quiet'},
+    {'recent': True, 'frequent': False, 'label': 'Promising',
+     'note': 'First order, still warm'},
+    {'recent': False, 'frequent': False, 'label': 'Lapsed',
+     'note': 'One order, long ago'},
+]
+
+
 __all__ = [
-    'Lcg', 'aggregate_by_level', 'growth_frames', 'spread_within_city', 'string_seed',
+    'Lcg', 'aggregate_by_level', 'rfm_points', 'scatter_orders', 'string_seed',
 ]

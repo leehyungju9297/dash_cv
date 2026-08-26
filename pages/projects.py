@@ -1,7 +1,7 @@
 import dash
 from dash import html
 
-from case_studies import CASE_STUDIES, RESEARCH_HIGHLIGHTS
+from case_studies import CASE_STUDIES, LIVE_DEMO, RESEARCH_HIGHLIGHTS
 
 
 dash.register_page(__name__, path='/projects', order=1, name='Selected Work')
@@ -27,22 +27,61 @@ def _text_section(title: str, text: str):
     )
 
 
-def _demo_callout():
-    """A single pointer to the running demo, for the case studies it covers."""
-    covered = [case for case in CASE_STUDIES if case.get('has_demo')]
-    if not covered:
-        return None
-    return html.Div(
-        className='demo-callout',
+def _demo_showcase():
+    """The live demo, as its own work item.
+
+    It used to be introduced as an interactive version of the case studies below.
+    It is not: it is a separate build in a different domain, and the honest way
+    to show it is on its own terms with its own screenshots.
+    """
+    return html.Article(
+        id=LIVE_DEMO['slug'],
+        className='glass-card case-study-card demo-showcase reveal-up',
         children=[
-            html.Span(
-                f'All {len(covered)} of these run as one interactive dashboard, '
-                'on synthetic data.',
-                className='demo-callout-copy',
+            html.Div(LIVE_DEMO['scope'], className='project-scope'),
+            html.H3(LIVE_DEMO['title'], className='case-study-title'),
+            html.P(LIVE_DEMO['problem_line'], className='case-study-problem'),
+            html.Div(
+                className='skill-cloud case-tag-cloud',
+                children=[html.Span(tag, className='skill-pill')
+                          for tag in LIVE_DEMO['tags']],
+            ),
+            html.Div(
+                className='demo-shot-grid',
+                children=[
+                    html.Figure(
+                        className='demo-shot',
+                        children=[
+                            html.A(
+                                href=shot['src'],
+                                target='_blank',
+                                rel='noreferrer',
+                                className='case-study-image-link',
+                                **{
+                                    'data-track': 'demo_image_expand',
+                                    'data-track-location': 'case_studies_page',
+                                    'data-track-label': shot['src'].rsplit('/', 1)[-1],
+                                },
+                                children=html.Img(
+                                    src=shot['src'],
+                                    className='case-study-image',
+                                    alt=shot['alt'],
+                                ),
+                            ),
+                            html.Figcaption(shot['caption'],
+                                            className='case-study-caption'),
+                        ],
+                    )
+                    for shot in LIVE_DEMO['shots']
+                ],
+            ),
+            html.Ul(
+                className='case-study-list',
+                children=[html.Li(item) for item in LIVE_DEMO['highlights']],
             ),
             html.A(
                 'Open the live demo \u2192',
-                href='/dashboard',
+                href=LIVE_DEMO['href'],
                 className='cta-secondary',
                 **{
                     'data-track': 'case_study_demo_click',
@@ -140,6 +179,7 @@ layout = html.Div(
                     className='case-jump-nav',
                     **{'aria-label': 'Jump to work sample'},
                     children=[
+                        html.A('Live Demo', href='#tidepool-commerce-analytics', className='case-jump-link'),
                         html.A('Executive KPI Monitoring', href='#executive-kpi-monitoring', className='case-jump-link'),
                         html.A('Behavior & Geography', href='#behavior-geography-correlation', className='case-jump-link'),
                         html.A('Geo-Segmented Intelligence', href='#geo-segmented-user-intelligence', className='case-jump-link'),
@@ -153,14 +193,18 @@ layout = html.Div(
         html.Section(
             className='case-study-stack',
             children=[
+                html.Div('LIVE DEMO', className='eyebrow section-subhead'),
+                html.P(
+                    'A dashboard built end to end for this portfolio, from the data '
+                    'generator up. Interactive, and running on generated data.',
+                    className='subsection-note',
+                ),
+                _demo_showcase(),
                 html.Div('PRODUCT ANALYTICS / DECISION SYSTEMS', className='eyebrow section-subhead'),
                 html.P(
                     'Production-facing work in KPI systems, behavioral analysis, segmentation, and decision support.',
                     className='subsection-note',
                 ),
-                # One callout for the section rather than the same button
-                # repeated under each of the three case studies it covers.
-                _demo_callout(),
                 *[_work_card(case) for case in CASE_STUDIES],
                 html.Div('AI / ML / RESEARCH WORK', className='eyebrow section-subhead'),
                 html.P(

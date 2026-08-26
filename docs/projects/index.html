@@ -45,6 +45,7 @@
               research infrastructure, 3D vision experimentation, and evaluation methodology.
             </p>
             <nav class="case-jump-nav" aria-label="Jump to work sample">
+              <a class="case-jump-link" href="#tidepool-commerce-analytics">Live Demo</a>
               <a class="case-jump-link" href="#executive-kpi-monitoring">Executive KPI Monitoring</a>
               <a class="case-jump-link" href="#behavior-geography-correlation">Behavior &amp; Geography</a>
               <a class="case-jump-link" href="#geo-segmented-user-intelligence">Geo-Segmented Intelligence</a>
@@ -55,16 +56,71 @@
           </section>
 
           <section class="case-study-stack">
+            <div class="eyebrow section-subhead">LIVE DEMO</div>
+            <p class="subsection-note">
+              A dashboard built end to end for this portfolio, from the data generator up.
+              Interactive, and running on generated data.
+            </p>
+
+            <article id="tidepool-commerce-analytics" class="glass-card case-study-card demo-showcase reveal-up">
+              <div class="project-scope">PRODUCT ANALYTICS / DATA VISUALIZATION</div>
+              <h3 class="case-study-title">Tidepool Commerce Analytics — Live Retail Dashboard</h3>
+              <p class="case-study-problem">
+                Designed and built a multi-brand direct-to-consumer analytics surface end to end: the synthetic
+                dataset, the analysis, the chart craft, and two independent front ends that agree to the last digit.
+              </p>
+              <div class="skill-cloud case-tag-cloud">
+                <span class="skill-pill">Cohort Retention</span>
+                <span class="skill-pill">RFM Segmentation</span>
+                <span class="skill-pill">Driver Decomposition</span>
+                <span class="skill-pill">Event Study</span>
+                <span class="skill-pill">Geospatial</span>
+                <span class="skill-pill">Data Visualization</span>
+              </div>
+              <div class="demo-shot-grid">
+                <figure class="demo-shot">
+                  <a class="case-study-image-link" href="../assets/demo_shots/trading-performance.jpg" target="_blank" rel="noreferrer" data-track="demo_image_expand" data-track-location="case_studies_page" data-track-label="trading-performance.jpg">
+                    <img class="case-study-image" src="../assets/demo_shots/trading-performance.jpg" loading="lazy"
+                      alt="Revenue and orders on independent axes with promotion markers and outliers ringed on the series." />
+                  </a>
+                  <figcaption class="case-study-caption">
+                    Trading performance — two metrics on independent axes with the promotion calendar overlaid and
+                    outliers called out in place, so a spike can be read against what ran that week.
+                  </figcaption>
+                </figure>
+                <figure class="demo-shot">
+                  <a class="case-study-image-link" href="../assets/demo_shots/cohort-retention.jpg" target="_blank" rel="noreferrer" data-track="demo_image_expand" data-track-location="case_studies_page" data-track-label="cohort-retention.jpg">
+                    <img class="case-study-image" src="../assets/demo_shots/cohort-retention.jpg" loading="lazy"
+                      alt="A cohort retention triangle: acquisition month down the side, months since first order across the top." />
+                  </a>
+                  <figcaption class="case-study-caption">
+                    Cohort retention — repeat rate by acquisition month. A triangle rather than a rectangle, because a
+                    cohort acquired last month has exactly one observed month.
+                  </figcaption>
+                </figure>
+                <figure class="demo-shot">
+                  <a class="case-study-image-link" href="../assets/demo_shots/fulfillment-geography.jpg" target="_blank" rel="noreferrer" data-track="demo_image_expand" data-track-location="case_studies_page" data-track-label="fulfillment-geography.jpg">
+                    <img class="case-study-image" src="../assets/demo_shots/fulfillment-geography.jpg" loading="lazy"
+                      alt="A light map of North America with market bubbles sized by order volume and coloured by average order value." />
+                  </a>
+                  <figcaption class="case-study-caption">
+                    Fulfillment geography — bubble size is order volume and colour is average order value, so a market
+                    that is large and cheap reads differently from one that is small and rich.
+                  </figcaption>
+                </figure>
+              </div>
+              <ul class="case-study-list">
+                <li>Nine views across sales performance, customers, marketing and operations.</li>
+                <li>Retention triangles, RFM quadrants, revenue driver walks and event studies.</li>
+                <li>Ships twice — a Dash app and a plotly.js build — from one dataset.</li>
+              </ul>
+              <a class="cta-secondary" href="../dashboard/" data-track="case_study_demo_click" data-track-location="case_studies_page">Open the live demo →</a>
+            </article>
+
             <div class="eyebrow section-subhead">PRODUCT ANALYTICS / DECISION SYSTEMS</div>
             <p class="subsection-note">
               Production-facing work in KPI systems, behavioral analysis, segmentation, and decision support.
             </p>
-            <!-- One callout for the section rather than the same button repeated under each
-                 of the three case studies it covers. -->
-            <div class="demo-callout">
-              <span class="demo-callout-copy">All 3 of these run as one interactive dashboard, on synthetic data.</span>
-              <a class="cta-secondary" href="../dashboard/" data-track="case_study_demo_click" data-track-location="case_studies_page">Open the live demo →</a>
-            </div>
 
             <article id="executive-kpi-monitoring" class="glass-card case-study-card reveal-up">
               <div class="project-scope">PRODUCT ANALYTICS / DECISION SYSTEMS</div>
@@ -79,18 +135,6 @@
                 <span class="skill-pill">Monetization</span>
                 <span class="skill-pill">Release Diagnostics</span>
               </div>
-              <figure class="case-study-figure">
-                <a class="case-study-image-link" href="../assets/case_studies/executive-kpi-monitoring.jpg" target="_blank" rel="noreferrer" data-track="case_study_image_expand" data-track-location="case_studies_page" data-track-label="executive-kpi-monitoring">
-                  <img
-                    class="case-study-image"
-                    src="../assets/case_studies/executive-kpi-monitoring.jpg"
-                    alt="Dashboard overview: a downloads headline, supporting KPI tiles, and a dual-axis activity chart with release-calendar markers"
-                  />
-                </a>
-                <figcaption class="case-study-caption">
-                  The KPI overview — one headline metric, supporting tiles, and a dual-axis trend with the release calendar overlaid, so a spike can be read against what shipped that week.
-                </figcaption>
-              </figure>
               <div class="case-detail-grid">
                 <div class="case-detail-block">
                   <h4 class="case-detail-label">Overview</h4>
@@ -176,18 +220,6 @@
                 <span class="skill-pill">Segmentation</span>
                 <span class="skill-pill">Geo Analysis</span>
               </div>
-              <figure class="case-study-figure">
-                <a class="case-study-image-link" href="../assets/case_studies/behavior-geography-correlation.jpg" target="_blank" rel="noreferrer" data-track="case_study_image_expand" data-track-location="case_studies_page" data-track-label="behavior-geography-correlation">
-                  <img
-                    class="case-study-image"
-                    src="../assets/case_studies/behavior-geography-correlation.jpg"
-                    alt="Relationship scatter with a least-squares fit, above a correlation matrix across product event families"
-                  />
-                </a>
-                <figcaption class="case-study-caption">
-                  Relationship diagnostics — a least-squares fit over daily observations above the correlation structure across event families, where weak signals separate from repeatable ones.
-                </figcaption>
-              </figure>
               <div class="case-detail-grid">
                 <div class="case-detail-block">
                   <h4 class="case-detail-label">Overview</h4>
@@ -264,18 +296,6 @@
                 <span class="skill-pill">Segmentation</span>
                 <span class="skill-pill">Data Visualization</span>
               </div>
-              <figure class="case-study-figure">
-                <a class="case-study-image-link" href="../assets/case_studies/geo-segmented-user-intelligence.jpg" target="_blank" rel="noreferrer" data-track="case_study_image_expand" data-track-location="case_studies_page" data-track-label="geo-segmented-user-intelligence">
-                  <img
-                    class="case-study-image"
-                    src="../assets/case_studies/geo-segmented-user-intelligence.jpg"
-                    alt="Dark map with market bubbles sized by audience and coloured by member share, above a reach and member-density KPI strip"
-                  />
-                </a>
-                <figcaption class="case-study-caption">
-                  The audience heatmap — markets sized by audience and coloured by member share, with reach, spread, and member density read off the strip above it.
-                </figcaption>
-              </figure>
               <div class="case-detail-grid">
                 <div class="case-detail-block">
                   <h4 class="case-detail-label">Overview</h4>

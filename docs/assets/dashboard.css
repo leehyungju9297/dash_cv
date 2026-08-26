@@ -1,1262 +1,1104 @@
-/* =============================================================================
-   Frontrow Analytics — demo dashboard visual system
-   -----------------------------------------------------------------------------
-   Everything here is scoped under `.fr-*` classes that only exist on the
-   /dashboard page, so loading this stylesheet site-wide is inert everywhere
-   else. The palette is a charcoal analytics surface that sits inside the
-   portfolio's own dark theme rather than fighting it.
+/* ==========================================================================
+   Tidepool Commerce Analytics — demo dashboard visual system
 
-   The same file is served to the static GitHub Pages twin of this dashboard
-   (docs/dashboard/), so the live Dash page and the static build stay identical.
-   ============================================================================= */
+   A warm, light, print-safe surface, deliberately unlike the dark portfolio it
+   sits inside: the demo is a different product and should read as one.
 
-.fr-page {
-  --fr-surface: #10151d;
-  --fr-surface-raised: #141a24;
-  --fr-surface-sunken: #0b0f17;
-  --fr-border: #263244;
-  --fr-border-soft: rgba(148, 163, 184, 0.14);
-  --fr-text: #f1f5f9;
-  --fr-text-secondary: #aab4c3;
-  --fr-text-muted: #7e8a9a;
-  --fr-accent: #6bafe8;
-  --fr-accent-soft: rgba(107, 175, 232, 0.14);
-  --fr-green: #79d29b;
-  --fr-gold: #e6b450;
-  --fr-coral: #f08c7e;
-  --fr-violet: #ac9be8;
-  --fr-amber: #f0c05a;
-  --fr-radius: 14px;
-  --fr-radius-sm: 9px;
+   Three rules the whole sheet follows:
 
-  /* Same construction as the site shell: a hairline of light on the top edge
-     plus a two-part shadow, so a card reads as a raised panel and not a box. */
-  --fr-edge: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  --fr-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 28px rgba(0, 0, 0, 0.26);
-  --fr-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+     1. One accent. Terracotta carries emphasis; everything else is paper, ink
+        and hairline. Nothing glows, nothing has a coloured left border, and no
+        stat card is tinted by its metric — a number that changes colour with
+        its own value is decoration, not encoding.
+     2. Contrast is checked, not assumed. Body text is 5.3:1 on the page and
+        headings are 16.6:1; both clear WCAG AA at their sizes.
+     3. Space instead of chrome. Cards are separated by whitespace and a 1px
+        hairline rather than shadow, and the corner radius is small enough that
+        the page reads as a document rather than an app skin.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap');
+
+.tp-page {
+  --tp-page: #FAF9F7;
+  --tp-card: #FFFFFF;
+  --tp-sunken: #F4F2EE;
+  --tp-border: #E4E0D9;
+  --tp-border-strong: #D6D1C7;
+  --tp-hairline: rgba(26, 26, 24, 0.07);
+
+  --tp-text: #1A1A18;
+  --tp-text-secondary: #6B6862;
+  --tp-text-muted: #8A837A;
+
+  --tp-accent: #C4633F;
+  --tp-accent-deep: #8B462D;
+  --tp-accent-soft: #F5E5DE;
+  --tp-positive: #4E6B4D;
+  --tp-negative: #9E4B34;
+
+  --tp-radius: 4px;
+  --tp-radius-sm: 3px;
+  --tp-serif: 'Source Serif 4', 'Iowan Old Style', Georgia, serif;
+  --tp-sans: 'Public Sans', 'Segoe UI', 'Helvetica Neue', sans-serif;
+  --tp-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  color: var(--tp-text);
+  font-family: var(--tp-sans);
 }
 
-/* --- Page intro ----------------------------------------------------------- */
-/* The description alone left the right half of a 1120px column empty, which read
-   as the paragraph being shoved to one side. A spec panel fills the measure and
-   answers the first question a reviewer has about a demo. */
-.fr-intro {
-  display: grid;
-  grid-template-columns: minmax(0, 1.62fr) minmax(240px, 0.88fr);
-  gap: 1rem 2.4rem;
-  align-items: start;
+/* --- The route goes light, header and all ---------------------------------
+   The demo owns the whole page, not a card inside it. Leaving the site header
+   dark above a light page would put a hard black bar over the product. */
+.site-shell--light {
+  background: #FAF9F7;
 }
 
-.fr-spec {
-  display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-  align-items: baseline;
-  gap: 0.5rem 0.9rem;
-  margin: 0.4rem 0 0;
-  padding: 0.95rem 1.05rem;
-  border: 1px solid var(--fr-border);
-  border-left: 2px solid var(--fr-accent);
-  border-radius: var(--fr-radius-sm);
-  background: rgba(148, 163, 184, 0.05);
-}
-
-.fr-spec-label {
-  font-family: 'Sora', sans-serif;
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-  color: var(--fr-text-muted);
-  white-space: nowrap;
-}
-
-.fr-spec-value {
-  margin: 0;
-  font-size: 0.82rem;
-  line-height: 1.45;
-  color: var(--fr-text);
-  font-variant-numeric: tabular-nums;
-}
-
-@media (max-width: 860px) {
-  .fr-intro {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-/* --- Demo provenance banner ---------------------------------------------- */
-.fr-banner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.55rem 0.8rem;
-  margin: 1.1rem 0 0.4rem;
-  padding: 0.75rem 0.95rem;
-  border: 1px solid rgba(230, 180, 80, 0.26);
-  border-left: 2px solid var(--fr-gold);
-  border-radius: var(--fr-radius-sm);
-  background: rgba(230, 180, 80, 0.06);
-}
-
-.fr-banner-tag {
-  flex: none;
-  font-family: 'Sora', sans-serif;
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--fr-gold);
-}
-
-.fr-banner-copy {
-  flex: 1 1 22rem;
-  font-size: 0.86rem;
-  line-height: 1.55;
-  color: var(--fr-text-secondary);
-}
-
-/* --- App shell ------------------------------------------------------------ */
-/* One framed surface holding a navigation rail and the content, so the demo
-   reads as a product embedded in the page rather than a floating sidebar beside
-   a stack of cards. The rail column is painted by the shell itself, which is why
-   the tall empty gutter under a short sidebar disappears.
-
-   `clip`, not `hidden`: hidden would make this a scroll container and break the
-   sticky rail and filter bar inside it. */
-.fr-shell {
-  --fr-rail: 236px;
-
-  display: grid;
-  grid-template-columns: var(--fr-rail) minmax(0, 1fr);
-  align-items: start;
-  margin-top: 1.7rem;
-  border: 1px solid var(--fr-border);
-  border-radius: 16px;
-  overflow: clip;
-  background:
-    linear-gradient(90deg,
-      var(--fr-surface-sunken) 0 var(--fr-rail),
-      rgba(11, 15, 23, 0.45) var(--fr-rail));
-  box-shadow: var(--fr-edge), 0 2px 4px rgba(0, 0, 0, 0.3),
-              0 26px 60px rgba(0, 0, 0, 0.42);
-}
-
-/* The rail is pinned to the viewport rather than stretched to the content, so
-   it behaves like an application sidebar at any page length. */
-.fr-sidebar {
-  position: sticky;
-  top: 4.5rem;
-  height: calc(100vh - 5.4rem);
-  display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
-  padding: 1.05rem 0.9rem;
-  overflow-y: auto;
-  border-right: 1px solid var(--fr-border);
-  background:
-    radial-gradient(420px 220px at 50% -10%, rgba(107, 175, 232, 0.10), transparent 70%),
-    transparent;
-}
-
-.fr-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0 0.3rem 0.9rem;
-  border-bottom: 1px solid var(--fr-border-soft);
-}
-
-.fr-brand-mark {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  flex: none;
-  border-radius: 10px;
-  background: linear-gradient(140deg, var(--fr-accent), #4a7fb5);
-  color: #08111b;
-  font-family: 'Sora', sans-serif;
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-}
-
-.fr-brand-name {
-  font-family: 'Sora', sans-serif;
-  font-size: 0.86rem;
-  font-weight: 700;
-  color: var(--fr-text);
-  line-height: 1.25;
-}
-
-.fr-brand-tagline {
-  font-size: 0.67rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--fr-text-muted);
-}
-
-/* --- Section navigation (styled RadioItems) ------------------------------- */
-.fr-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.fr-nav-input,
-.fr-segmented-input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.fr-nav-link {
-  display: block;
-  padding: 0.55rem 0.6rem;
-  border-radius: var(--fr-radius-sm);
-  border-left: 2px solid transparent;
-  cursor: pointer;
-  transition: background 0.16s ease, border-color 0.16s ease;
-}
-
-.fr-nav-link:hover {
-  background: rgba(148, 163, 184, 0.07);
-}
-
-.fr-nav-link:has(.fr-nav-input:checked) {
-  background: var(--fr-accent-soft);
-  border-left-color: var(--fr-accent);
-}
-
-.fr-nav-link:has(.fr-nav-input:focus-visible) {
-  outline: 2px solid var(--fr-accent);
-  outline-offset: 1px;
-}
-
-.fr-nav-title {
-  display: block;
-  font-family: 'Sora', sans-serif;
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--fr-text-secondary);
-}
-
-.fr-nav-link:has(.fr-nav-input:checked) .fr-nav-title {
-  color: var(--fr-text);
-}
-
-.fr-nav-blurb {
-  display: block;
-  margin-top: 0.1rem;
-  font-size: 0.68rem;
-  line-height: 1.4;
-  color: var(--fr-text-muted);
-}
-
-.fr-sidebar-footer {
-  margin-top: auto;
-  padding-top: 0.9rem;
-  border-top: 1px solid var(--fr-border-soft);
-}
-
-.fr-sidebar-tag {
-  margin-top: 0.6rem;
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.13em;
-  color: var(--fr-text-muted);
-}
-
-.fr-sidebar-tag:first-child {
-  margin-top: 0;
-}
-
-.fr-sidebar-value {
-  font-size: 0.74rem;
-  color: var(--fr-text-secondary);
-  font-variant-numeric: tabular-nums;
-}
-
-/* --- Main column ---------------------------------------------------------- */
-.fr-main {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-  min-width: 0;
-  padding: 0.9rem;
-}
-
-.fr-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.fr-panel--hidden {
+.site-shell--light::before,
+.site-shell--light .bg-orb {
   display: none;
 }
 
-/* --- Controls ------------------------------------------------------------- */
-.fr-control-bar,
-.fr-inline-controls {
+.site-shell--light .site-header {
+  background: rgba(250, 249, 247, 0.92);
+  border-bottom: 1px solid #E4E0D9;
+  box-shadow: none;
+}
+
+.site-shell--light .top-nav-link {
+  color: #6B6862;
+}
+
+.site-shell--light .top-nav-link:hover,
+.site-shell--light .top-nav-link.active {
+  color: #1A1A18;
+}
+
+/* The site's active tab is a dark gradient pill; on paper it reads as a hole
+   punched in the header. Same idea, inverted for the light surface. */
+.site-shell--light .top-nav-link.active {
+  color: #8B462D;
+  background: #F5E5DE;
+  border-color: #E3C7BC;
+  box-shadow: none;
+}
+
+.site-shell--light .top-nav-link:hover {
+  background: rgba(26, 26, 24, 0.045);
+}
+
+.site-shell--light .brand-chip {
+  background: #1A1A18;
+  color: #FAF9F7;
+  border-color: #1A1A18;
+}
+
+.site-shell--light .back-to-top {
+  background: #FFFFFF;
+  border-color: #E4E0D9;
+  color: #1A1A18;
+}
+
+.site-shell--light #scroll-progress {
+  background: #C4633F;
+}
+
+/* --- Hero ----------------------------------------------------------------- */
+.tp-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.85fr);
+  gap: 2.4rem;
+  align-items: start;
+  padding: 0 0 2.2rem;
+  border: none;
+  background: none;
+  box-shadow: none;
+}
+
+.tp-hero .section-hero-eyebrow {
+  color: var(--tp-accent);
+  font-family: var(--tp-sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  margin: 0 0 0.7rem;
+}
+
+.tp-hero .section-hero-title {
+  font-family: var(--tp-serif);
+  font-size: clamp(1.85rem, 3.4vw, 2.6rem);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.012em;
+  color: var(--tp-text);
+  margin: 0 0 0.85rem;
+  text-wrap: balance;
+}
+
+.tp-hero .section-hero-lede {
+  color: var(--tp-text-secondary);
+  font-size: 1rem;
+  line-height: 1.62;
+  margin: 0;
+  max-width: 56ch;
+  text-wrap: pretty;
+}
+
+.tp-spec {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.5rem 1.1rem;
+  margin: 0.4rem 0 0;
+  padding: 1.05rem 1.2rem;
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius);
+  background: var(--tp-card);
+}
+
+.tp-spec-label {
+  color: var(--tp-text-muted);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  padding-top: 0.12rem;
+  white-space: nowrap;
+}
+
+.tp-spec-value {
+  color: var(--tp-text);
+  font-size: 0.83rem;
+  line-height: 1.5;
+  margin: 0;
+  text-wrap: pretty;
+}
+
+/* --- Disclaimer ----------------------------------------------------------- */
+.tp-disclaimer {
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius);
+  background: var(--tp-accent-soft);
+  margin-bottom: 1.6rem;
+}
+
+.tp-disclaimer-body {
+  color: #5C3A2C;
+  font-size: 0.85rem;
+  line-height: 1.58;
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.tp-disclaimer-tag {
+  color: var(--tp-accent-deep);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-right: 0.2rem;
+}
+
+.tp-disclaimer-note {
+  color: #7A5544;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  margin: 0.5rem 0 0;
+  text-wrap: pretty;
+}
+
+/* --- Shell ---------------------------------------------------------------- */
+.tp-shell {
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius);
+  background: var(--tp-card);
+  overflow: hidden;
+}
+
+.tp-topbar {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: 0.7rem 0.9rem;
+  justify-content: space-between;
+  gap: 1.4rem;
+  padding: 1.15rem 1.5rem 1.05rem;
+  border-bottom: 1px solid var(--tp-border);
 }
 
-/* The client and date window drive every panel, so the bar follows the reader
-   down the page instead of scrolling away above a 5,000px section. */
-.fr-control-bar {
-  position: sticky;
-  top: 4.5rem;
-  z-index: 12;
-  padding: 0.8rem 0.95rem;
-  border: 1px solid var(--fr-border);
-  border-radius: var(--fr-radius);
-  backdrop-filter: blur(14px) saturate(140%);
-  background: rgba(16, 21, 29, 0.92);
-  box-shadow: var(--fr-edge), var(--fr-shadow);
+.tp-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.72rem;
+  min-width: 0;
 }
 
-/* The account selector does not need half the bar; capping it and pushing the
-   date window to the far edge makes the gap between them read as deliberate
-   rather than as a stretched control. */
-.fr-control-bar .fr-control--grow {
-  flex: 0 1 24rem;
+.tp-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  border-radius: var(--tp-radius-sm);
+  background: var(--tp-text);
+  color: var(--tp-page);
+  font-family: var(--tp-serif);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  flex: none;
 }
 
-.fr-control-bar .fr-control:last-child {
-  margin-left: auto;
+.tp-brand-name {
+  font-family: var(--tp-serif);
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--tp-text);
+  line-height: 1.2;
 }
 
-.fr-inline-controls {
-  margin-bottom: 0.85rem;
+.tp-brand-tagline {
+  color: var(--tp-text-muted);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  margin-top: 0.14rem;
 }
 
-.fr-control {
+.tp-topbar-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.1rem;
+  flex-wrap: wrap;
+}
+
+.tp-topbar-controls .tp-control:first-child {
+  min-width: 230px;
+}
+
+/* --- Tabs ----------------------------------------------------------------- */
+.tp-tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 1.5rem;
+  border-bottom: 1px solid var(--tp-border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tp-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tp-tab {
+  appearance: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0.92rem 1.15rem;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  color: var(--tp-text-secondary);
+  font-family: var(--tp-serif);
+  font-size: 0.98rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: color 180ms var(--tp-ease), border-color 180ms var(--tp-ease);
+}
+
+.tp-tab:first-child {
+  padding-left: 0;
+}
+
+.tp-tab:hover {
+  color: var(--tp-text);
+}
+
+.tp-tab--active {
+  color: var(--tp-text);
+  border-bottom-color: var(--tp-accent);
+}
+
+.tp-tab:focus-visible {
+  outline: 2px solid var(--tp-accent);
+  outline-offset: -3px;
+}
+
+.tp-subtabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  padding: 0.95rem 1.5rem;
+  background: var(--tp-sunken);
+  border-bottom: 1px solid var(--tp-border);
+}
+
+.tp-subtab {
+  appearance: none;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 0.28rem;
-  min-width: 9.5rem;
+  gap: 0.16rem;
+  text-align: left;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-sm);
+  background: var(--tp-card);
+  transition: border-color 180ms var(--tp-ease), background 180ms var(--tp-ease);
 }
 
-.fr-control--grow {
-  flex: 1 1 14rem;
+.tp-subtab:hover {
+  border-color: var(--tp-border-strong);
 }
 
-.fr-control-label {
-  font-size: 0.63rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--fr-text-muted);
+.tp-subtab--active {
+  border-color: var(--tp-accent);
+  background: var(--tp-accent-soft);
 }
 
-/* Segmented date-window control */
-.fr-segmented {
-  display: inline-flex;
-  padding: 3px;
-  border: 1px solid var(--fr-border);
-  border-radius: var(--fr-radius-sm);
-  background: var(--fr-surface-sunken);
+.tp-subtab:focus-visible {
+  outline: 2px solid var(--tp-accent);
+  outline-offset: 2px;
 }
 
-.fr-segmented-label {
-  padding: 0.32rem 0.66rem;
-  border-radius: 6px;
-  font-size: 0.76rem;
+.tp-subtab-label {
+  color: var(--tp-text);
+  font-size: 0.84rem;
   font-weight: 600;
-  color: var(--fr-text-secondary);
-  cursor: pointer;
-  transition: background 0.14s ease, color 0.14s ease;
+  letter-spacing: -0.005em;
+}
+
+.tp-subtab-blurb {
+  color: var(--tp-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.tp-subtab--active .tp-subtab-blurb {
+  color: #8A6250;
+}
+
+/* --- Headline numbers -----------------------------------------------------
+   Plain bordered blocks: label above, number below. No accent bar, no tint. */
+.tp-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(184px, 1fr));
+  gap: 0;
+  border-bottom: 1px solid var(--tp-border);
+}
+
+.tp-kpi {
+  padding: 1.15rem 1.5rem 1.2rem;
+  border-right: 1px solid var(--tp-hairline);
+  min-width: 0;
+}
+
+.tp-kpi:last-child {
+  border-right: none;
+}
+
+.tp-kpi-label {
+  color: var(--tp-text-muted);
+  font-size: 0.67rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.42rem;
+}
+
+.tp-kpi-value {
+  color: var(--tp-text);
+  font-family: var(--tp-serif);
+  font-size: clamp(1.5rem, 2.3vw, 1.95rem);
+  font-weight: 600;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.015em;
+}
+
+.tp-kpi-delta {
+  font-size: 0.73rem;
+  margin-top: 0.42rem;
   font-variant-numeric: tabular-nums;
 }
 
-.fr-segmented-label:hover {
-  color: var(--fr-text);
+.tp-kpi-delta--up { color: var(--tp-positive); }
+.tp-kpi-delta--down { color: var(--tp-negative); }
+.tp-kpi-delta--flat { color: var(--tp-text-muted); }
+
+/* --- Views ---------------------------------------------------------------- */
+.tp-views {
+  padding: 1.5rem;
+  background: var(--tp-page);
 }
 
-.fr-segmented-label:has(.fr-segmented-input:checked) {
-  background: var(--fr-accent);
-  color: #08111b;
+.tp-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-/* Checklists */
-.fr-checklist {
+.tp-panel--hidden {
+  display: none;
+}
+
+/* --- Cards ---------------------------------------------------------------- */
+.tp-card {
+  padding: 1.35rem 1.5rem 1.5rem;
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius);
+  background: var(--tp-card);
+  min-width: 0;
+}
+
+.tp-card-header {
+  margin-bottom: 1.15rem;
+}
+
+.tp-card-title {
+  font-family: var(--tp-serif);
+  font-size: 1.12rem;
+  font-weight: 600;
+  color: var(--tp-text);
+  letter-spacing: -0.008em;
+  margin: 0;
+}
+
+.tp-card-subtitle {
+  color: var(--tp-text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  margin: 0.42rem 0 0;
+  max-width: 82ch;
+  text-wrap: pretty;
+}
+
+/* --- Controls ------------------------------------------------------------- */
+.tp-controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem 0.9rem;
-  padding-bottom: 0.32rem;
+  align-items: flex-end;
+  gap: 1rem 1.2rem;
+  margin-bottom: 1.25rem;
 }
 
-.fr-checklist-label {
-  display: inline-flex;
-  align-items: center;
+.tp-control {
+  display: flex;
+  flex-direction: column;
   gap: 0.34rem;
-  font-size: 0.79rem;
-  color: var(--fr-text-secondary);
-  cursor: pointer;
+  min-width: 168px;
 }
 
-.fr-checklist-label:hover {
-  color: var(--fr-text);
+.tp-control--grow {
+  flex: 1 1 240px;
 }
 
-.fr-checkbox {
-  accent-color: var(--fr-accent);
-  width: 14px;
-  height: 14px;
-  cursor: pointer;
+.tp-control-label {
+  color: var(--tp-text-muted);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
-/* --- Segment filter ------------------------------------------------------
-   A row of tick boxes said nothing about what each segment looks like on the
-   map. These are the map legend with the switch built in: the swatch is the
-   colour the segment is drawn in, and switching one off dims the whole chip. */
-.fr-segment-toggles {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  padding-bottom: 0.3rem;
+.tp-hint {
+  color: var(--tp-text-muted);
+  font-size: 0.76rem;
+  line-height: 1.5;
+  flex: 1 1 220px;
+  padding-bottom: 0.4rem;
+  text-wrap: pretty;
 }
 
-.fr-segment-input {
+/* Dash Dropdown is react-select underneath. */
+.tp-page .tp-dropdown .Select-control,
+.tp-page .tp-dropdown .Select__control {
+  background: var(--tp-card);
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-sm);
+  box-shadow: none;
+  min-height: 36px;
+  color: var(--tp-text);
+  font-size: 0.85rem;
+}
+
+.tp-page .tp-dropdown .Select-control:hover,
+.tp-page .tp-dropdown .Select__control:hover {
+  border-color: var(--tp-border-strong);
+}
+
+.tp-page .tp-dropdown.is-focused:not(.is-open) > .Select-control {
+  border-color: var(--tp-accent);
+  box-shadow: 0 0 0 3px rgba(196, 99, 63, 0.14);
+}
+
+.tp-page .tp-dropdown .Select-value-label,
+.tp-page .tp-dropdown .Select--single > .Select-control .Select-value .Select-value-label {
+  color: var(--tp-text) !important;
+}
+
+.tp-page .tp-dropdown .Select-placeholder {
+  color: var(--tp-text-muted);
+}
+
+.tp-page .tp-dropdown .Select-menu-outer {
+  background: var(--tp-card);
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-sm);
+  box-shadow: 0 8px 22px rgba(26, 26, 24, 0.09);
+  z-index: 30;
+}
+
+.tp-page .tp-dropdown .Select-option {
+  background: var(--tp-card);
+  color: var(--tp-text-secondary);
+  font-size: 0.85rem;
+}
+
+.tp-page .tp-dropdown .Select-option.is-focused {
+  background: var(--tp-accent-soft);
+  color: var(--tp-text);
+}
+
+.tp-page .tp-dropdown .Select-option.is-selected {
+  background: var(--tp-sunken);
+  color: var(--tp-text);
+}
+
+.tp-page .tp-dropdown .Select-arrow {
+  border-top-color: var(--tp-text-muted);
+}
+
+.tp-page .tp-dropdown .Select--multi .Select-value {
+  background: var(--tp-accent-soft);
+  border-color: #E3C7BC;
+  color: var(--tp-accent-deep);
+  border-radius: var(--tp-radius-sm);
+}
+
+.tp-page .tp-dropdown .Select--multi .Select-value-icon {
+  border-right-color: #E3C7BC;
+}
+
+/* Segmented radio group. */
+.tp-segmented {
+  display: inline-flex;
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-sm);
+  overflow: hidden;
+  background: var(--tp-card);
+}
+
+.tp-segmented-input {
   position: absolute;
-  width: 1px;
-  height: 1px;
   opacity: 0;
   pointer-events: none;
 }
 
-.fr-segment-toggle {
-  display: inline-flex;
-  align-items: center;
-  border: 1px solid var(--fr-border);
-  border-radius: 999px;
-  padding: 0.28rem 0.66rem 0.28rem 0.52rem;
-  background: rgba(148, 163, 184, 0.05);
+.tp-segmented-label {
   cursor: pointer;
-  transition: border-color 200ms var(--fr-ease), background 200ms var(--fr-ease),
-              opacity 200ms var(--fr-ease);
+  padding: 0.44rem 0.82rem;
+  border-right: 1px solid var(--tp-border);
+  color: var(--tp-text-secondary);
+  font-size: 0.79rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background 160ms var(--tp-ease), color 160ms var(--tp-ease);
 }
 
-.fr-segment-face {
-  display: inline-flex;
+.tp-segmented-label:last-child {
+  border-right: none;
+}
+
+.tp-segmented-label:hover {
+  background: var(--tp-sunken);
+  color: var(--tp-text);
+}
+
+.tp-segmented-input:checked + span,
+.tp-segmented-label:has(.tp-segmented-input:checked) {
+  background: var(--tp-text);
+  color: var(--tp-page);
+}
+
+.tp-segmented-label:has(.tp-segmented-input:focus-visible) {
+  outline: 2px solid var(--tp-accent);
+  outline-offset: -2px;
+}
+
+/* Checklist. dcc writes display:block inline on every label, so the flex has to
+   come from labelClassName-driven rules that do not fight an inline style. */
+.tp-checklist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 1rem;
+  padding-bottom: 0.34rem;
+}
+
+.tp-checklabel {
   align-items: center;
   gap: 0.4rem;
+  color: var(--tp-text-secondary);
+  cursor: pointer;
+  font-size: 0.79rem;
 }
 
-.fr-segment-dot {
-  width: 9px;
-  height: 9px;
-  flex: none;
-  border-radius: 999px;
-  /* Set inline from the segment palette so the swatch and the map cannot
-     disagree about what colour a segment is. */
-  transition: transform 200ms var(--fr-ease), opacity 200ms var(--fr-ease);
+.tp-checkbox {
+  accent-color: var(--tp-accent);
+  width: 0.92rem;
+  height: 0.92rem;
+  margin: 0 0.38rem 0 0;
+  cursor: pointer;
+  vertical-align: -0.12em;
 }
 
-.fr-segment-name {
-  font-size: 0.78rem;
+/* --- Stat blocks ---------------------------------------------------------- */
+.tp-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 1.35rem;
+}
+
+.tp-stat {
+  padding: 0.85rem 1rem 0.9rem;
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-sm);
+  background: var(--tp-page);
+  min-width: 0;
+}
+
+.tp-stat-label {
+  color: var(--tp-text-muted);
+  font-size: 0.65rem;
   font-weight: 600;
-  line-height: 1.2;
-  color: var(--fr-text-secondary);
-  white-space: nowrap;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  margin-bottom: 0.34rem;
 }
 
-.fr-segment-toggle:hover {
-  border-color: rgba(148, 163, 184, 0.3);
-  background: rgba(148, 163, 184, 0.09);
+.tp-stat-value {
+  color: var(--tp-text);
+  font-family: var(--tp-serif);
+  font-size: 1.32rem;
+  font-weight: 600;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: break-word;
 }
 
-.fr-segment-toggle:has(.fr-segment-input:checked) {
-  border-color: rgba(148, 163, 184, 0.34);
-  background: rgba(148, 163, 184, 0.12);
+.tp-stat-note {
+  color: var(--tp-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  margin-top: 0.24rem;
+  text-wrap: pretty;
 }
 
-.fr-segment-toggle:has(.fr-segment-input:checked) .fr-segment-name {
-  color: var(--fr-text);
+.tp-stat-note:empty {
+  display: none;
 }
 
-/* Off: the chip stays legible but clearly inactive, and the swatch shrinks
-   rather than vanishing so the colour key is still readable. */
-.fr-segment-toggle:not(:has(.fr-segment-input:checked)) {
-  background: transparent;
+/* --- Callout -------------------------------------------------------------- */
+.tp-callout {
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-sm);
+  background: var(--tp-page);
+  color: var(--tp-text);
+  font-size: 0.87rem;
+  line-height: 1.55;
+  margin-bottom: 1.2rem;
+  text-wrap: pretty;
 }
 
-.fr-segment-toggle:not(:has(.fr-segment-input:checked)) .fr-segment-dot {
-  transform: scale(0.66);
-  opacity: 0.35;
+/* --- Anomaly log ---------------------------------------------------------- */
+.tp-log-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(268px, 1fr));
+  gap: 0.85rem;
 }
 
-.fr-segment-toggle:not(:has(.fr-segment-input:checked)) .fr-segment-name {
-  color: var(--fr-text-muted);
+.tp-log-item {
+  padding: 0.85rem 1rem 0.9rem;
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-sm);
+  background: var(--tp-page);
+  min-width: 0;
 }
 
-.fr-segment-toggle:has(.fr-segment-input:focus-visible) {
-  outline: 2px solid var(--fr-accent);
-  outline-offset: 2px;
-}
-
-/* The aggregate views have no per-user markers to filter. */
-.fr-segment-toggle:has(.fr-segment-input:disabled) {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* --- Playback transport --------------------------------------------------
-   Plotly can draw its own play button and slider, but they sit inside the
-   plotting area where they read as map controls. The transport belongs with the
-   card's other controls, above the chart. */
-.fr-playback {
+.tp-log-head {
   display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  margin-bottom: 0.7rem;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.42rem;
 }
 
-.fr-play-button {
-  flex: none;
-  min-width: 6.6rem;
-  padding: 0.42rem 0.85rem;
-  border: 1px solid var(--fr-border);
-  border-radius: var(--fr-radius-sm);
-  background: rgba(148, 163, 184, 0.08);
-  color: var(--fr-text);
-  font-family: 'Public Sans', sans-serif;
+.tp-log-date {
+  color: var(--tp-text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.tp-log-metric {
+  color: var(--tp-text-muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: right;
+}
+
+.tp-log-body {
+  font-size: 0.86rem;
+  line-height: 1.45;
+  margin-bottom: 0.34rem;
+}
+
+.tp-log-value {
+  color: var(--tp-text);
+  font-family: var(--tp-serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.tp-log-baseline {
+  color: var(--tp-text-muted);
+  font-size: 0.78rem;
+}
+
+.tp-log-foot {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tp-log-delta {
   font-size: 0.8rem;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.tp-log-delta--up { color: var(--tp-positive); }
+.tp-log-delta--down { color: var(--tp-negative); }
+
+.tp-log-note {
+  color: var(--tp-text-muted);
+  font-size: 0.73rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tp-log-footer {
+  color: var(--tp-text-muted);
+  font-size: 0.76rem;
+  margin: 0.95rem 0 0;
+}
+
+.tp-empty {
+  color: var(--tp-text-muted);
+  font-size: 0.86rem;
+  margin: 0;
+}
+
+/* --- Table ---------------------------------------------------------------- */
+.tp-table .dash-table-container {
+  font-family: var(--tp-sans);
+}
+
+.tp-table .dash-spreadsheet-container .dash-spreadsheet-inner table {
+  border-collapse: collapse;
+}
+
+.tp-table .dash-spreadsheet-container .dash-spreadsheet-inner tr:hover td {
+  background: var(--tp-page) !important;
+}
+
+.tp-table .dash-spreadsheet-container .dash-spreadsheet-inner td.focused,
+.tp-table .dash-spreadsheet-container .dash-spreadsheet-inner td.cell--selected {
+  background: var(--tp-accent-soft) !important;
+  box-shadow: none !important;
+}
+
+/* --- Replay transport ----------------------------------------------------- */
+.tp-playback {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  margin-bottom: 0.4rem;
+}
+
+.tp-play-button {
+  appearance: none;
   cursor: pointer;
-  transition: border-color 200ms var(--fr-ease), background 200ms var(--fr-ease);
+  flex: none;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--tp-border-strong);
+  border-radius: var(--tp-radius-sm);
+  background: var(--tp-card);
+  color: var(--tp-text);
+  font-family: var(--tp-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: background 160ms var(--tp-ease), border-color 160ms var(--tp-ease);
 }
 
-.fr-play-button:hover {
-  border-color: rgba(107, 175, 232, 0.45);
-  background: rgba(107, 175, 232, 0.12);
+.tp-play-button:hover {
+  background: var(--tp-sunken);
+  border-color: var(--tp-text-muted);
 }
 
-.fr-play-button:focus-visible {
-  outline: 2px solid var(--fr-accent);
+.tp-play-button:focus-visible {
+  outline: 2px solid var(--tp-accent);
   outline-offset: 2px;
 }
 
-.fr-scrub {
+.tp-scrub {
   flex: 1 1 auto;
   min-width: 0;
 }
 
 /* Dash's slider is rc-slider underneath. */
-.fr-page .fr-scrub .rc-slider-rail {
-  background: rgba(148, 163, 184, 0.22);
+.tp-page .tp-scrub .rc-slider-rail {
+  background: var(--tp-border);
   height: 4px;
 }
 
-.fr-page .fr-scrub .rc-slider-track {
-  background: var(--fr-accent);
+.tp-page .tp-scrub .rc-slider-track {
+  background: var(--tp-accent);
   height: 4px;
 }
 
-.fr-page .fr-scrub .rc-slider-handle {
+.tp-page .tp-scrub .rc-slider-handle {
   width: 14px;
   height: 14px;
   margin-top: -5px;
-  border: 2px solid var(--fr-accent);
-  background: #0b0f17;
+  border: 2px solid var(--tp-accent);
+  background: var(--tp-card);
   opacity: 1;
   box-shadow: none;
 }
 
-.fr-page .fr-scrub .rc-slider-handle:hover,
-.fr-page .fr-scrub .rc-slider-handle:focus,
-.fr-page .fr-scrub .rc-slider-handle-dragging {
-  border-color: #9ecbf0;
-  box-shadow: 0 0 0 4px rgba(107, 175, 232, 0.2);
+.tp-page .tp-scrub .rc-slider-handle:hover,
+.tp-page .tp-scrub .rc-slider-handle:focus,
+.tp-page .tp-scrub .rc-slider-handle-dragging {
+  border-color: var(--tp-accent-deep);
+  box-shadow: 0 0 0 4px rgba(196, 99, 63, 0.16);
 }
 
-.fr-page .fr-scrub .rc-slider-dot {
+.tp-page .tp-scrub .rc-slider-dot {
   display: none;
 }
 
-.fr-page .fr-scrub .rc-slider-mark-text {
-  color: var(--fr-text-muted);
+.tp-page .tp-scrub .rc-slider-mark-text {
+  color: var(--tp-text-muted);
   font-size: 0.66rem;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-/* rc-slider centres every label on its tick, so the two end labels hang off
-   the rail — the last one gets squeezed against the card and breaks mid-word.
-   Anchor the ends to their own edge instead; the transform is inline, so it
-   takes a !important to reach. */
-.fr-page .fr-scrub .rc-slider-mark-text:first-child {
+/* rc-slider centres every label on its tick, so the two end labels hang off the
+   rail and the last one breaks mid-word against the card. Anchor the ends to
+   their own edge; the transform is inline, so it takes an !important to reach. */
+.tp-page .tp-scrub .rc-slider-mark-text:first-child {
   transform: translateX(0) !important;
 }
 
-.fr-page .fr-scrub .rc-slider-mark-text:last-child {
+.tp-page .tp-scrub .rc-slider-mark-text:last-child {
   transform: translateX(-100%) !important;
-}
-
-.fr-page .fr-scrub .rc-slider-mark-text-active {
-  color: var(--fr-text-secondary);
 }
 
 /* The static twin uses a native range input; Dash uses rc-slider. Same shape,
    two implementations, so both are styled here. */
-.fr-scrub--native {
+.tp-scrub--native {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
 
-.fr-scrub--native input[type='range'] {
+.tp-scrub--native input[type='range'] {
   appearance: none;
   width: 100%;
   height: 4px;
   border-radius: 999px;
-  background: rgba(148, 163, 184, 0.22);
+  background: var(--tp-border);
   cursor: pointer;
 }
 
-.fr-scrub--native input[type='range']::-webkit-slider-thumb {
+.tp-scrub--native input[type='range']::-webkit-slider-thumb {
   appearance: none;
   width: 14px;
   height: 14px;
   border-radius: 999px;
-  border: 2px solid var(--fr-accent);
-  background: #0b0f17;
+  border: 2px solid var(--tp-accent);
+  background: var(--tp-card);
 }
 
-.fr-scrub--native input[type='range']::-moz-range-thumb {
+.tp-scrub--native input[type='range']::-moz-range-thumb {
   width: 14px;
   height: 14px;
   border-radius: 999px;
-  border: 2px solid var(--fr-accent);
-  background: #0b0f17;
+  border: 2px solid var(--tp-accent);
+  background: var(--tp-card);
 }
 
-.fr-scrub--native input[type='range']:focus-visible {
-  outline: 2px solid var(--fr-accent);
+.tp-scrub--native input[type='range']:focus-visible {
+  outline: 2px solid var(--tp-accent);
   outline-offset: 3px;
 }
 
-.fr-scrub-marks {
+.tp-scrub-marks {
   display: flex;
   justify-content: space-between;
-  color: var(--fr-text-muted);
+  color: var(--tp-text-muted);
   font-size: 0.66rem;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-@media (max-width: 640px) {
-  .fr-playback {
-    flex-wrap: wrap;
-  }
-
-  .fr-play-button {
-    width: 100%;
-  }
-}
-
-/* --- Cards ---------------------------------------------------------------- */
-.fr-card {
-  padding: 1.05rem 1.15rem 1.15rem;
-  border: 1px solid var(--fr-border);
-  border-radius: var(--fr-radius);
-  background: var(--fr-surface);
-  box-shadow: var(--fr-edge), var(--fr-shadow);
-  min-width: 0;
-  transition: border-color 240ms var(--fr-ease);
-}
-
-.fr-card:hover {
-  border-color: rgba(148, 163, 184, 0.24);
-}
-
-.fr-card-header {
+.tp-readout {
+  padding: 0.62rem 0.85rem;
+  border-left: 2px solid var(--tp-accent);
+  background: var(--tp-page);
+  color: var(--tp-text-secondary);
+  font-size: 0.81rem;
+  line-height: 1.5;
   margin-bottom: 0.9rem;
-}
-
-.fr-card-title {
-  margin: 0;
-  font-family: 'Sora', sans-serif;
-  font-size: 1rem;
-  font-weight: 650;
-  letter-spacing: -0.02em;
-  color: var(--fr-text);
-}
-
-/* Same widow control as the site shell — the demo's card subtitles and notes
-   are running text and were dropping single words onto their own line. */
-.fr-page p,
-.fr-card-subtitle,
-.fr-note,
-.fr-readout,
-.fr-banner-copy,
-.fr-nav-blurb,
-.fr-spec-value {
+  font-variant-numeric: tabular-nums;
   text-wrap: pretty;
 }
 
-.fr-card-title,
-.fr-tile-label,
-.fr-hero-label {
-  text-wrap: balance;
+/* --- Static-build extras --------------------------------------------------
+   The twin uses native <select> and a plain <table> where Dash uses its own
+   components. Styled here rather than in a second sheet, so the two builds
+   cannot drift on anything but their own implementation details. */
+.tp-select {
+  appearance: none;
+  width: 100%;
+  padding: 0.46rem 2rem 0.46rem 0.65rem;
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-sm);
+  background-color: var(--tp-card);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath fill='%238A837A' d='M0 0h10L5 6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 9px 6px;
+  color: var(--tp-text);
+  font-family: var(--tp-sans);
+  font-size: 0.85rem;
+  cursor: pointer;
 }
 
-.fr-card-subtitle {
-  margin: 0.24rem 0 0;
-  font-size: 0.81rem;
-  line-height: 1.55;
-  color: var(--fr-text-muted);
-  max-width: 68ch;
+.tp-select:hover {
+  border-color: var(--tp-border-strong);
 }
 
-.fr-split {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
+.tp-select:focus-visible {
+  outline: none;
+  border-color: var(--tp-accent);
+  box-shadow: 0 0 0 3px rgba(196, 99, 63, 0.14);
 }
 
-.fr-note {
-  margin: 0.7rem 0 0;
-  font-size: 0.78rem;
-  line-height: 1.55;
-  color: var(--fr-text-muted);
-}
-
-.fr-readout {
-  margin-top: 0.75rem;
-  padding: 0.6rem 0.75rem;
-  border-left: 2px solid var(--fr-gold);
-  border-radius: 0 var(--fr-radius-sm) var(--fr-radius-sm) 0;
-  background: rgba(230, 180, 80, 0.06);
+.tp-data-table {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 0.8rem;
-  line-height: 1.55;
-  color: var(--fr-text-secondary);
 }
 
-/* --- KPI hero ------------------------------------------------------------- */
-.fr-hero {
-  display: grid;
-  grid-template-columns: minmax(220px, 0.85fr) minmax(0, 2fr);
-  gap: 1rem;
-}
-
-.fr-hero-primary {
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  padding: 1.15rem 1.2rem;
-  border: 1px solid var(--fr-border);
-  border-radius: var(--fr-radius);
-  background:
-    radial-gradient(560px 260px at 108% -12%, rgba(107, 175, 232, 0.2), transparent 62%),
-    var(--fr-surface-raised);
-  box-shadow: var(--fr-edge), var(--fr-shadow);
-}
-
-.fr-hero-primary::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--fr-accent), rgba(107, 175, 232, 0) 68%);
-}
-
-.fr-hero-client {
-  font-family: 'Sora', sans-serif;
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: var(--fr-text);
-}
-
-.fr-hero-period {
-  margin-top: 0.1rem;
-  font-size: 0.71rem;
-  color: var(--fr-text-muted);
-  font-variant-numeric: tabular-nums;
-}
-
-.fr-hero-value {
-  margin-top: auto;
-  padding-top: 1.1rem;
-  font-family: 'Sora', sans-serif;
-  font-size: clamp(2.1rem, 4.4vw, 3rem);
-  font-weight: 800;
-  line-height: 1.02;
-  letter-spacing: -0.04em;
-  font-variant-numeric: tabular-nums;
-  color: var(--fr-text);
-}
-
-/* `color: transparent` is only safe once we know the gradient will actually be
-   clipped to the glyphs — without the guard, a browser that ignores
-   background-clip renders invisible text instead of a gradient. */
-@supports ((-webkit-background-clip: text) or (background-clip: text)) {
-  .fr-hero-value {
-    background: linear-gradient(168deg, #ffffff 10%, #cfe6f4 58%, #8fc3dc 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-}
-
-.fr-hero-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.13em;
+.tp-data-table th {
+  color: var(--tp-text-muted);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--fr-text-muted);
+  text-align: right;
+  padding: 0.62rem 0.75rem;
+  border-bottom: 1px solid var(--tp-border);
+  white-space: nowrap;
 }
 
-.fr-hero-insight {
-  margin-top: 0.85rem;
-  align-self: flex-start;
-  padding: 0.28rem 0.6rem;
-  border: 1px solid var(--fr-border-soft);
-  border-radius: 999px;
-  font-size: 0.72rem;
-  color: var(--fr-text-secondary);
-}
-
-/* Every KPI strip on this page holds exactly four tiles, so the tracks are
-   stated rather than fitted. `auto-fit` resolved to three at the width beside
-   the hero panel, which left the fourth tile alone with an empty cell next to
-   it. */
-.fr-tile-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.7rem;
-}
-
-/* The full-width strips have room for a single row. */
-.fr-tile-grid--wide {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-/* Belt and braces: if a strip ever holds an odd number of tiles, the last one
-   fills the leftover track instead of leaving a gap. */
-.fr-tile-grid > .fr-tile:last-child:nth-child(odd) {
-  grid-column: span 2;
-}
-
-.fr-tile-grid--wide > .fr-tile:last-child:nth-child(3n + 1) {
-  grid-column: auto;
-}
-
-.fr-tile {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 0.3rem;
-  padding: 0.85rem 0.95rem;
-  border: 1px solid var(--fr-border);
-  border-left: 2px solid var(--fr-accent);
-  border-radius: var(--fr-radius-sm);
-  background: var(--fr-surface);
-  box-shadow: var(--fr-edge);
-  transition: transform 220ms var(--fr-ease), border-color 220ms var(--fr-ease);
-}
-
-.fr-tile:hover {
-  transform: translateY(-2px);
-}
-
-.fr-tile--blue { border-left-color: var(--fr-accent); }
-.fr-tile--green { border-left-color: var(--fr-green); }
-.fr-tile--gold { border-left-color: var(--fr-gold); }
-.fr-tile--amber { border-left-color: var(--fr-amber); }
-.fr-tile--violet { border-left-color: var(--fr-violet); }
-.fr-tile--coral { border-left-color: var(--fr-coral); }
-
-.fr-tile-label {
-  font-size: 0.64rem;
-  font-weight: 700;
-  letter-spacing: 0.09em;
-  line-height: 1.35;
-  /* Two lines reserved: one label wrapping while its neighbours do not is what
-     made the KPI row look ragged. */
-  min-height: 2.7em;
-  text-transform: uppercase;
-  color: var(--fr-text-muted);
-}
-
-.fr-tile-value {
-  font-family: 'Sora', sans-serif;
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--fr-text);
+.tp-data-table td {
+  color: var(--tp-text);
+  text-align: right;
+  padding: 0.56rem 0.75rem;
+  border-bottom: 1px solid var(--tp-hairline);
   font-variant-numeric: tabular-nums;
-  line-height: 1.15;
+  white-space: nowrap;
 }
 
-.fr-tile-delta {
-  font-size: 0.71rem;
-  line-height: 1.4;
-  min-height: 2.8em;
-  color: var(--fr-text-muted);
-  font-variant-numeric: tabular-nums;
+.tp-data-table .tp-cell-left {
+  text-align: left;
 }
 
-.fr-tile-delta--up { color: var(--fr-green); }
-.fr-tile-delta--down { color: var(--fr-coral); }
-
-/* --- Dash Dropdown (react-select) ---------------------------------------- */
-.fr-page .fr-dropdown .Select-control,
-.fr-page .fr-dropdown .Select-multi-value-wrapper {
-  background: var(--fr-surface-sunken);
-  border-color: var(--fr-border);
-  border-radius: var(--fr-radius-sm);
-  color: var(--fr-text);
+.tp-data-table tbody tr:hover td {
+  background: var(--tp-page);
 }
 
-.fr-page .fr-dropdown .Select-control {
-  min-height: 36px;
-  box-shadow: none;
+.tp-table {
+  overflow-x: auto;
 }
 
-.fr-page .fr-dropdown.is-focused:not(.is-open) > .Select-control {
-  border-color: var(--fr-accent);
-  box-shadow: 0 0 0 2px var(--fr-accent-soft);
-}
-
-.fr-page .fr-dropdown .Select-value-label,
-.fr-page .fr-dropdown .Select-placeholder,
-.fr-page .fr-dropdown .Select-input > input {
-  color: var(--fr-text) !important;
-  font-size: 0.85rem;
-  line-height: 34px;
-}
-
-.fr-page .fr-dropdown .Select-placeholder {
-  color: var(--fr-text-muted) !important;
-}
-
-.fr-page .fr-dropdown .Select-arrow {
-  border-top-color: var(--fr-text-muted);
-}
-
-.fr-page .fr-dropdown .Select-menu-outer {
-  background: var(--fr-surface-raised);
-  border-color: var(--fr-border);
-  border-radius: 0 0 var(--fr-radius-sm) var(--fr-radius-sm);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
-  z-index: 40;
-}
-
-.fr-page .fr-dropdown .VirtualizedSelectOption,
-.fr-page .fr-dropdown .Select-option {
-  background: transparent;
-  color: var(--fr-text-secondary);
-  font-size: 0.85rem;
-}
-
-.fr-page .fr-dropdown .VirtualizedSelectFocusedOption,
-.fr-page .fr-dropdown .Select-option.is-focused {
-  background: var(--fr-accent-soft);
-  color: var(--fr-text);
-}
-
-/* Multi-select chips (churn comparison) */
-.fr-page .fr-dropdown .Select--multi .Select-value {
-  background: var(--fr-accent-soft);
-  border-color: rgba(107, 175, 232, 0.4);
-  color: var(--fr-text);
-  border-radius: 6px;
-  margin: 4px 4px 0 0;
-}
-
-.fr-page .fr-dropdown .Select--multi .Select-value-icon {
-  border-right-color: rgba(107, 175, 232, 0.4);
-}
-
-.fr-page .fr-dropdown .Select--multi .Select-value-icon:hover {
-  background: rgba(240, 140, 126, 0.28);
-  color: var(--fr-text);
-}
-
-/* --- DataTable ------------------------------------------------------------ */
-.fr-page .dash-table-container,
-.fr-page .dash-spreadsheet-container,
-.fr-page .dash-spreadsheet-inner table {
-  background: transparent;
-}
-
-.fr-page .dash-spreadsheet-inner td,
-.fr-page .dash-spreadsheet-inner th {
-  font-family: 'Public Sans', sans-serif !important;
-  font-variant-numeric: tabular-nums;
-}
-
-.fr-page .dash-spreadsheet-container .dash-spreadsheet-inner td.focused,
-.fr-page .dash-spreadsheet-container .dash-spreadsheet-inner td.cell--selected {
-  outline: none !important;
-  box-shadow: none !important;
+.tp-loading {
+  color: var(--tp-text-muted);
+  font-size: 0.9rem;
+  margin: 0;
+  padding: 2.5rem 0;
+  text-align: center;
 }
 
 /* --- Plotly surface ------------------------------------------------------- */
-.fr-page .js-plotly-plot .plotly .modebar {
+.tp-page .js-plotly-plot .plotly .modebar {
   display: none;
 }
 
-.fr-page .dash-graph {
+.tp-page .js-plotly-plot,
+.tp-page .plot-container {
   min-width: 0;
 }
 
 /* --- Responsive ----------------------------------------------------------- */
-@media (max-width: 900px) {
-  .fr-shell {
+@media (max-width: 1080px) {
+  .tp-hero {
     grid-template-columns: minmax(0, 1fr);
-    background: rgba(11, 15, 23, 0.45);
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .tp-topbar,
+  .tp-tabs,
+  .tp-subtabs,
+  .tp-views {
+    padding-left: 1.05rem;
+    padding-right: 1.05rem;
   }
 
-  .fr-sidebar {
-    position: static;
-    height: auto;
-    overflow: visible;
-    flex-direction: column;
-    border-right: 0;
-    border-bottom: 1px solid var(--fr-border);
+  .tp-kpi {
+    padding-left: 1.05rem;
+    padding-right: 1.05rem;
   }
 
-  .fr-control-bar {
-    top: 4.2rem;
+  .tp-card {
+    padding: 1.15rem 1.1rem 1.25rem;
   }
 
-  .fr-nav {
-    flex-direction: row;
-    overflow-x: auto;
-    gap: 0.4rem;
-    padding-bottom: 0.2rem;
+  .tp-topbar-controls .tp-control:first-child {
+    min-width: 100%;
   }
+}
 
-  .fr-nav-link {
-    flex: none;
-    border-left: none;
-    border-bottom: 2px solid transparent;
-    border-radius: var(--fr-radius-sm) var(--fr-radius-sm) 0 0;
-  }
-
-  .fr-nav-link:has(.fr-nav-input:checked) {
-    border-left-color: transparent;
-    border-bottom-color: var(--fr-accent);
-  }
-
-  .fr-nav-blurb {
-    display: none;
-  }
-
-  .fr-sidebar-footer {
-    display: flex;
+@media (max-width: 620px) {
+  .tp-playback {
     flex-wrap: wrap;
-    gap: 0.2rem 1.2rem;
-    align-items: baseline;
   }
 
-  .fr-hero {
-    grid-template-columns: minmax(0, 1fr);
+  .tp-play-button {
+    width: 100%;
   }
-
-  .fr-tile-grid--wide {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 560px) {
-  .fr-tile-grid,
-  .fr-tile-grid--wide {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .fr-tile-grid > .fr-tile:last-child:nth-child(odd) {
-    grid-column: auto;
-  }
-}
-
-/* --- Heatmap drilldown ---------------------------------------------------- */
-.fr-note--tight {
-  margin: 0 0 0.7rem;
-}
-
-.fr-detail {
-  margin-top: 0.85rem;
-}
-
-.fr-detail-empty {
-  padding: 0.7rem 0.85rem;
-  border: 1px dashed var(--fr-border);
-  border-radius: var(--fr-radius-sm);
-  color: var(--fr-text-muted);
-  font-size: 0.8rem;
-}
-
-.fr-detail-body {
-  padding: 0.85rem 1rem;
-  border: 1px solid var(--fr-border);
-  border-left: 2px solid var(--fr-accent);
-  border-radius: var(--fr-radius-sm);
-  background: var(--fr-surface-raised);
-}
-
-.fr-detail-title {
-  margin-bottom: 0.6rem;
-  font-family: 'Sora', sans-serif;
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: var(--fr-text);
-}
-
-.fr-detail-rows {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 0.05rem 1.4rem;
-}
-
-.fr-detail-rows + .fr-detail-rows {
-  margin-top: 0.55rem;
-  padding-top: 0.55rem;
-  border-top: 1px solid var(--fr-border-soft);
-}
-
-.fr-detail-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 0.8rem;
-  padding: 0.18rem 0;
-  font-size: 0.8rem;
-}
-
-.fr-detail-label {
-  color: var(--fr-text-muted);
-}
-
-.fr-detail-value {
-  color: var(--fr-text);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-/* A control a display mode does not use stays visible but reads as inert. */
-.fr-page .fr-dropdown.is-disabled .Select-control,
-.fr-select:disabled {
-  opacity: 0.42;
-  cursor: not-allowed;
-}
-
-.fr-checklist-label input:disabled,
-.fr-checklist-label:has(input:disabled) {
-  opacity: 0.42;
-  cursor: not-allowed;
-}
-
-/* The basemap tiles are raster; keep them from bleeding past the card. */
-.fr-page .js-plotly-plot .maplibregl-map,
-.fr-page .js-plotly-plot .mapboxgl-map {
-  border-radius: var(--fr-radius-sm);
-}
-
-/* =============================================================================
-   Static-twin controls
-   -----------------------------------------------------------------------------
-   The GitHub Pages build of this dashboard (docs/dashboard/) has no Dash
-   runtime, so its dropdowns are native <select> elements and its tables are
-   plain markup. These rules give them the same surface as the Dash components
-   above; they are inert on the Dash page, which never emits these classes.
-   ============================================================================= */
-
-.fr-select {
-  appearance: none;
-  width: 100%;
-  min-height: 36px;
-  padding: 0.42rem 1.9rem 0.42rem 0.65rem;
-  border: 1px solid var(--fr-border);
-  border-radius: var(--fr-radius-sm);
-  background-color: var(--fr-surface-sunken);
-  background-image:
-    linear-gradient(45deg, transparent 50%, var(--fr-text-muted) 50%),
-    linear-gradient(135deg, var(--fr-text-muted) 50%, transparent 50%);
-  background-position: right 0.95rem center, right 0.65rem center;
-  background-size: 5px 5px, 5px 5px;
-  background-repeat: no-repeat;
-  color: var(--fr-text);
-  font-family: 'Public Sans', sans-serif;
-  font-size: 0.85rem;
-  cursor: pointer;
-}
-
-.fr-select:focus-visible {
-  outline: none;
-  border-color: var(--fr-accent);
-  box-shadow: 0 0 0 2px var(--fr-accent-soft);
-}
-
-.fr-select option {
-  background: var(--fr-surface-raised);
-  color: var(--fr-text);
-}
-
-.fr-table-wrap {
-  overflow-x: auto;
-}
-
-.fr-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.79rem;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.fr-table th {
-  padding: 0.62rem 0.75rem;
-  background: var(--fr-surface-raised);
-  border-bottom: 1px solid var(--fr-border);
-  color: var(--fr-text-secondary);
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  text-align: right;
-}
-
-.fr-table td {
-  padding: 0.56rem 0.75rem;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
-  color: var(--fr-text);
-  text-align: right;
-}
-
-.fr-table tbody tr:nth-child(odd) td {
-  background: rgba(148, 163, 184, 0.035);
-}
-
-.fr-table th:first-child,
-.fr-table td:first-child,
-.fr-table .fr-cell-text {
-  text-align: left;
-}
-
-.fr-table td:first-child {
-  font-weight: 600;
-}
-
-/* Chart mount points: the figure's own layout height drives the box, but a
-   min-height keeps the card from collapsing before plotly.js paints. */
-.fr-chart {
-  min-height: 120px;
-}
-
-.fr-loading {
-  padding: 2.6rem 0;
-  text-align: center;
-  color: var(--fr-text-muted);
-  font-size: 0.86rem;
 }

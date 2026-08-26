@@ -1,20 +1,30 @@
-"""Deterministic synthetic dataset for the Frontrow Analytics demo.
+"""Deterministic synthetic dataset for the Tidepool Commerce Analytics demo.
 
-Standard library only — no pandas/numpy — so the portfolio site keeps its single
-`dash` dependency and the dataset can be generated identically on any machine.
+One seeded generator produces two years of daily retail activity for a portfolio
+of five invented direct-to-consumer brands, plus everything the dashboard reads
+off it: shipping geography, category mix, acquisition-source attribution,
+monthly acquisition cohorts, customer value parameters, discount-code mix and
+returns. Portfolio rows ("All Brands", "Flagship Brands", "Emerging Brands") are
+rolled up from the brands rather than generated separately, so a rollup always
+reconciles with its members.
 
-Everything is seeded, so the same dashboard renders on every run and the static
-JSON twin never drifts from the live Dash page.
+Two design rules run through the whole module:
 
-Shape of the generated data
----------------------------
-Daily per-client series (downloads, DAU, MAU, memberships, revenue, and the
-engagement event families), a per-client event log used for chart overlays, a
-geo/segment breakdown, a revenue source ledger, monthly churn, membership
-lifetime buckets, and a top-user leaderboard. Aggregate rows ("All Frontrow",
-"All VIP Artists", "All Active SAAS Clients") are summed from account rows, with
-active-user metrics de-duplicated so rollups do not double-count fans who follow
-more than one artist.
+  * **Revenue is never generated directly.** Visits, conversion rate and average
+    order value are the primitives; orders are visits x conversion and revenue is
+    orders x AOV. That is what makes the driver decomposition honest — the walk
+    it draws is arithmetic, not an attribution model.
+
+  * **Nothing is drawn per customer.** Individual points on the map and in the
+    value scatter are generated from compact per-market and per-brand parameters
+    by a PRNG that Python and JavaScript reproduce bit-for-bit (see ``geo``), so
+    the exported payload stays small and both builds draw the identical cloud.
+
+Standard library only, and the window is fixed rather than relative to today, so
+the dataset is byte-stable across runs and across machines.
+
+Every brand, customer, order, market total and figure here is invented for this
+portfolio. No real name, record or value appears anywhere.
 """
 
 from __future__ import annotations
@@ -22,26 +32,53 @@ from __future__ import annotations
 import math
 import random
 from datetime import date, timedelta
-from functools import lru_cache
-from typing import Dict, List, Sequence
+from typing import Dict, List, Sequence, Tuple
 
+from demo_dashboard.assumptions import (
+    BASE_BASKET,
+    BASE_CONVERSION,
+    BASE_RETURN_RATE,
+    CATEGORY_RETURN_MULTIPLIER,
+    CHANNEL_AOV_INDEX,
+    CHANNEL_MIX,
+    COHORT_QUALITY_RANGE,
+    CONVERSION_CEILING,
+    CONVERSION_FLOOR,
+    DAILY_OVER_MONTHLY,
+    DISCOUNT_DEPTH,
+    DISCOUNT_MIX,
+    MARKET_AOV_SPREAD,
+    MARKET_ZIPF_ALPHA,
+    MARKETING_CADENCE,
+    MONTH_AOV,
+    MONTH_VISITS,
+    NEW_CUSTOMER_SHARE_EARLY,
+    NEW_CUSTOMER_SHARE_MATURE,
+    ORDERS_PER_CUSTOMER,
+    REPEAT_DECAY,
+    RETENTION_CURVE,
+    RETURN_LAG_DAYS,
+    RETURN_REASON_MIX,
+    SOURCE_CAC,
+    SOURCE_MIX,
+    SOURCE_VALUE_INDEX,
+    TRADING_DAYS,
+    VALUE_MIN_SPEND,
+    VALUE_PARETO_ALPHA,
+    WEEKDAY_AOV,
+    WEEKDAY_CONVERSION,
+    WEEKDAY_VISITS,
+)
 from demo_dashboard.config import (
     AGGREGATES,
-    CLIENT_ACCOUNTS,
-    CORRELATION_METRICS,
-    SEGMENT_NAMES,
-)
-from demo_dashboard.calibration import (
-    CONTENT_CADENCE,
-    DAU_OVER_MAU,
-    MARKET_ZIPF_ALPHA,
-    PLATFORM_MIX,
-    REVENUE_PER_MEMBER_DAY,
-    REVENUE_TYPE_MIX,
-    TENURE_MIX,
-    WEEKDAY_ACTIVE,
-    WEEKDAY_DOWNLOADS,
-    WEEKDAY_REVENUE,
+    BRAND_ACCOUNTS,
+    BRAND_NAMES,
+    CATEGORIES,
+    CATEGORY_NAMES,
+    CHANNEL_NAMES,
+    DISCOUNT_CODES,
+    RETURN_REASON_NAMES,
+    SOURCE_NAMES,
 )
 from demo_dashboard.geo import string_seed
 
@@ -53,66 +90,88 @@ START_DATE = END_DATE - timedelta(days=WINDOW_DAYS - 1)
 
 SEED = 20260630
 
-# Metrics carried in the daily series. Rollups sum these except for the
-# de-duplicated active-user metrics listed in _DEDUPED.
+# Primitive daily series. Everything else the dashboard shows is derived from
+# these by DERIVED below, which keeps rollups correct for free: summing visits
+# and orders across brands and *then* dividing gives the right blended
+# conversion rate, where averaging per-brand rates would not.
 SERIES_KEYS = [
-    'downloads', 'dau', 'mau', 'memberships', 'new_memberships',
-    'revenue', 'posts', 'notifications', 'livestreams',
-    'auctions', 'session_minutes',
+    'visits', 'orders', 'revenue', 'units', 'customers', 'new_customers',
+    'repeat_customers', 'monthly_customers', 'returns', 'return_value',
+    'campaigns', 'email_sends', 'promotions', 'discount_value',
 ]
 
-# Summing DAU/MAU across accounts double-counts multi-artist fans; a portfolio
-# rollup applies an overlap discount instead. Session length is an average, so it
-# is weighted by DAU rather than summed.
-_DEDUPED = {'dau': 0.88, 'mau': 0.82}
-_AVERAGED = {'session_minutes'}
+# key -> (numerator, denominator). Computed after aggregation, never summed.
+DERIVED: Dict[str, Tuple[str, str]] = {
+    'aov': ('revenue', 'orders'),
+    'conversion': ('orders', 'visits'),
+    'return_rate': ('returns', 'orders'),
+    'discount_rate': ('discount_value', 'revenue'),
+    'basket': ('units', 'orders'),
+}
+
+# Summing daily ordering customers across brands double-counts the shoppers who
+# buy from two of them; a portfolio rollup applies an overlap discount instead.
+_DEDUPED = {'customers': 0.94, 'monthly_customers': 0.88}
 
 
 # --------------------------------------------------------------------------
-# Event log
+# Promotion calendar
 # --------------------------------------------------------------------------
-# Each event kind names the metrics it lifts and the shape of that lift:
-#   amp    peak multiplier added at the event date
+# Each kind names the funnel terms it moves and how hard. Note that several move
+# them in opposite directions — a flash sale buys traffic and conversion at the
+# cost of basket size — which is the whole reason the promotion view compares
+# revenue rather than orders.
+#   amp    peak multiplier added at the event date (negative = suppressed)
 #   decay  days for the lift to fall to ~1/e of its peak
 EVENT_KINDS: Dict[str, Dict[str, object]] = {
-    'Album Drop': {
-        'amp': {'downloads': 2.6, 'dau': 1.1, 'posts': 1.9, 'notifications': 1.4,
-                'livestreams': 0.9, 'new_memberships': 1.3, 'session_minutes': 0.35},
-        'decay': 11.0, 'color': '#6BAEE8',
+    'Flash Sale': {
+        'amp': {'visits': 1.45, 'conversion': 0.92, 'aov': -0.19, 'email_sends': 1.2},
+        'decay': 2.0, 'color': '#C4633F',
     },
-    'Tour Announcement': {
-        'amp': {'downloads': 1.5, 'dau': 0.8, 'notifications': 2.2, 'posts': 0.9,
-                'new_memberships': 0.9},
-        'decay': 7.0, 'color': '#AC9BE8',
+    'Seasonal Campaign': {
+        'amp': {'visits': 0.88, 'conversion': 0.24, 'aov': 0.05, 'campaigns': 1.5},
+        'decay': 12.0, 'color': '#6D3C29',
     },
-    'Livestream Q&A': {
-        'amp': {'livestreams': 3.4, 'dau': 0.7, 'session_minutes': 0.8, 'posts': 0.6},
-        'decay': 2.5, 'color': '#5CC5BA',
+    'New Collection': {
+        'amp': {'visits': 0.72, 'conversion': 0.16, 'aov': 0.15, 'campaigns': 1.1},
+        'decay': 16.0, 'color': '#4E6B4D',
     },
-    'Merch Auction': {
-        'amp': {'auctions': 3.8, 'revenue': 1.4, 'dau': 0.4, 'notifications': 0.7},
-        'decay': 4.0, 'color': '#F08C7E',
+    'Email Blast': {
+        'amp': {'visits': 0.54, 'conversion': 0.31, 'email_sends': 2.4},
+        'decay': 3.0, 'color': '#CA9038',
     },
-    'Membership Push': {
-        'amp': {'new_memberships': 2.7, 'notifications': 1.6, 'revenue': 0.5, 'dau': 0.3},
-        'decay': 6.0, 'color': '#79D29B',
+    'Marketplace Feature': {
+        'amp': {'visits': 1.15, 'conversion': -0.11, 'aov': -0.07},
+        'decay': 5.0, 'color': '#8A5468',
     },
-    'App Release': {
-        'amp': {'downloads': 0.9, 'session_minutes': 0.5, 'dau': 0.45},
-        'decay': 14.0, 'color': '#E6B450',
+    'Loyalty Push': {
+        'amp': {'visits': 0.22, 'conversion': 0.34, 'aov': 0.13, 'email_sends': 1.0},
+        'decay': 8.0, 'color': '#B79A6B',
     },
 }
 
 EVENT_ORDER = list(EVENT_KINDS)
 
+# What each kind puts on the marketing counters the day it runs. Without this,
+# the calendar overlay and the marketing metrics drift apart: a flash sale fires
+# on ~4% of days, so a "Flash Sale" marker would usually sit over a flat zero.
+EVENT_ACTIONS: Dict[str, Dict[str, int]] = {
+    'Flash Sale': {'promotions': 1, 'email_sends': 2},
+    'Seasonal Campaign': {'campaigns': 2, 'email_sends': 1},
+    'New Collection': {'campaigns': 1, 'email_sends': 1},
+    'Email Blast': {'email_sends': 3},
+    'Marketplace Feature': {'campaigns': 1},
+    'Loyalty Push': {'campaigns': 1, 'email_sends': 2},
+}
+
 
 # --------------------------------------------------------------------------
 # Geography
 # --------------------------------------------------------------------------
-# Markets in audience-rank order. Weights are not written by hand: they follow
-# the rank^-a curve measured on the real client base (calibration.MARKET_ZIPF_ALPHA),
-# which produces the long, flat tail a real fan app has instead of three metros
-# holding everything. The roster is US-weighted to match the measured country mix.
+# Shipping markets in order volume rank. The weights are not written by hand:
+# they follow the rank^-a curve in assumptions.MARKET_ZIPF_ALPHA, which gives the
+# long flat tail a national retailer has instead of three metros holding
+# everything.
 CITY_TABLE_RANKED = [
     ('Los Angeles', 'California', 'United States', 34.05, -118.24),
     ('New York', 'New York', 'United States', 40.71, -74.01),
@@ -196,7 +255,7 @@ CITY_TABLE_RANKED = [
 
 
 def _ranked_city_table():
-    """Attach the measured rank^-a weight to each market."""
+    """Attach the rank^-a order weight to each shipping market."""
     return [
         (city, region, country, lat, lon, (rank + 1) ** -MARKET_ZIPF_ALPHA)
         for rank, (city, region, country, lat, lon) in enumerate(CITY_TABLE_RANKED)
@@ -204,15 +263,6 @@ def _ranked_city_table():
 
 
 CITY_TABLE = _ranked_city_table()
-
-
-# Handles for the top-user leaderboard. Fictional, deliberately generic.
-_HANDLE_STEMS = [
-    'novafan', 'frontrow', 'midnight', 'echopark', 'stagelight', 'lowtide',
-    'goldenhour', 'papermoon', 'velvet', 'northline', 'reverb', 'sunroom',
-    'crescent', 'analog', 'saltwater', 'wildcard', 'neonrun', 'quietstorm',
-    'afterglow', 'bluehour', 'tapehiss', 'slowburn', 'citylights', 'driftwood',
-]
 
 
 # ==========================================================================
@@ -223,18 +273,13 @@ def _date_strings() -> List[str]:
 
 
 def _weekly_shape(rnd: random.Random, base: Sequence[float]) -> List[float]:
-    """Weekday multipliers for one metric family, jittered per account.
-
-    The shapes are measured, not guessed, and they are not the intuitive ones:
-    active users *fall* on the weekend and bottom out on Sunday (0.65 of Monday),
-    while downloads peak on Friday. See calibration.WEEKDAY_ACTIVE.
-    """
+    """Weekday multipliers for one funnel term, jittered per brand."""
     return [value * rnd.uniform(0.97, 1.03) for value in base]
 
 
 def _poisson(rnd: random.Random, lam: float) -> int:
-    """Knuth's sampler. Content events are counts of things the artist shipped
-    that day, so they are drawn as counts rather than scaled from user volume."""
+    """Knuth's sampler. Marketing actions are counts of things a brand shipped
+    that day, so they are drawn as counts rather than scaled from order volume."""
     if lam <= 0:
         return 0
     if lam > 24:
@@ -247,705 +292,1126 @@ def _poisson(rnd: random.Random, lam: float) -> int:
         k += 1
 
 
-def _event_multiplier(events, day_index: int, metric: str) -> float:
-    """Combined lift on ``metric`` at ``day_index`` from every nearby event.
+def _pareto(rnd: random.Random, alpha: float, minimum: float) -> float:
+    """Inverse-transform draw from a Pareto tail."""
+    return minimum / (rnd.random() ** (1.0 / alpha))
+
+
+def _event_multiplier(events, day_index: int, term: str) -> float:
+    """Combined lift on ``term`` at ``day_index`` from every nearby promotion.
 
     The kernel is asymmetric on purpose: anticipation before the date is short
-    and shallow, the drop is instant, and the tail decays over days. A symmetric
-    bell would imply the audience reacted before the announcement existed.
+    and shallow, the lift is instant, and the tail decays over days. A symmetric
+    bell would imply shoppers reacted before the sale was announced.
     """
     lift = 0.0
     for event in events:
-        amp = EVENT_KINDS[event['kind']]['amp'].get(metric)
+        amp = EVENT_KINDS[event['kind']]['amp'].get(term)
         if not amp:
             continue
         delta = day_index - event['day_index']
         if delta < -4 or delta > 60:
             continue
         decay = EVENT_KINDS[event['kind']]['decay']
-        if delta >= 0:
-            kernel = math.exp(-delta / decay)
-        else:
-            kernel = math.exp(delta * 1.4)  # short, shallow pre-buzz
+        kernel = math.exp(-delta / decay) if delta >= 0 else math.exp(delta * 1.4)
         lift += amp * event['magnitude'] * kernel
-    return 1.0 + lift
+    return max(1.0 + lift, 0.05)
 
 
-# What each event kind puts on the timeline on the day it happens. Without this
-# the content metrics and the release-calendar overlay would drift apart: a
-# livestream fires on 1.7% of days, so a "Livestream Q&A" marker would usually
-# sit above a flat zero line.
-EVENT_CONTENT = {
-    'Album Drop': {'posts': 2, 'notifications': 1},
-    'Tour Announcement': {'posts': 1, 'notifications': 1},
-    'Livestream Q&A': {'livestreams': 1, 'posts': 1},
-    'Merch Auction': {'auctions': 1, 'notifications': 1},
-    'Membership Push': {'notifications': 1},
-    'App Release': {'notifications': 1},
-}
-
-
-def _scheduled_content(events, day_index: int) -> Dict[str, int]:
-    """Content the release calendar puts on this exact day."""
-    out = {'posts': 0, 'notifications': 0, 'livestreams': 0, 'auctions': 0}
+def _scheduled_actions(events, day_index: int) -> Dict[str, int]:
+    """Marketing actions the calendar puts on this exact day."""
+    out = {'campaigns': 0, 'email_sends': 0, 'promotions': 0}
     for event in events:
         if event['day_index'] != day_index:
             continue
-        for key, count in EVENT_CONTENT.get(event['kind'], {}).items():
+        for key, count in EVENT_ACTIONS.get(event['kind'], {}).items():
             out[key] += count
     return out
 
 
+def _seasonal(day: date, curve: Sequence[float]) -> float:
+    """Monthly seasonality, interpolated so months do not step at midnight."""
+    days_in_month = (date(day.year + (day.month == 12), day.month % 12 + 1, 1)
+                     - date(day.year, day.month, 1)).days
+    position = (day.day - 1) / days_in_month
+    here = curve[day.month - 1]
+    nxt = curve[day.month % 12]
+    return here + (nxt - here) * position
+
+
+def _trading_day_lift(day: date, term: str) -> float:
+    """Named trading peaks, which sit on top of the monthly curve."""
+    lift = 1.0
+    for window in TRADING_DAYS:
+        try:
+            start = date(day.year, int(window['month']), int(window['day']))
+        except ValueError:
+            continue
+        delta = (day - start).days
+        if 0 <= delta < int(window['span']):
+            # Triangular within the window: the first day is the peak.
+            weight = 1.0 - delta / float(window['span'])
+            factor = float(window.get(term, 1.0))
+            lift *= 1.0 + (factor - 1.0) * weight
+    return lift
+
+
 def _build_events(rnd: random.Random, launch: int) -> List[Dict[str, object]]:
-    """A plausible release calendar for one account."""
+    """A plausible promotion calendar for one brand."""
     events: List[Dict[str, object]] = []
-    day = launch + rnd.randint(14, 40)
+    day = launch + rnd.randint(10, 32)
     while day < WINDOW_DAYS - 5:
-        kind = rnd.choices(
-            EVENT_ORDER,
-            weights=[1.0, 1.3, 2.2, 1.8, 1.5, 0.8],
-        )[0]
+        kind = rnd.choices(EVENT_ORDER, weights=[2.4, 1.4, 1.2, 2.8, 1.0, 1.3])[0]
         events.append({
             'kind': kind,
             'day_index': day,
             'date': (START_DATE + timedelta(days=day)).isoformat(),
             'magnitude': round(rnd.uniform(0.55, 1.35), 3),
         })
-        day += rnd.randint(28, 74)
+        day += rnd.randint(11, 34)
     return events
 
 
-def _rolling_dedup_mau(dau: Sequence[float], window: int = 30) -> List[float]:
-    """Approximate MAU from DAU with a 30-day rolling sum and a repeat-visit
-    discount.
+def _rolling_monthly_customers(daily: Sequence[float], window: int = 30) -> List[float]:
+    """Approximate monthly actives from daily ordering customers.
 
-    Real MAU is a distinct-user count. Summing 30 days of DAU would count a fan
-    who opens the app daily thirty times, so the sum is compressed to land the
-    DAU/MAU stickiness ratio in the ~25-35% band a healthy fan app shows, without
-    carrying user-level identities through the whole dataset."""
+    Real monthly actives are a distinct count. Summing 30 days of buyers would
+    count a customer who orders weekly four times, so the sum is compressed to
+    land the daily/monthly ratio near assumptions.DAILY_OVER_MONTHLY. Unlike an
+    app's DAU, a store's daily buyers barely overlap, so the compression is mild.
+    """
     out: List[float] = []
     running = 0.0
-    # Measured stickiness is ~4.8%, i.e. monthly actives run about 21x daily
-    # actives: the audience opens the app once or twice a month around a release,
-    # so a 30-day sum of DAU barely double-counts anyone. The compression is
-    # therefore mild — an intuitive "most dailies are the same people" factor
-    # would understate MAU by 4x.
-    for i, value in enumerate(dau):
+    for i, value in enumerate(daily):
         running += value
         if i >= window:
-            running -= dau[i - window]
+            running -= daily[i - window]
         span = min(i + 1, window)
-        out.append((running / span) / DAU_OVER_MAU)
+        out.append((running / span) / DAILY_OVER_MONTHLY)
     return out
 
 
-def _pearson(xs: Sequence[float], ys: Sequence[float]) -> float:
-    n = len(xs)
-    if n < 3:
-        return 0.0
-    mean_x = sum(xs) / n
-    mean_y = sum(ys) / n
-    cov = sum((x - mean_x) * (y - mean_y) for x, y in zip(xs, ys))
-    var_x = sum((x - mean_x) ** 2 for x in xs)
-    var_y = sum((y - mean_y) ** 2 for y in ys)
-    if var_x <= 0 or var_y <= 0:
-        return 0.0
-    return cov / math.sqrt(var_x * var_y)
-
-
 # ==========================================================================
-# Per-account generation
+# Per-brand generation
 # ==========================================================================
-def _build_account_series(account: Dict[str, object], events) -> Dict[str, List[float]]:
-    """Daily metric series for one account.
+def _build_brand_series(account: Dict[str, object], events) -> Dict[str, List[float]]:
+    """Daily series for one brand.
 
-    Growth is a logistic install ramp modulated by yearly seasonality, weekday
-    shape, noise, and the event calendar. Memberships are simulated as a stock
-    (new joins in, daily churn out) rather than a cumulative sum, so the churn
-    page and the membership page agree by construction.
+    Visits, conversion and AOV are generated; orders, revenue, units, customers
+    and returns fall out of them. Order of operations matters here — returns are
+    a lagged function of *orders*, so they can only be filled in once the whole
+    order series exists.
     """
-    rnd = random.Random(f"{SEED}:{account['name']}")
+    rnd = random.Random(SEED ^ string_seed(str(account['name'])))
     scale = float(account['scale'])
     launch = int(account['launch_offset'])
-    weekly_active = _weekly_shape(rnd, WEEKDAY_ACTIVE)
-    weekly_downloads = _weekly_shape(rnd, WEEKDAY_DOWNLOADS)
-    weekly_revenue = _weekly_shape(rnd, WEEKDAY_REVENUE)
-    active_days = max(WINDOW_DAYS - launch, 1)
 
-    # Every rate below is anchored to a measured quantile — see calibration.py.
-    base_downloads = 190.0 * scale
-    install_conversion = rnd.uniform(0.038, 0.058)  # measured median 0.047
-    reactivation = rnd.uniform(0.0004, 0.0011)      # existing active -> membership
-    daily_churn = rnd.uniform(0.0028, 0.0058)       # measured p25..p75
-    arpu_daily = REVENUE_PER_MEMBER_DAY * rnd.uniform(0.60, 1.02)
-    reach = rnd.uniform(0.030, 0.062)               # installed base -> DAU
-    minutes_per_active = rnd.uniform(1.5, 2.6)      # measured ~1.96
+    weekday_visits = _weekly_shape(rnd, WEEKDAY_VISITS)
+    weekday_conversion = _weekly_shape(rnd, WEEKDAY_CONVERSION)
+    weekday_aov = _weekly_shape(rnd, WEEKDAY_AOV)
+
+    # A brand's traffic follows a logistic ramp from launch: slow, then steep,
+    # then settling. ``ceiling`` is where it lands, not where it starts.
+    #
+    # The absolute level is chosen, not arbitrary: it puts the portfolio at a few
+    # hundred thousand orders across the window. That is a credible size for a
+    # five-brand DTC group, and it keeps the individual-order map at a marker
+    # count MapLibre draws instantly — a portfolio ten times larger would be no
+    # more interesting and would make the map the slowest thing on the page.
+    ceiling = 8_000 * scale
+    steepness = 5.4 / max(WINDOW_DAYS - launch, 60)
+    midpoint = launch + (WINDOW_DAYS - launch) * rnd.uniform(0.30, 0.46)
+
+    base_conversion = BASE_CONVERSION * rnd.uniform(0.86, 1.16)
+    base_aov = float(account['aov'])
+    basket_bias = float(next(c['basket'] for c in CATEGORIES
+                             if c['name'] == account['category'])) / BASE_BASKET
 
     series: Dict[str, List[float]] = {key: [] for key in SERIES_KEYS}
-    installed_base = 0.0
-    members = 0.0
+    orders_series: List[float] = []
 
-    for i in range(WINDOW_DAYS):
-        if i < launch:
+    for index in range(WINDOW_DAYS):
+        day = START_DATE + timedelta(days=index)
+        weekday = day.weekday()
+
+        if index < launch:
             for key in SERIES_KEYS:
                 series[key].append(0.0)
+            orders_series.append(0.0)
             continue
 
-        age = (i - launch) / active_days
-        ramp = 1.0 / (1.0 + math.exp(-(age - 0.30) * 5.4))
-        season = 1.0 + 0.16 * math.sin(2.0 * math.pi * i / 365.25 - 1.05)
-        weekday_index = (START_DATE + timedelta(days=i)).weekday()
+        ramp = 1.0 / (1.0 + math.exp(-steepness * (index - midpoint)))
 
-        downloads = (
-            base_downloads * ramp * season * weekly_downloads[weekday_index]
-            * rnd.gauss(1.0, 0.085)
-            * _event_multiplier(events, i, 'downloads')
-        )
-        downloads = max(downloads, 0.0)
-        installed_base += downloads * 0.93  # net of uninstalls
+        visits = (ceiling * ramp
+                  * weekday_visits[weekday]
+                  * _seasonal(day, MONTH_VISITS)
+                  * _trading_day_lift(day, 'visits')
+                  * _event_multiplier(events, index, 'visits')
+                  * rnd.uniform(0.90, 1.10))
 
-        dau = (
-            installed_base * reach * weekly_active[weekday_index] * season
-            * rnd.gauss(1.0, 0.055)
-            * _event_multiplier(events, i, 'dau')
-        )
-        dau = max(dau, 0.0)
+        conversion = (base_conversion
+                      * weekday_conversion[weekday]
+                      * _trading_day_lift(day, 'conversion')
+                      * _event_multiplier(events, index, 'conversion')
+                      * rnd.uniform(0.93, 1.07))
+        conversion = min(max(conversion, CONVERSION_FLOOR), CONVERSION_CEILING)
 
-        # Most joins come from fresh installs; a smaller trickle converts fans
-        # who have been active for a while. Splitting the two keeps the
-        # membership stock anchored to the installed base instead of drifting
-        # above it, which a flat DAU-conversion would do over a long window.
-        new_members = (
-            (downloads * install_conversion + dau * reactivation)
-            * rnd.gauss(1.0, 0.14)
-            * _event_multiplier(events, i, 'new_memberships')
-        )
-        new_members = max(new_members, 0.0)
-        members = max(members + new_members - members * daily_churn, 0.0)
+        aov = (base_aov
+               * weekday_aov[weekday]
+               * _seasonal(day, MONTH_AOV)
+               * _trading_day_lift(day, 'aov')
+               * _event_multiplier(events, index, 'aov')
+               * rnd.uniform(0.95, 1.05))
 
-        revenue = (
-            members * arpu_daily * weekly_revenue[weekday_index]
-            + dau * 0.004 * rnd.uniform(0.7, 1.3)
-        ) * _event_multiplier(events, i, 'revenue')
+        orders = visits * conversion
+        revenue = orders * aov
+        units = orders * BASE_BASKET * basket_bias * rnd.uniform(0.94, 1.06)
 
-        # Content events: counts of what the artist shipped that day, drawn at
-        # the measured cadence and lifted by the release calendar. Scaling these
-        # off user volume (the intuitive reading of the column names) overstates
-        # them by three orders of magnitude.
-        scheduled = _scheduled_content(events, i)
-        posts = scheduled['posts'] + _poisson(
-            rnd, CONTENT_CADENCE['posts'] * _event_multiplier(events, i, 'posts'))
-        notifications = scheduled['notifications'] + _poisson(
-            rnd, CONTENT_CADENCE['notifications']
-            * _event_multiplier(events, i, 'notifications'))
-        livestreams = scheduled['livestreams'] + _poisson(
-            rnd, CONTENT_CADENCE['livestreams'] * _event_multiplier(events, i, 'livestreams'))
-        auctions = scheduled['auctions'] + _poisson(
-            rnd, CONTENT_CADENCE['auctions'] * _event_multiplier(events, i, 'auctions'))
+        customers = orders / ORDERS_PER_CUSTOMER
+        maturity = min((index - launch) / max(WINDOW_DAYS - launch, 1), 1.0)
+        new_share = (NEW_CUSTOMER_SHARE_EARLY
+                     + (NEW_CUSTOMER_SHARE_MATURE - NEW_CUSTOMER_SHARE_EARLY) * maturity)
+        new_customers = customers * new_share * rnd.uniform(0.94, 1.06)
 
-        session = (
-            minutes_per_active * (0.9 + 0.25 * ramp)
-            * _event_multiplier(events, i, 'session_minutes')
-            * rnd.gauss(1.0, 0.06)
-        )
+        scheduled = _scheduled_actions(events, index)
+        actions = {}
+        for key, cadence in MARKETING_CADENCE.items():
+            lam = cadence * _event_multiplier(events, index, key)
+            actions[key] = _poisson(rnd, lam) + scheduled.get(key, 0)
 
-        series['downloads'].append(downloads)
-        series['dau'].append(dau)
-        series['memberships'].append(members)
-        series['new_memberships'].append(new_members)
+        # Weighted mean discount depth, then the money it took off the order.
+        depth = sum(DISCOUNT_MIX[code] * DISCOUNT_DEPTH[code] for code in DISCOUNT_CODES)
+        depth *= _event_multiplier(events, index, 'conversion') ** 0.35
+
+        series['visits'].append(visits)
+        series['orders'].append(orders)
         series['revenue'].append(revenue)
-        series['posts'].append(posts)
-        series['notifications'].append(notifications)
-        series['livestreams'].append(livestreams)
-        series['auctions'].append(auctions)
-        series['session_minutes'].append(session)
-        series['mau'].append(0.0)  # filled below
+        series['units'].append(units)
+        series['customers'].append(customers)
+        series['new_customers'].append(new_customers)
+        series['repeat_customers'].append(max(customers - new_customers, 0.0))
+        series['monthly_customers'].append(0.0)          # filled below
+        series['returns'].append(0.0)                    # filled below
+        series['return_value'].append(0.0)
+        series['campaigns'].append(float(actions['campaigns']))
+        series['email_sends'].append(float(actions['email_sends']))
+        series['promotions'].append(float(actions['promotions']))
+        series['discount_value'].append(revenue * depth)
+        orders_series.append(orders)
 
-    series['mau'] = _rolling_dedup_mau(series['dau'])
+    series['monthly_customers'] = _rolling_monthly_customers(series['customers'])
+
+    # Returns land RETURN_LAG_DAYS after the order that produced them. Computing
+    # them against same-day orders would put the return spike on the sale day
+    # and make the return rate look flat through it.
+    category_weight = CATEGORY_RETURN_MULTIPLIER.get(str(account['category']), 1.0)
+    rate = BASE_RETURN_RATE * (0.55 + 0.45 * category_weight)
+    for index in range(WINDOW_DAYS):
+        source = index - RETURN_LAG_DAYS
+        if source < 0:
+            continue
+        returned = orders_series[source] * rate * rnd.uniform(0.82, 1.18)
+        series['returns'][index] = returned
+        series['return_value'][index] = returned * series['revenue'][source] / max(
+            orders_series[source], 1e-9)
+
     return series
 
 
 def _round_series(series: Dict[str, List[float]]) -> Dict[str, List[float]]:
-    """Round for transport: counts and money to whole units, session length to
-    one decimal. Keeps the exported JSON small and the Dash page and its static
-    twin byte-identical in what they display."""
+    """Counts become integers; money keeps cents."""
+    money = {'revenue', 'return_value', 'discount_value'}
     out: Dict[str, List[float]] = {}
     for key, values in series.items():
-        if key == 'session_minutes':
-            out[key] = [round(v, 1) for v in values]
+        if key in money:
+            out[key] = [round(v, 2) for v in values]
         else:
-            # Daily revenue runs in the hundreds-to-thousands; cents are noise
-            # that would only bloat the exported JSON.
-            out[key] = [int(round(v)) for v in values]
+            out[key] = [float(round(v)) for v in values]
     return out
 
 
 def _build_locations(account: Dict[str, object], series: Dict[str, List[float]]):
-    """City-level audience counts split by lifecycle segment.
+    """Per-market order totals, revenue and average order value.
 
-    Totals are anchored to the account's installed base so the geography page and
-    the KPI page tell the same story, and each account gets its own city weighting
-    (an artist's audience is not uniformly distributed).
+    A market's share of orders comes from the rank curve, perturbed per brand so
+    two brands do not have identical geography. Average order value varies across
+    markets independently of volume — that independence is the point of the dual
+    encoding on the map, which would say nothing if size and color agreed.
     """
-    rnd = random.Random(f"{SEED}:geo:{account['name']}")
-    installed = sum(series['downloads']) * 0.93
-    members = series['memberships'][-1]
+    rnd = random.Random(SEED ^ string_seed('geo:' + str(account['name'])))
+    total_orders = sum(series['orders'])
+    total_revenue = sum(series['revenue'])
+    if total_orders <= 0:
+        return []
 
+    portfolio_aov = total_revenue / total_orders
     weights = []
-    for _, _, country, _, _, base in CITY_TABLE:
-        # A modest tilt so two accounts rank their markets differently, but not
-        # so much that it erases the measured rank^-a curve underneath.
-        tilt = rnd.uniform(0.70, 1.45)
-        if country != 'United States':
-            tilt *= rnd.uniform(0.65, 1.25)
-        weights.append(base * tilt)
-    total_weight = sum(weights)
+    for city, region, country, lat, lon, weight in CITY_TABLE:
+        weights.append(weight * rnd.uniform(0.55, 1.55))
+    weight_total = sum(weights)
 
     rows = []
     for (city, region, country, lat, lon, _), weight in zip(CITY_TABLE, weights):
-        share = weight / total_weight
-        users = installed * share
-        if users < 12:
+        share = weight / weight_total
+        orders = int(round(total_orders * share))
+        if orders < 1:
             continue
-        member_count = members * share * rnd.uniform(0.7, 1.35)
-        member_count = min(member_count, users * 0.42)
-        super_users = member_count * rnd.uniform(0.08, 0.19)
-        signed_up = (users - member_count) * rnd.uniform(0.35, 0.6)
-        non_signed = users - member_count - signed_up
+        aov = portfolio_aov * (1.0 + rnd.uniform(-MARKET_AOV_SPREAD, MARKET_AOV_SPREAD))
         rows.append({
             'city': city,
             'region': region,
             'country': country,
             'lat': lat,
             'lon': lon,
-            'users': int(round(users)),
-            # Active usage in this market. Sized off members and signed-up fans
-            # rather than raw installs, so the Engagement view ranks markets by
-            # how much the audience *uses* the app, not how many downloaded it.
-            'engagement': int(round(
-                (member_count * rnd.uniform(2.2, 4.1) + signed_up * rnd.uniform(0.4, 1.1))
-            )),
-            # Stable per-market seed for the shared marker generator, and the
-            # market's lag in the growth animation (0 = launched with the app).
-            'seed': string_seed(f'{account["name"]}|{city}'),
-            # A share of markets are there from launch day; the rest open later,
-            # so the growth animation spreads outward instead of fading in evenly.
-            'ramp_lag': 0.0 if rnd.random() < 0.4 else round(rnd.uniform(0.06, 0.55), 4),
-            'segments': {
-                'Non-Signed-Up': int(round(max(non_signed, 0))),
-                'Signed-Up': int(round(max(signed_up, 0))),
-                'Member': int(round(max(member_count - super_users, 0))),
-                'Super User': int(round(max(super_users, 0))),
-            },
+            'orders': orders,
+            'revenue': round(orders * aov, 2),
+            'aov': round(aov, 2),
+            # Stable per-market seed: the marker cloud must not move between runs
+            # or between the two builds.
+            'seed': string_seed(f'{account["name"]}|{city}|{region}') & 0xFFFFFFFF,
+            # Where in the brand's life this market opened up, 0-1.
+            'ramp_lag': round(rnd.uniform(0.0, 0.55) ** 1.5, 4),
         })
-    rows.sort(key=lambda r: -r['users'])
+    rows.sort(key=lambda r: -r['orders'])
     return rows
 
 
-def _build_monthly_ramp(series: Dict[str, List[float]], dates: List[str]):
-    """Cumulative share of the account's installed base reached by each month.
+def _build_monthly(series: Dict[str, List[float]], dates: List[str]):
+    """Monthly totals, plus the cumulative order curve the growth map replays."""
+    buckets: Dict[str, Dict[str, float]] = {}
+    order = []
+    for index, iso in enumerate(dates):
+        period = iso[:7]
+        if period not in buckets:
+            buckets[period] = {key: 0.0 for key in SERIES_KEYS}
+            order.append(period)
+        for key in SERIES_KEYS:
+            buckets[period][key] += series[key][index]
 
-    The growth animation replays this curve per market instead of shipping
-    per-user arrival timestamps.
-    """
-    total = sum(series['downloads']) or 1.0
-    steps: List[Dict[str, object]] = []
+    total = sum(series['orders']) or 1.0
     running = 0.0
-    for iso, downloads in zip(dates, series['downloads']):
-        running += downloads
-        month = iso[:7]
-        if steps and steps[-1]['period'] == month:
-            steps[-1]['frac'] = round(running / total, 6)
-        else:
-            steps.append({'period': month, 'frac': round(running / total, 6)})
-    return steps
-
-
-def _build_revenue_mix(account: Dict[str, object], series: Dict[str, List[float]]):
-    """Revenue split by store platform and product type."""
-    rnd = random.Random(f"{SEED}:rev:{account['name']}")
-    total = sum(series['revenue'])
-
-    def _split(mix):
-        """Measured mix, jittered per account so the roster is not identical.
-
-        The store split is nowhere near even: iOS carries ~92% of recognised
-        revenue, and subscriptions carry ~92% of it by product type.
-        """
-        weights = [share * rnd.uniform(0.82, 1.22) for share in mix.values()]
-        pool = sum(weights)
-        return [
-            {'label': label, 'revenue': round(total * w / pool, 2)}
-            for label, w in zip(mix, weights)
-        ]
-
-    return {'platform': _split(PLATFORM_MIX), 'revenue_type': _split(REVENUE_TYPE_MIX)}
-
-
-def _build_churn(series: Dict[str, List[float]], dates: List[str]):
-    """Monthly membership churn derived from the same stock the KPI page shows.
-
-    Lost members are the residual of the stock identity
-    (start + joins - end), so churn can never disagree with the membership line.
-    """
-    months: List[Dict[str, object]] = []
-    current = None
-    for i, iso in enumerate(dates):
-        month = iso[:7]
-        members = series['memberships'][i]
-        joins = series['new_memberships'][i]
-        if current is None or current['period'] != month:
-            if current is not None:
-                months.append(current)
-            current = {'period': month, 'start': members, 'joined': 0.0, 'end': members}
-        current['joined'] += joins
-        current['end'] = members
-    if current is not None:
-        months.append(current)
-
     out = []
-    for row in months:
-        start = row['start']
-        lost = max(start + row['joined'] - row['end'], 0.0)
-        churn_pct = (lost / start * 100.0) if start > 30 else 0.0
-        out.append({
-            'period': row['period'],
-            'start': int(round(start)),
-            'joined': int(round(row['joined'])),
-            'lost': int(round(lost)),
-            'churn_pct': round(churn_pct, 2),
+    for period in order:
+        running += buckets[period]['orders']
+        row = {'period': period, 'frac': round(running / total, 6)}
+        for key in SERIES_KEYS:
+            row[key] = round(buckets[period][key], 2)
+        out.append(row)
+    return out
+
+
+def _build_category_mix(account: Dict[str, object], monthly: List[Dict[str, float]]):
+    """Revenue by product category, per month.
+
+    The brand's home category leads, but its lead erodes as the brand broadens —
+    a range extension is exactly the kind of thing a category view should show.
+    """
+    rnd = random.Random(SEED ^ string_seed('cat:' + str(account['name'])))
+    home = str(account['category'])
+    drift = {name: rnd.uniform(-0.35, 0.55) for name in CATEGORY_NAMES}
+
+    rows = []
+    span = max(len(monthly) - 1, 1)
+    for index, month in enumerate(monthly):
+        position = index / span
+        weights = {}
+        for name in CATEGORY_NAMES:
+            base = 2.6 if name == home else 0.55
+            base *= 1.0 + drift[name] * position
+            weights[name] = max(base * rnd.uniform(0.88, 1.12), 0.04)
+        total = sum(weights.values())
+        revenue = month['revenue']
+        rows.append({
+            'period': month['period'],
+            'revenue': {name: round(revenue * weights[name] / total, 2)
+                        for name in CATEGORY_NAMES},
         })
-    return [row for row in out if row['start'] > 0]
+    return rows
 
 
-LIFETIME_BUCKETS = ['0-30d', '31-90d', '91-180d', '181-365d', '1-2y', '2y+']
+def _build_channel_mix(account: Dict[str, object], monthly: List[Dict[str, float]]):
+    """Orders and revenue by order channel, per month."""
+    rnd = random.Random(SEED ^ string_seed('chan:' + str(account['name'])))
+    bias = {name: rnd.uniform(0.8, 1.25) for name in CHANNEL_NAMES}
+
+    rows = []
+    span = max(len(monthly) - 1, 1)
+    for index, month in enumerate(monthly):
+        position = index / span
+        weights = {}
+        for name in CHANNEL_NAMES:
+            weight = CHANNEL_MIX[name] * bias[name]
+            # App share grows over a brand's life at the expense of web.
+            if name == 'Mobile App':
+                weight *= 1.0 + 0.65 * position
+            elif name == 'Web':
+                weight *= 1.0 - 0.22 * position
+            weights[name] = max(weight, 0.01)
+        total = sum(weights.values())
+        orders = {name: month['orders'] * weights[name] / total for name in CHANNEL_NAMES}
+        revenue = {name: orders[name] * CHANNEL_AOV_INDEX[name] for name in CHANNEL_NAMES}
+        revenue_total = sum(revenue.values()) or 1.0
+        rows.append({
+            'period': month['period'],
+            'orders': {name: round(orders[name]) for name in CHANNEL_NAMES},
+            'revenue': {name: round(month['revenue'] * revenue[name] / revenue_total, 2)
+                        for name in CHANNEL_NAMES},
+        })
+    return rows
 
 
-def _build_lifetime(account: Dict[str, object], series: Dict[str, List[float]]):
-    """Membership tenure distribution plus the headline median/mean."""
-    rnd = random.Random(f"{SEED}:life:{account['name']}")
-    members = series['memberships'][-1]
-    # Measured tenure distribution: the mode is 31-90 days, not a flat spread.
-    # Roughly a fifth of members are inside their first month at any time.
-    shape = [TENURE_MIX[bucket] * rnd.uniform(0.85, 1.18) for bucket in LIFETIME_BUCKETS]
-    pool = sum(shape)
-    counts = [int(round(members * w / pool)) for w in shape]
-    midpoints = [15, 60, 135, 273, 547, 900]
-    total = sum(counts) or 1
-    mean_days = sum(c * m for c, m in zip(counts, midpoints)) / total
+def _build_sources(account: Dict[str, object], monthly: List[Dict[str, float]]):
+    """Acquisition-source attribution: who was acquired where, and what they were
+    worth afterwards.
 
-    running = 0
-    median_days = midpoints[-1]
-    for count, mid in zip(counts, midpoints):
-        running += count
-        if running >= total / 2:
-            median_days = mid
-            break
+    First-order revenue is attributed to the source that acquired the customer;
+    repeat revenue is attributed to the same source, which is what makes the
+    difference between a cheap source and a good one visible at all.
+    """
+    rnd = random.Random(SEED ^ string_seed('src:' + str(account['name'])))
+    bias = {name: rnd.uniform(0.82, 1.22) for name in SOURCE_NAMES}
+    weights = {name: SOURCE_MIX[name] * bias[name] for name in SOURCE_NAMES}
+    total_weight = sum(weights.values())
 
+    new_customers = sum(m['new_customers'] for m in monthly)
+    revenue = sum(m['revenue'] for m in monthly)
+    orders = sum(m['orders'] for m in monthly)
+
+    # Split revenue by source using acquisition share weighted by lifetime value.
+    value_weights = {name: weights[name] * SOURCE_VALUE_INDEX[name] for name in SOURCE_NAMES}
+    value_total = sum(value_weights.values())
+
+    rows = []
+    for name in SOURCE_NAMES:
+        share = weights[name] / total_weight
+        value_share = value_weights[name] / value_total
+        acquired = new_customers * share
+        source_revenue = revenue * value_share
+        # Repeat share rises with source quality: a referral customer comes back.
+        repeat_share = min(0.18 + 0.30 * SOURCE_VALUE_INDEX[name], 0.74)
+        rows.append({
+            'source': name,
+            'new_customers': int(round(acquired)),
+            'orders': int(round(orders * value_share)),
+            'revenue': round(source_revenue, 2),
+            'first_order_revenue': round(source_revenue * (1 - repeat_share), 2),
+            'repeat_revenue': round(source_revenue * repeat_share, 2),
+            'cac': SOURCE_CAC[name],
+            'spend': round(acquired * SOURCE_CAC[name], 2),
+        })
+    rows.sort(key=lambda r: -r['revenue'])
+    return rows
+
+
+def _build_cohorts(account: Dict[str, object], monthly: List[Dict[str, float]]):
+    """Monthly acquisition cohorts and their repeat rate by months-since.
+
+    The result is a triangle, not a rectangle: a cohort acquired last month has
+    exactly one observed month. Filling the unobserved cells with zero would draw
+    a cliff that looks like collapsing retention, so they stay ``None``.
+    """
+    rnd = random.Random(SEED ^ string_seed('coh:' + str(account['name'])))
+    periods = [m['period'] for m in monthly]
+    sizes = [int(round(m['new_customers'])) for m in monthly]
+    span = len(periods)
+
+    quality_low, quality_high = COHORT_QUALITY_RANGE
+    retention: List[List[float]] = []
+    for index in range(span):
+        # Cohorts acquired into a discount rush retain worse. Months 10-11 of the
+        # calendar year are the Q4 rush.
+        month_number = int(periods[index][5:7])
+        seasonal_penalty = 0.82 if month_number in (11, 12) else 1.0
+        quality = rnd.uniform(quality_low, quality_high) * seasonal_penalty
+
+        row: List[float] = []
+        observable = span - index
+        for k in range(span):
+            if k >= observable or sizes[index] <= 0:
+                row.append(None)
+                continue
+            base = RETENTION_CURVE[k] if k < len(RETENTION_CURVE) else RETENTION_CURVE[-1]
+            value = 1.0 if k == 0 else base * quality * rnd.uniform(0.92, 1.08)
+            row.append(round(min(value, 1.0), 4))
+        retention.append(row)
+
+    return {'periods': periods, 'sizes': sizes, 'retention': retention}
+
+
+def _build_value_params(account: Dict[str, object], monthly: List[Dict[str, float]]):
+    """Compact parameters the RFM scatter is generated from.
+
+    The scatter needs thousands of customers. Shipping thousands of rows per
+    brand to the static build would dominate the payload, so the points are
+    *generated* in both languages from these few numbers instead — the same
+    trick the map markers use.
+    """
+    orders = sum(m['orders'] for m in monthly)
+    revenue = sum(m['revenue'] for m in monthly)
+    customers = sum(m['new_customers'] for m in monthly)
+    if customers <= 0:
+        return None
     return {
-        'buckets': [{'bucket': b, 'members': c} for b, c in zip(LIFETIME_BUCKETS, counts)],
-        'mean_days': round(mean_days, 1),
-        'median_days': median_days,
-        'active_members': int(round(members)),
+        'sample': 1400,
+        'customers': int(round(customers)),
+        'mean_orders': round(orders / customers, 4),
+        'mean_spend': round(revenue / customers, 2),
+        'alpha': VALUE_PARETO_ALPHA,
+        'min_spend': VALUE_MIN_SPEND,
+        'repeat_decay': REPEAT_DECAY,
+        'window_days': WINDOW_DAYS,
+        'seed': string_seed('rfm:' + str(account['name'])) & 0xFFFFFFFF,
     }
 
 
-def _build_top_users(account: Dict[str, object], series: Dict[str, List[float]]):
-    """Leaderboard of the most engaged fans for the account."""
-    rnd = random.Random(f"{SEED}:users:{account['name']}")
+def _build_discount_mix(account: Dict[str, object], monthly: List[Dict[str, float]]):
+    """Order and revenue share by discount code."""
+    rnd = random.Random(SEED ^ string_seed('disc:' + str(account['name'])))
+    orders = sum(m['orders'] for m in monthly)
+    revenue = sum(m['revenue'] for m in monthly)
+
+    weights = {code: DISCOUNT_MIX[code] * rnd.uniform(0.85, 1.18) for code in DISCOUNT_CODES}
+    total = sum(weights.values())
     rows = []
-    for rank in range(25):
-        stem = rnd.choice(_HANDLE_STEMS)
-        handle = f"{stem}_{rnd.randint(100, 9999)}"
-        weight = math.exp(-rank * 0.14) * rnd.uniform(0.85, 1.15)
+    for code in DISCOUNT_CODES:
+        share = weights[code] / total
+        code_orders = orders * share
+        # A deeper code buys a bigger basket but gives back more than it gains.
+        basket_index = 1.0 + DISCOUNT_DEPTH[code] * 0.9
+        gross = revenue * share * basket_index
         rows.append({
-            'rank': rank + 1,
-            'handle': handle,
-            'city': rnd.choice(CITY_TABLE)[0],
-            'membership': rnd.choices(
-                ['Super User', 'Member', 'Signed-Up'], weights=[4, 5, 1]
-            )[0],
-            'sessions': int(round(430 * weight * rnd.uniform(0.8, 1.2))),
-            'minutes': int(round(9400 * weight * rnd.uniform(0.75, 1.25))),
-            'posts': int(round(180 * weight * rnd.uniform(0.5, 1.5))),
-            'bids': int(round(46 * weight * rnd.uniform(0.3, 1.8))),
-            'spend': round(880 * weight * rnd.uniform(0.6, 1.4), 2),
+            'code': code,
+            'orders': int(round(code_orders)),
+            'revenue': round(gross * (1 - DISCOUNT_DEPTH[code]), 2),
+            'discount': round(gross * DISCOUNT_DEPTH[code], 2),
+            'depth': DISCOUNT_DEPTH[code],
         })
-    rows.sort(key=lambda r: -r['minutes'])
-    for i, row in enumerate(rows):
-        row['rank'] = i + 1
     return rows
 
 
-# ==========================================================================
-# Aggregation
-# ==========================================================================
-def _aggregate_series(members: Sequence[Dict[str, List[float]]],
-                      dau_by_client: Sequence[List[float]]) -> Dict[str, List[float]]:
-    """Roll several accounts into one portfolio row.
+def _build_returns(account: Dict[str, object], monthly: List[Dict[str, float]],
+                   category_mix: List[Dict[str, object]]):
+    """Return rate by category and the reason mix behind it."""
+    rnd = random.Random(SEED ^ string_seed('ret:' + str(account['name'])))
+    revenue_by_category = {name: 0.0 for name in CATEGORY_NAMES}
+    for month in category_mix:
+        for name, value in month['revenue'].items():
+            revenue_by_category[name] += value
 
-    Counts sum; DAU/MAU get an overlap discount (a fan following two artists is
-    one person); session length is a DAU-weighted average, not a sum.
-    """
+    by_category = []
+    for name in CATEGORY_NAMES:
+        rate = BASE_RETURN_RATE * CATEGORY_RETURN_MULTIPLIER[name] * rnd.uniform(0.9, 1.1)
+        value = revenue_by_category[name]
+        by_category.append({
+            'category': name,
+            'rate': round(rate, 5),
+            'revenue': round(value, 2),
+            'returned_value': round(value * rate, 2),
+        })
+
+    total_returned = sum(row['returned_value'] for row in by_category) or 1.0
+    by_reason = []
+    weights = {name: RETURN_REASON_MIX[name] * rnd.uniform(0.88, 1.14)
+               for name in RETURN_REASON_NAMES}
+    weight_total = sum(weights.values())
+    for name in RETURN_REASON_NAMES:
+        share = weights[name] / weight_total
+        by_reason.append({
+            'reason': name,
+            'share': round(share, 5),
+            'value': round(total_returned * share, 2),
+        })
+
+    return {'by_category': by_category, 'by_reason': by_reason}
+
+
+# ==========================================================================
+# Portfolio rollups
+# ==========================================================================
+def _aggregate_series(members: Sequence[Dict[str, List[float]]]) -> Dict[str, List[float]]:
+    """Sum member series, discounting the metrics that double-count shoppers."""
+    if not members:
+        return {key: [0.0] * WINDOW_DAYS for key in SERIES_KEYS}
     out: Dict[str, List[float]] = {}
     for key in SERIES_KEYS:
-        if key in _AVERAGED:
-            values = []
-            for i in range(WINDOW_DAYS):
-                weight = sum(d[i] for d in dau_by_client)
-                if weight <= 0:
-                    values.append(0.0)
-                else:
-                    values.append(
-                        sum(m[key][i] * d[i] for m, d in zip(members, dau_by_client)) / weight
-                    )
-            out[key] = values
-        else:
-            factor = _DEDUPED.get(key, 1.0)
-            out[key] = [
-                sum(m[key][i] for m in members) * factor for i in range(WINDOW_DAYS)
-            ]
+        totals = [0.0] * WINDOW_DAYS
+        for series in members:
+            values = series[key]
+            for index in range(WINDOW_DAYS):
+                totals[index] += values[index]
+        factor = _DEDUPED.get(key, 1.0)
+        out[key] = [round(value * factor, 2) for value in totals]
     return out
 
 
-def _merge_locations(rows_by_client):
-    merged: Dict[str, Dict[str, object]] = {}
-    for rows in rows_by_client:
+def _merge_locations(rows_by_brand: Sequence[Sequence[Dict]]) -> List[Dict]:
+    """Combine per-brand market rows. Average order value re-blends by weight —
+    averaging the averages would over-weight the smallest markets."""
+    merged: Dict[str, Dict] = {}
+    for rows in rows_by_brand:
         for row in rows:
-            entry = merged.get(row['city'])
+            key = f'{row["city"]}|{row["region"]}'
+            entry = merged.get(key)
             if entry is None:
-                entry = {k: row[k] for k in
-                         ('city', 'region', 'country', 'lat', 'lon', 'seed', 'ramp_lag')}
-                entry['users'] = 0
-                entry['engagement'] = 0
-                entry['segments'] = {name: 0 for name in SEGMENT_NAMES}
-                merged[row['city']] = entry
-            entry['users'] += row['users']
-            entry['engagement'] += row['engagement']
-            for name in SEGMENT_NAMES:
-                entry['segments'][name] += row['segments'][name]
-    out = list(merged.values())
-    out.sort(key=lambda r: -r['users'])
+                entry = dict(row)
+                merged[key] = entry
+            else:
+                entry['orders'] += row['orders']
+                entry['revenue'] = round(entry['revenue'] + row['revenue'], 2)
+    out = []
+    for entry in merged.values():
+        entry['aov'] = round(entry['revenue'] / max(entry['orders'], 1), 2)
+        out.append(entry)
+    out.sort(key=lambda r: -r['orders'])
     return out
 
 
-def _merge_revenue_mix(mixes):
-    out = {}
-    for dimension in ('platform', 'revenue_type'):
-        totals: Dict[str, float] = {}
-        for mix in mixes:
-            for row in mix[dimension]:
-                totals[row['label']] = totals.get(row['label'], 0.0) + row['revenue']
-        out[dimension] = [
-            {'label': label, 'revenue': round(value, 2)} for label, value in totals.items()
-        ]
+def _merge_keyed(rows_by_brand, key_field: str, sum_fields: Sequence[str],
+                 carry: Sequence[str] = ()) -> List[Dict]:
+    """Sum a list-of-dicts dimension across brands, keyed on ``key_field``."""
+    merged: Dict[str, Dict] = {}
+    order: List[str] = []
+    for rows in rows_by_brand:
+        for row in rows:
+            name = row[key_field]
+            entry = merged.get(name)
+            if entry is None:
+                entry = {key_field: name}
+                entry.update({field: 0.0 for field in sum_fields})
+                for field in carry:
+                    entry[field] = row[field]
+                merged[name] = entry
+                order.append(name)
+            for field in sum_fields:
+                entry[field] += row[field]
+    return [merged[name] for name in order]
+
+
+def _merge_monthly(monthly_by_brand) -> List[Dict[str, float]]:
+    buckets: Dict[str, Dict[str, float]] = {}
+    order: List[str] = []
+    for monthly in monthly_by_brand:
+        for row in monthly:
+            period = row['period']
+            if period not in buckets:
+                buckets[period] = {key: 0.0 for key in SERIES_KEYS}
+                order.append(period)
+            for key in SERIES_KEYS:
+                buckets[period][key] += row[key]
+    order.sort()
+    total = sum(buckets[p]['orders'] for p in order) or 1.0
+    running = 0.0
+    out = []
+    for period in order:
+        running += buckets[period]['orders']
+        row = {'period': period, 'frac': round(running / total, 6)}
+        for key in SERIES_KEYS:
+            row[key] = round(buckets[period][key], 2)
+        out.append(row)
     return out
 
 
-def _merge_lifetime(lifetimes):
-    counts = {bucket: 0 for bucket in LIFETIME_BUCKETS}
-    for life in lifetimes:
-        for row in life['buckets']:
-            counts[row['bucket']] += row['members']
-    total = sum(counts.values()) or 1
-    midpoints = dict(zip(LIFETIME_BUCKETS, [15, 60, 135, 273, 547, 900]))
-    mean_days = sum(counts[b] * midpoints[b] for b in LIFETIME_BUCKETS) / total
-    running = 0
-    median_days = 900
-    for bucket in LIFETIME_BUCKETS:
-        running += counts[bucket]
-        if running >= total / 2:
-            median_days = midpoints[bucket]
-            break
+def _merge_monthly_dimension(rows_by_brand, field: str) -> List[Dict[str, object]]:
+    """Combine a per-month, per-category (or per-channel) breakdown."""
+    buckets: Dict[str, Dict[str, float]] = {}
+    order: List[str] = []
+    for rows in rows_by_brand:
+        for row in rows:
+            period = row['period']
+            if period not in buckets:
+                buckets[period] = {}
+                order.append(period)
+            for name, value in row[field].items():
+                buckets[period][name] = buckets[period].get(name, 0.0) + value
+    order.sort()
+    return [{'period': period,
+             field: {name: round(value, 2) for name, value in buckets[period].items()}}
+            for period in order]
+
+
+def _merge_cohorts(cohorts_by_brand) -> Dict[str, object]:
+    """Combine cohort triangles by weighting each brand's retention by its cohort
+    size — the portfolio repeat rate is a weighted mean, not a mean of means."""
+    periods: List[str] = []
+    for cohort in cohorts_by_brand:
+        for period in cohort['periods']:
+            if period not in periods:
+                periods.append(period)
+    periods.sort()
+    index_of = {period: i for i, period in enumerate(periods)}
+    span = len(periods)
+
+    sizes = [0.0] * span
+    weighted = [[0.0] * span for _ in range(span)]
+    weights = [[0.0] * span for _ in range(span)]
+
+    for cohort in cohorts_by_brand:
+        for local, period in enumerate(cohort['periods']):
+            row_index = index_of[period]
+            size = cohort['sizes'][local]
+            sizes[row_index] += size
+            for k, value in enumerate(cohort['retention'][local]):
+                if value is None or size <= 0:
+                    continue
+                weighted[row_index][k] += value * size
+                weights[row_index][k] += size
+
+    retention = [
+        [round(weighted[r][k] / weights[r][k], 4) if weights[r][k] > 0 else None
+         for k in range(span)]
+        for r in range(span)
+    ]
+    return {'periods': periods, 'sizes': [int(round(s)) for s in sizes],
+            'retention': retention}
+
+
+def _merge_value_params(params_by_brand) -> Dict[str, object]:
+    live = [p for p in params_by_brand if p]
+    if not live:
+        return None
+    customers = sum(p['customers'] for p in live)
     return {
-        'buckets': [{'bucket': b, 'members': counts[b]} for b in LIFETIME_BUCKETS],
-        'mean_days': round(mean_days, 1),
-        'median_days': median_days,
-        'active_members': total,
+        'sample': 1800,
+        'customers': customers,
+        'mean_orders': round(sum(p['mean_orders'] * p['customers'] for p in live) / customers, 4),
+        'mean_spend': round(sum(p['mean_spend'] * p['customers'] for p in live) / customers, 2),
+        'alpha': VALUE_PARETO_ALPHA,
+        'min_spend': VALUE_MIN_SPEND,
+        'repeat_decay': REPEAT_DECAY,
+        'window_days': WINDOW_DAYS,
+        'seed': live[0]['seed'] ^ len(live),
     }
+
+
+def _merge_returns(returns_by_brand) -> Dict[str, object]:
+    by_category = _merge_keyed(
+        [r['by_category'] for r in returns_by_brand], 'category',
+        ('revenue', 'returned_value'))
+    for row in by_category:
+        row['rate'] = round(row['returned_value'] / max(row['revenue'], 1e-9), 5)
+        row['revenue'] = round(row['revenue'], 2)
+        row['returned_value'] = round(row['returned_value'], 2)
+
+    by_reason = _merge_keyed([r['by_reason'] for r in returns_by_brand], 'reason', ('value',))
+    total = sum(row['value'] for row in by_reason) or 1.0
+    for row in by_reason:
+        row['share'] = round(row['value'] / total, 5)
+        row['value'] = round(row['value'], 2)
+    return {'by_category': by_category, 'by_reason': by_reason}
 
 
 # ==========================================================================
 # Public API
 # ==========================================================================
-@lru_cache(maxsize=1)
+_CACHE: Dict[str, object] = {}
+
+
 def get_dataset() -> Dict[str, object]:
-    """Build (once per process) the full demo dataset."""
+    """Build (once) and return the whole synthetic dataset."""
+    if _CACHE:
+        return _CACHE
+
     dates = _date_strings()
+    bundles: Dict[str, Dict[str, object]] = {}
 
-    accounts: Dict[str, Dict[str, object]] = {}
-    for account in CLIENT_ACCOUNTS:
-        rnd = random.Random(f"{SEED}:events:{account['name']}")
-        events = _build_events(rnd, int(account['launch_offset']))
-        raw = _build_account_series(account, events)
-        locations = _build_locations(account, raw)
-        accounts[account['name']] = {
-            'meta': {
-                'name': account['name'],
-                'tier': account['tier'],
-                'genre': account['genre'],
-                'launch_date': (START_DATE + timedelta(days=int(account['launch_offset']))).isoformat(),
-            },
-            'raw': raw,
-            'series': _round_series(raw),
-            'events': [{k: e[k] for k in ('kind', 'date', 'magnitude')} for e in events],
-            'locations': locations,
-            'monthly_ramp': _build_monthly_ramp(raw, dates),
-            'revenue_mix': _build_revenue_mix(account, raw),
-            'churn': _build_churn(raw, dates),
-            'lifetime': _build_lifetime(account, raw),
-            'top_users': _build_top_users(account, raw),
+    for account in BRAND_ACCOUNTS:
+        name = str(account['name'])
+        events = _build_events(random.Random(SEED ^ string_seed('cal:' + name)),
+                               int(account['launch_offset']))
+        series = _round_series(_build_brand_series(account, events))
+        monthly = _build_monthly(series, dates)
+        category_mix = _build_category_mix(account, monthly)
+        bundles[name] = {
+            'name': name,
+            'tier': account['tier'],
+            'category': account['category'],
+            'series': series,
+            'events': events,
+            'monthly': monthly,
+            'locations': _build_locations(account, series),
+            'category_mix': category_mix,
+            'channel_mix': _build_channel_mix(account, monthly),
+            'sources': _build_sources(account, monthly),
+            'cohorts': _build_cohorts(account, monthly),
+            'value_params': _build_value_params(account, monthly),
+            'discounts': _build_discount_mix(account, monthly),
+            'returns': _build_returns(account, monthly, category_mix),
         }
 
-    clients: Dict[str, Dict[str, object]] = {}
-
-    for name, bundle in accounts.items():
-        clients[name] = {
-            'meta': bundle['meta'],
-            'series': bundle['series'],
-            'events': bundle['events'],
-            'locations': bundle['locations'],
-            'monthly_ramp': bundle['monthly_ramp'],
-            'revenue_mix': bundle['revenue_mix'],
-            'churn': bundle['churn'],
-            'lifetime': bundle['lifetime'],
-            'top_users': bundle['top_users'],
+    for label, members in AGGREGATES:
+        parts = [bundles[name] for name in members if name in bundles]
+        monthly = _merge_monthly([p['monthly'] for p in parts])
+        bundles[label] = {
+            'name': label,
+            'tier': 'portfolio',
+            'category': None,
+            'series': _aggregate_series([p['series'] for p in parts]),
+            # A portfolio calendar is every brand's calendar, tagged by brand.
+            'events': sorted(
+                [dict(event, brand=p['name']) for p in parts for event in p['events']],
+                key=lambda e: e['day_index']),
+            'monthly': monthly,
+            'locations': _merge_locations([p['locations'] for p in parts]),
+            'category_mix': _merge_monthly_dimension(
+                [p['category_mix'] for p in parts], 'revenue'),
+            'channel_mix': _merge_monthly_dimension(
+                [p['channel_mix'] for p in parts], 'revenue'),
+            'sources': sorted(
+                _merge_keyed([p['sources'] for p in parts], 'source',
+                             ('new_customers', 'orders', 'revenue',
+                              'first_order_revenue', 'repeat_revenue', 'spend'),
+                             carry=('cac',)),
+                key=lambda r: -r['revenue']),
+            'cohorts': _merge_cohorts([p['cohorts'] for p in parts]),
+            'value_params': _merge_value_params([p['value_params'] for p in parts]),
+            'discounts': _merge_keyed([p['discounts'] for p in parts], 'code',
+                                      ('orders', 'revenue', 'discount'),
+                                      carry=('depth',)),
+            'returns': _merge_returns([p['returns'] for p in parts]),
         }
 
-    for agg_name, member_names in AGGREGATES:
-        members = [accounts[n]['raw'] for n in member_names]
-        dau_by_client = [accounts[n]['raw']['dau'] for n in member_names]
-        agg_raw = _aggregate_series(members, dau_by_client)
-        agg_locations = _merge_locations([accounts[n]['locations'] for n in member_names])
-        # Portfolio events keep their account label so an overlay stays readable.
-        agg_events = []
-        for n in member_names:
-            for event in accounts[n]['events']:
-                agg_events.append({**event, 'client': n})
-        agg_events.sort(key=lambda e: e['date'])
-
-        top_users = []
-        for n in member_names:
-            for row in accounts[n]['top_users']:
-                top_users.append({**row, 'client': n})
-        top_users.sort(key=lambda r: -r['minutes'])
-        top_users = top_users[:25]
-        for i, row in enumerate(top_users):
-            row['rank'] = i + 1
-
-        clients[agg_name] = {
-            'meta': {
-                'name': agg_name,
-                'tier': 'aggregate',
-                'genre': f"{len(member_names)} accounts",
-                'launch_date': min(accounts[n]['meta']['launch_date'] for n in member_names),
-            },
-            'series': _round_series(agg_raw),
-            'events': agg_events,
-            'locations': agg_locations,
-            'monthly_ramp': _build_monthly_ramp(agg_raw, dates),
-            'revenue_mix': _merge_revenue_mix([accounts[n]['revenue_mix'] for n in member_names]),
-            'churn': _build_churn(agg_raw, dates),
-            'lifetime': _merge_lifetime([accounts[n]['lifetime'] for n in member_names]),
-            'top_users': top_users,
-        }
-
-    return {
+    _CACHE.update({
         'dates': dates,
-        'start_date': START_DATE.isoformat(),
-        'end_date': END_DATE.isoformat(),
-        'clients': clients,
-    }
+        'brands': bundles,
+        'brand_names': BRAND_NAMES,
+        'start': dates[0],
+        'end': dates[-1],
+        'window_days': WINDOW_DAYS,
+    })
+    return _CACHE
 
 
 # --------------------------------------------------------------------------
-# Windowing / derived views used by both the Dash page and the static twin
+# Windowing and derivation
 # --------------------------------------------------------------------------
-def window_indices(dates: Sequence[str], days: int):
-    """Index bounds for a trailing-window preset. ``days <= 0`` means all time."""
-    if days <= 0:
+def window_indices(dates: Sequence[str], days: int) -> Tuple[int, int]:
+    """Inclusive-exclusive slice for a date preset. ``days <= 0`` means all."""
+    if days <= 0 or days >= len(dates):
         return 0, len(dates)
-    return max(len(dates) - days, 0), len(dates)
+    return len(dates) - days, len(dates)
 
 
-def correlation_matrix(series: Dict[str, List[float]], lo: int, hi: int):
-    """Pearson correlation across the correlation metric family for a window."""
-    columns = [key for key in CORRELATION_METRICS if key in series]
-    sliced = {key: series[key][lo:hi] for key in columns}
-    return columns, [
-        [round(_pearson(sliced[a], sliced[b]), 3) for b in columns] for a in columns
-    ]
+def series_for(bundle: Dict[str, object], key: str) -> List[float]:
+    """Any metric, primitive or derived, as a full-length daily series.
+
+    Derived metrics are ratios and are computed here rather than stored, so a
+    portfolio rollup divides summed numerators by summed denominators instead of
+    averaging per-brand rates.
+    """
+    series = bundle['series']
+    if key in series:
+        return series[key]
+    if key in DERIVED:
+        top, bottom = DERIVED[key]
+        return [(a / b) if b else 0.0 for a, b in zip(series[top], series[bottom])]
+    return [0.0] * len(next(iter(series.values())))
 
 
 def summarize(values: Sequence[float]) -> Dict[str, float]:
-    """Mean / min / max / total for a metric window — the quick-diagnostic row a
-    reviewer scans before opening the chart."""
-    window = list(values)
-    if not window:
-        return {'mean': 0.0, 'min': 0.0, 'max': 0.0, 'total': 0.0, 'last': 0.0}
+    live = [v for v in values if v is not None]
+    if not live:
+        return {'total': 0.0, 'mean': 0.0, 'peak': 0.0, 'last': 0.0}
     return {
-        'mean': sum(window) / len(window),
-        'min': min(window),
-        'max': max(window),
-        'total': sum(window),
-        'last': window[-1],
+        'total': sum(live),
+        'mean': sum(live) / len(live),
+        'peak': max(live),
+        'last': live[-1],
     }
 
 
 def delta_pct(values: Sequence[float]) -> float:
-    """Percent change between the first and second half of a window.
-
-    Used for the KPI trend chips. Comparing halves rather than endpoints keeps a
-    single noisy day from flipping the direction of a whole quarter.
-    """
-    window = [v for v in values]
-    if len(window) < 4:
+    """Percent change between the first and second half of a window."""
+    if len(values) < 4:
         return 0.0
-    mid = len(window) // 2
-    first = sum(window[:mid]) / mid
-    second = sum(window[mid:]) / (len(window) - mid)
+    half = len(values) // 2
+    first = sum(values[:half])
+    second = sum(values[half:])
     if first <= 0:
         return 0.0
     return (second - first) / first * 100.0
 
 
-def resample(dates: Sequence[str], values: Sequence[float], grain: str, how: str = 'sum'):
-    """Roll a daily series up to weekly / monthly / quarterly buckets.
+def ratio_delta_pct(numerator: Sequence[float], denominator: Sequence[float]) -> float:
+    """Percent change in a *ratio* between window halves.
 
-    ``how='last'`` is for stock metrics (memberships) where summing days would be
-    meaningless; flow metrics (revenue, downloads) sum.
+    Applying delta_pct to a rate series would average the daily rates, which
+    weights a quiet Tuesday the same as a sale day. Rates compare as summed
+    numerator over summed denominator, per half.
     """
-    if grain == 'Daily':
+    if len(numerator) < 4:
+        return 0.0
+    half = len(numerator) // 2
+    first_top, first_bottom = sum(numerator[:half]), sum(denominator[:half])
+    second_top, second_bottom = sum(numerator[half:]), sum(denominator[half:])
+    if first_bottom <= 0 or second_bottom <= 0 or first_top <= 0:
+        return 0.0
+    first = first_top / first_bottom
+    second = second_top / second_bottom
+    return (second - first) / first * 100.0
+
+
+def metric_delta_pct(bundle: Dict[str, object], key: str, lo: int, hi: int) -> float:
+    """Window-half change for any metric, ratio-aware."""
+    if key in DERIVED:
+        top, bottom = DERIVED[key]
+        return ratio_delta_pct(bundle['series'][top][lo:hi], bundle['series'][bottom][lo:hi])
+    return delta_pct(series_for(bundle, key)[lo:hi])
+
+
+def prior_period_delta(bundle: Dict[str, object], key: str, lo: int, hi: int) -> float:
+    """Percent change against the equal-length window immediately before this one.
+
+    The retail comparison, and the one the driver decomposition walks. Comparing
+    a window against its own two halves — the other obvious choice — reports a
+    seasonal business as shrinking every January, which is true of the halves and
+    false of the business.
+    """
+    span = hi - lo
+    prior_lo = max(lo - span, 0)
+    if prior_lo >= lo:
+        return 0.0
+
+    if key in DERIVED:
+        top, bottom = DERIVED[key]
+        prior_bottom = sum(bundle['series'][bottom][prior_lo:lo])
+        current_bottom = sum(bundle['series'][bottom][lo:hi])
+        if prior_bottom <= 0 or current_bottom <= 0:
+            return 0.0
+        prior = sum(bundle['series'][top][prior_lo:lo]) / prior_bottom
+        current = sum(bundle['series'][top][lo:hi]) / current_bottom
+    else:
+        values = series_for(bundle, key)
+        prior = sum(values[prior_lo:lo])
+        current = sum(values[lo:hi])
+    if prior <= 0:
+        return 0.0
+    return (current - prior) / prior * 100.0
+
+
+def resample(dates: Sequence[str], values: Sequence[float], grain: str,
+             how: str = 'sum') -> Tuple[List[str], List[float]]:
+    """Roll a daily series up to weekly, monthly or quarterly buckets."""
+    if grain == 'daily':
         return list(dates), list(values)
 
-    def key_for(iso: str) -> str:
-        year, month, day = int(iso[:4]), int(iso[5:7]), int(iso[8:10])
-        if grain == 'Weekly':
-            monday = date(year, month, day) - timedelta(days=date(year, month, day).weekday())
-            return monday.isoformat()
-        if grain == 'Monthly':
-            return f'{iso[:7]}-01'
-        if grain == 'Quarterly':
-            return f'{year}-{3 * ((month - 1) // 3) + 1:02d}-01'
-        return f'{year}-01-01'
-
-    buckets: List[str] = []
-    out: List[float] = []
+    buckets: Dict[str, List[float]] = {}
+    order: List[str] = []
     for iso, value in zip(dates, values):
-        key = key_for(iso)
-        if not buckets or buckets[-1] != key:
-            buckets.append(key)
-            out.append(0.0)
-        if how == 'last':
-            out[-1] = value
+        year, month, day = int(iso[:4]), int(iso[5:7]), int(iso[8:10])
+        if grain == 'weekly':
+            monday = date(year, month, day) - timedelta(days=date(year, month, day).weekday())
+            label = monday.isoformat()
+        elif grain == 'monthly':
+            label = iso[:7]
         else:
-            out[-1] += value
-    return buckets, out
+            label = f'{year}-Q{(month - 1) // 3 + 1}'
+        if label not in buckets:
+            buckets[label] = []
+            order.append(label)
+        buckets[label].append(value)
+
+    if how == 'mean':
+        return order, [sum(v) / len(v) for v in (buckets[k] for k in order)]
+    if how == 'last':
+        return order, [buckets[k][-1] for k in order]
+    return order, [sum(buckets[k]) for k in order]
+
+
+def resample_ratio(dates: Sequence[str], numerator: Sequence[float],
+                   denominator: Sequence[float], grain: str):
+    """Roll a *ratio* up correctly: sum both terms per bucket, then divide."""
+    labels, tops = resample(dates, numerator, grain, 'sum')
+    _, bottoms = resample(dates, denominator, grain, 'sum')
+    return labels, [(a / b) if b else 0.0 for a, b in zip(tops, bottoms)]
+
+
+def events_in_window(events, dates: Sequence[str], lo: int, hi: int):
+    window = set(dates[lo:hi])
+    return [event for event in events if event['date'] in window]
+
+
+# --------------------------------------------------------------------------
+# Analysis
+# --------------------------------------------------------------------------
+def _median(values: Sequence[float]) -> float:
+    live = sorted(values)
+    if not live:
+        return 0.0
+    mid = len(live) // 2
+    return live[mid] if len(live) % 2 else (live[mid - 1] + live[mid]) / 2.0
+
+
+def detect_anomalies(values: Sequence[float], dates: Sequence[str],
+                     threshold: float = 3.5, window: int = 28) -> List[Dict[str, object]]:
+    """Points that sit far from their own local level, in robust z units.
+
+    Median and MAD rather than mean and standard deviation, because the outliers
+    are exactly what is being looked for: one Black-Friday spike inflates a
+    standard deviation enough to hide every other anomaly in the window. The
+    baseline is local (a trailing median) so a brand's growth trend is not itself
+    flagged as a run of anomalies.
+    """
+    out: List[Dict[str, object]] = []
+    if len(values) < window + 4:
+        return out
+
+    for index in range(window, len(values)):
+        history = values[index - window:index]
+        centre = _median(history)
+        spread = _median([abs(v - centre) for v in history]) * 1.4826
+        if spread <= 1e-9:
+            continue
+        z = (values[index] - centre) / spread
+        if abs(z) < threshold:
+            continue
+        out.append({
+            'index': index,
+            'date': dates[index],
+            'value': values[index],
+            'baseline': centre,
+            'z': round(z, 2),
+            'direction': 'high' if z > 0 else 'low',
+            'pct': ((values[index] - centre) / centre * 100.0) if centre else 0.0,
+        })
+    return out
+
+
+def driver_decomposition(bundle: Dict[str, object], lo: int, hi: int) -> Dict[str, object]:
+    """Split the period-over-period revenue change into its funnel factors.
+
+    Revenue is exactly visits x conversion x AOV, so the change between two
+    periods can be walked one factor at a time: swap visits to the current
+    period holding the rest at prior levels, then conversion, then AOV. The three
+    steps sum to the total change with no residual — the order of substitution is
+    a choice, and this one (top of funnel first) is the one a trading review
+    reads naturally.
+    """
+    span = hi - lo
+    prior_lo = max(lo - span, 0)
+    if prior_lo >= lo:
+        return {'terms': [], 'prior': 0.0, 'current': 0.0, 'change': 0.0, 'span': span}
+
+    series = bundle['series']
+
+    def totals(start: int, stop: int):
+        visits = sum(series['visits'][start:stop])
+        orders = sum(series['orders'][start:stop])
+        revenue = sum(series['revenue'][start:stop])
+        return {
+            'visits': visits,
+            'conversion': (orders / visits) if visits else 0.0,
+            'aov': (revenue / orders) if orders else 0.0,
+            'revenue': revenue,
+        }
+
+    prior = totals(prior_lo, lo)
+    current = totals(lo, hi)
+
+    # Walk the factors in order, carrying the swapped ones forward.
+    state = dict(prior)
+    walked = state['visits'] * state['conversion'] * state['aov']
+    terms = []
+    for key, label in (('visits', 'Site Visits'),
+                       ('conversion', 'Conversion Rate'),
+                       ('aov', 'Average Order Value')):
+        state[key] = current[key]
+        after = state['visits'] * state['conversion'] * state['aov']
+        terms.append({
+            'key': key,
+            'label': label,
+            'contribution': after - walked,
+            'prior': prior[key],
+            'current': current[key],
+        })
+        walked = after
+
+    return {
+        'terms': terms,
+        'prior': prior['revenue'],
+        'current': current['revenue'],
+        'change': current['revenue'] - prior['revenue'],
+        'span': span,
+        'prior_window': (prior_lo, lo),
+    }
+
+
+def event_study(bundle: Dict[str, object], dates: Sequence[str], metric: str,
+                kinds: Sequence[str] = (), before: int = 7, after: int = 14):
+    """Average response around a promotion, normalised to the day before it runs.
+
+    Each occurrence contributes one aligned window; day 0 is the promotion. The
+    series is divided by its own day -1 level before averaging, so a sale on a
+    large brand and a sale on a small one contribute equally instead of the large
+    brand deciding the shape. The band is a standard error of the mean across
+    occurrences, which is what makes a two-occurrence "lift" visibly untrustworthy.
+    """
+    values = series_for(bundle, metric)
+    wanted = set(kinds) if kinds else None
+
+    aligned: Dict[str, List[List[float]]] = {}
+    for event in bundle['events']:
+        kind = event['kind']
+        if wanted and kind not in wanted:
+            continue
+        origin = event['day_index']
+        if origin - before < 0 or origin + after >= len(values):
+            continue
+        baseline = values[origin - 1]
+        if baseline <= 0:
+            continue
+        aligned.setdefault(kind, []).append(
+            [values[origin + offset] / baseline for offset in range(-before, after + 1)])
+
+    offsets = list(range(-before, after + 1))
+    out = []
+    for kind, windows in aligned.items():
+        if len(windows) < 2:
+            continue
+        mean, lower, upper = [], [], []
+        for position in range(len(offsets)):
+            column = [window[position] for window in windows]
+            avg = sum(column) / len(column)
+            variance = sum((v - avg) ** 2 for v in column) / max(len(column) - 1, 1)
+            stderr = math.sqrt(variance / len(column))
+            mean.append(avg)
+            lower.append(avg - 1.96 * stderr)
+            upper.append(avg + 1.96 * stderr)
+        out.append({
+            'kind': kind,
+            'occurrences': len(windows),
+            'offsets': offsets,
+            'mean': mean,
+            'lower': lower,
+            'upper': upper,
+            'peak': max(mean),
+            'color': EVENT_KINDS[kind]['color'],
+        })
+    out.sort(key=lambda r: -r['peak'])
+    return out
+
+
+def promotion_windows(bundle: Dict[str, object], lo: int, hi: int, span: int = 3):
+    """Split a window into promoted and baseline days.
+
+    A day counts as promoted if a promotion started within ``span`` days before
+    it. Comparing a promotion day against the *annual* mean would credit the
+    promotion with December; comparing against the non-promoted days of the same
+    window does not.
+    """
+    promoted = set()
+    for event in bundle['events']:
+        if event['kind'] not in ('Flash Sale', 'Seasonal Campaign', 'Loyalty Push'):
+            continue
+        for offset in range(span):
+            promoted.add(event['day_index'] + offset)
+
+    on = [index for index in range(lo, hi) if index in promoted]
+    off = [index for index in range(lo, hi) if index not in promoted]
+    return on, off
 
 
 def linear_fit(xs: Sequence[float], ys: Sequence[float]):
-    """Ordinary least squares slope/intercept plus r-squared for the regression
-    overlay on the relationship scatter."""
+    """Least-squares slope, intercept and r-squared."""
     n = len(xs)
     if n < 3:
         return 0.0, 0.0, 0.0
@@ -954,15 +1420,9 @@ def linear_fit(xs: Sequence[float], ys: Sequence[float]):
     var_x = sum((x - mean_x) ** 2 for x in xs)
     if var_x <= 0:
         return 0.0, mean_y, 0.0
-    slope = sum((x - mean_x) * (y - mean_y) for x, y in zip(xs, ys)) / var_x
+    cov = sum((x - mean_x) * (y - mean_y) for x, y in zip(xs, ys))
+    slope = cov / var_x
     intercept = mean_y - slope * mean_x
-    r = _pearson(xs, ys)
-    return slope, intercept, r * r
-
-
-def events_in_window(events, dates: Sequence[str], lo: int, hi: int):
-    """Events falling inside a rendered date window, for chart overlays."""
-    if lo >= hi or not dates:
-        return []
-    start, end = dates[lo], dates[hi - 1]
-    return [event for event in events if start <= event['date'] <= end]
+    var_y = sum((y - mean_y) ** 2 for y in ys)
+    r2 = (cov ** 2) / (var_x * var_y) if var_y > 0 else 0.0
+    return slope, intercept, r2
