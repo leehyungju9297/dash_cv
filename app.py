@@ -10,13 +10,13 @@ app = Dash(
     __name__,
     use_pages=True,
     suppress_callback_exceptions=True,
-    title='Hyungju Lee | Data Scientist, Analytics Engineer',
+    title='Hyungju Lee | Product Data Scientist, Analytics Engineer',
     update_title=None,
     meta_tags=[
         {'name': 'viewport', 'content': 'width=device-width, initial-scale=1'},
         {
             'name': 'description',
-            'content': 'Hyungju Lee portfolio spanning product analytics, analytics engineering, data systems, and applied ML / computer vision research.',
+            'content': 'Hyungju Lee — product data scientist and analytics engineer. KPI architecture, event instrumentation, and the pipelines and reporting behind a 138-client subscription portfolio, plus peer-reviewed LiDAR 3D detection research.',
         },
     ],
 )

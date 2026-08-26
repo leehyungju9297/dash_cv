@@ -10,21 +10,28 @@ from profile_data import EMAIL, GITHUB_URL, LINKEDIN_URL, LOCATION, PHONE_DISPLA
 dash.register_page(__name__, path='/', order=0, name='Home')
 
 
+# Deliberately not the three words already in the descriptor above them: these
+# say what the work actually consists of.
 HERO_SIGNAL_PILLS = [
-    'Product Analytics',
-    'Analytics Engineering',
-    'Data Systems',
-    'Applied ML',
-    'Computer Vision',
-    'Research Engineering',
+    'KPI Architecture',
+    'Event Instrumentation',
+    'Retention & Churn',
+    'Subscription Revenue',
+    'Quasi-Experimental Design',
+    'LiDAR 3D Detection',
 ]
 
 IMPACT_CHIPS = [
-    ('6+', 'Years across analytics and research', 'Spanning product measurement, data systems, and applied technical work'),
-    ('138', 'Client apps unified', 'Cross-client analytics systems for product, growth, and leadership reviews'),
-    ('6.65M+', 'Sessions analyzed', 'Production-grade behavior and KPI diagnostics across a multi-client ecosystem'),
-    ('5,000+', 'Benchmark annotations', 'LiDAR dataset work used for reproducible computer-vision evaluation'),
-    ('2', 'Peer-reviewed publications', 'Research outputs spanning LiDAR benchmarks, segmentation, and 3D perception'),
+    ('138', 'Client portfolio',
+     'Mobile and streaming apps reporting on one source-of-truth KPI layer'),
+    ('1.6B+', 'Session-minutes analysed',
+     'Six years of longitudinal engagement across a 774K-user base'),
+    ('34', 'Scheduled jobs in production',
+     'Executive and client reporting that refreshes without anyone touching it'),
+    ('5,000+', 'Labelled benchmark objects',
+     'LiDAR annotation and evaluation workflows behind two published datasets'),
+    ('ICPR · ISPRS', 'Peer-reviewed venues',
+     'Plus the Best Master\u2019s Thesis award, York University 2022'),
 ]
 
 CAPABILITY_LANES = [
@@ -86,10 +93,15 @@ RESUME_TRACKS = [
 
 
 def _impact_chip(value: str, label: str, detail: str):
+    # A chip whose value is a name, not a figure, needs a smaller type size or it
+    # sets the height of the whole row.
+    value_class = 'impact-value'
+    if not any(character.isdigit() for character in value):
+        value_class += ' impact-value--text'
     return html.Div(
         className='impact-chip',
         children=[
-            html.Div(value, className='impact-value'),
+            html.Div(value, className=value_class),
             html.Div(label, className='impact-label'),
             html.Div(detail, className='impact-detail'),
         ],
@@ -242,19 +254,22 @@ layout = html.Div(
                     className='hero-copy',
                     children=[
                         html.Div('HYUNGJU LEE', className='hero-name'),
-                        html.H1('Data Scientist, Analytics Engineer', className='hero-role'),
+                        html.H1('Product Data Scientist, Analytics Engineer',
+                                className='hero-role'),
                         html.Div(
-                            'Applied ML • Research Engineering • Decision Systems',
+                            'Product Analytics · Analytics Engineering · Applied ML Research',
                             className='hero-role-descriptor',
                         ),
                         html.P(
-                            'I build analytics systems, data products, and AI/ML research workflows.',
+                            'I own the measurement layer of a subscription product end to end.',
                             className='hero-title',
                         ),
                         html.P(
-                            'My work spans product measurement, automation, multi-tenant data pipelines, LiDAR and '
-                            'computer-vision research, and evaluation frameworks for both operating teams and '
-                            'research-oriented technical work.',
+                            'Source-of-truth KPI definitions, the event instrumentation and SQL/Python '
+                            'pipelines underneath them, and the reporting executives decide from \u2014 '
+                            'across a 138-client mobile and streaming portfolio with six years of '
+                            'longitudinal history. Statistics-trained, with peer-reviewed machine '
+                            'learning research in LiDAR 3D object detection.',
                             className='hero-subtitle',
                         ),
                         html.Div(

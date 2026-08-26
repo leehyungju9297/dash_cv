@@ -359,9 +359,10 @@ button:focus-visible,
 
 .hero-role {
   margin: 0;
-  font-size: clamp(2.15rem, 4.6vw, 3.55rem);
-  line-height: 1.02;
+  font-size: clamp(2.05rem, 4.1vw, 3.05rem);
+  line-height: 1.04;
   letter-spacing: -0.035em;
+  text-wrap: balance;
   color: #f2f8fc;
 }
 
@@ -549,11 +550,19 @@ button:focus-visible,
   font-family: 'Sora', sans-serif;
   font-size: 1.5rem;
   font-weight: 800;
-  line-height: 1.1;
+  line-height: 1.15;
   letter-spacing: -0.02em;
   /* Tabular figures so a column of stat chips lines up on the decimal. */
   font-variant-numeric: tabular-nums;
   color: var(--accent-deep);
+  /* One chip carries venue names rather than a figure; let it shrink to fit
+     rather than forcing every chip down to its size. */
+  overflow-wrap: anywhere;
+}
+
+.impact-value--text {
+  font-size: 1.12rem;
+  letter-spacing: -0.005em;
 }
 
 .impact-label {
@@ -1456,7 +1465,7 @@ button:focus-visible,
   }
 
   .hero-copy {
-    padding: 1.55rem;
+    padding: 1.55rem 1.15rem;
   }
 
   .header-inner {
