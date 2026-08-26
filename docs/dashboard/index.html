@@ -245,15 +245,24 @@
 
                 <div class="fr-card">
                   <div class="fr-card-header">
-                    <h3 class="fr-card-title">How the Audience Spread</h3>
-                    <p class="fr-card-subtitle">Cumulative arrival by market, replayed month by month.</p>
+                    <h3 class="fr-card-title">Audience Growth by Month</h3>
+                    <p class="fr-card-subtitle">
+                      Where the audience had reached by the end of each month. Bubble size is the
+                      market&rsquo;s audience at that point, on a scale pinned to the final month, so
+                      growth reads as growth.
+                    </p>
                   </div>
+                  <div class="fr-playback">
+                    <button class="fr-play-button" id="fr-growth-play"
+                            aria-label="Play the month-by-month replay">&#9654;&nbsp; Play</button>
+                    <div class="fr-scrub fr-scrub--native">
+                      <input id="fr-growth-month" type="range" min="0" max="0" step="1" value="0"
+                             aria-label="Month" />
+                      <div class="fr-scrub-marks" id="fr-growth-marks"></div>
+                    </div>
+                  </div>
+                  <div class="fr-readout" id="fr-growth-readout"></div>
                   <div class="fr-chart" id="fr-growth"></div>
-                  <p class="fr-note">
-                    Each frame adds one month of cumulative arrivals. Bubble sizes are pinned to
-                    the final month, so growth reads as growth rather than every frame rescaling
-                    to its own peak.
-                  </p>
                 </div>
 
                 <div class="fr-card">

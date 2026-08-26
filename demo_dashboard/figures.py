@@ -776,88 +776,76 @@ def _individual_map(locations, markets, segments, client) -> go.Figure:
     return fig
 
 
-def growth_map(dataset, client: str, level: str = 'city') -> go.Figure:
-    """Cumulative audience arrival, one animation frame per month.
+def growth_timeline(dataset, client: str, level: str = 'city'):
+    """The month labels the growth map can be scrubbed to."""
+    bundle = dataset['clients'][client]
+    markets = aggregate_by_level(bundle['locations'], level)
+    return [frame['period'] for frame in growth_frames(bundle['monthly_ramp'], markets)]
 
-    Bubble sizes are pinned to the final frame's maximum so a market growing is
-    visible as growth, rather than every frame rescaling to its own peak and the
-    map appearing static.
+
+def growth_map(dataset, client: str, level: str = 'city', month_index: int = -1) -> go.Figure:
+    """The audience as it stood at the end of one month.
+
+    One month, not an animation. Plotly's own play button and slider live inside
+    the plotting area, where they read as map controls rather than as a timeline;
+    the page owns the transport instead and asks for a frame by index. Bubble
+    sizes are pinned to the final month's maximum, so a market growing looks like
+    growth rather than every frame rescaling to its own peak.
     """
     bundle = dataset['clients'][client]
     markets = aggregate_by_level(bundle['locations'], level)
     frames_data = growth_frames(bundle['monthly_ramp'], markets)
     if len(frames_data) < 2:
-        return empty_figure('Not enough history to animate.', CHART_HEIGHTS['growth'])
+        return empty_figure('Not enough history to replay.', CHART_HEIGHTS['growth'])
 
+    index = len(frames_data) - 1 if month_index is None else month_index
+    index = max(0, min(int(index), len(frames_data) - 1))
+    rows = frames_data[index]['markets']
     size_ref = max((m['users'] for m in frames_data[-1]['markets']), default=1)
 
-    def trace_for(frame):
-        rows = frame['markets']
-        return go.Scattermap(
-            lat=[r['lat'] for r in rows],
-            lon=[r['lon'] for r in rows],
-            mode='markers',
-            marker={
-                'size': _bubble_sizes([r['users'] for r in rows], ref_max=size_ref),
-                'color': [r['member_share'] * 100 for r in rows],
-                'colorscale': MEMBER_SHARE_SCALE,
-                'cmin': 0, 'cmax': 24, 'opacity': 0.8,
-            },
-            text=[r['label'] for r in rows],
-            customdata=[r['users'] for r in rows],
-            hovertemplate='<b>%{text}</b><br>%{customdata:,.0f} users<extra></extra>',
-            name='',
-        )
-
-    fig = go.Figure(
-        data=[trace_for(frames_data[0])],
-        frames=[go.Frame(data=[trace_for(f)], name=f['period']) for f in frames_data],
-    )
-
-    play_args = {'frame': {'duration': 320, 'redraw': True},
-                 'transition': {'duration': 0}, 'mode': 'immediate'}
+    fig = go.Figure(go.Scattermap(
+        lat=[r['lat'] for r in rows],
+        lon=[r['lon'] for r in rows],
+        mode='markers',
+        marker={
+            'size': _bubble_sizes([r['users'] for r in rows], ref_max=size_ref),
+            'color': [r['member_share'] * 100 for r in rows],
+            'colorscale': MEMBER_SHARE_SCALE,
+            'cmin': 0, 'cmax': 24, 'opacity': 0.8,
+        },
+        text=[r['label'] for r in rows],
+        customdata=[r['users'] for r in rows],
+        hovertemplate='<b>%{text}</b><br>%{customdata:,.0f} users<extra></extra>',
+        name='',
+    ))
     fig.update_layout(**_map_layout(
         markets, height=CHART_HEIGHTS['growth'],
-        # Not keyed on the client: an animation must reset its camera when the
-        # account changes, and there is no filter here to preserve zoom across.
-        uirevision='growth',
+        # Keyed on the account so scrubbing through months does not reset the
+        # viewer's pan and zoom, but switching client does.
+        uirevision=f'growth-{client}-{level}',
         showlegend=False,
-        updatemenus=[{
-            'type': 'buttons', 'direction': 'left',
-            'x': 0.01, 'y': 0.02, 'xanchor': 'left', 'yanchor': 'bottom',
-            'pad': {'l': 6, 'r': 6, 't': 6, 'b': 6},
-            'bgcolor': 'rgba(11,15,23,0.78)',
-            'bordercolor': SURFACE['border'],
-            'font': {'color': SURFACE['text'], 'size': 12},
-            'showactive': False,
-            'buttons': [
-                {'label': '▶  Play', 'method': 'animate', 'args': [None, play_args]},
-                {'label': '❚❚  Pause', 'method': 'animate',
-                 'args': [[None], {'frame': {'duration': 0, 'redraw': False},
-                                   'mode': 'immediate'}]},
-            ],
-        }],
-        sliders=[{
-            'active': 0,
-            'x': 0.16, 'y': 0.02, 'len': 0.66,
-            'xanchor': 'left', 'yanchor': 'bottom',
-            'pad': {'t': 6, 'b': 6},
-            'bgcolor': 'rgba(148,163,184,0.35)',
-            'bordercolor': 'rgba(0,0,0,0)',
-            'activebgcolor': ACCENTS['blue'],
-            'tickcolor': 'rgba(0,0,0,0)',
-            'font': {'color': SURFACE['text_secondary'], 'size': 10},
-            'currentvalue': {'prefix': 'Month: ', 'xanchor': 'left',
-                             'font': {'color': SURFACE['text'], 'size': 13}},
-            'steps': [{
-                'label': f['period'],
-                'method': 'animate',
-                'args': [[f['period']], {'frame': {'duration': 0, 'redraw': True},
-                                         'mode': 'immediate'}],
-            } for f in frames_data],
-        }],
     ))
     return fig
+
+
+def growth_totals(dataset, client: str, level: str = 'city', month_index: int = -1):
+    """Headline numbers for the month being shown."""
+    bundle = dataset['clients'][client]
+    markets = aggregate_by_level(bundle['locations'], level)
+    frames_data = growth_frames(bundle['monthly_ramp'], markets)
+    if not frames_data:
+        return {'period': '—', 'users': 0, 'markets': 0, 'share': 0.0}
+    index = len(frames_data) - 1 if month_index is None else month_index
+    index = max(0, min(int(index), len(frames_data) - 1))
+    frame = frames_data[index]
+    users = sum(m['users'] for m in frame['markets'])
+    final = sum(m['users'] for m in frames_data[-1]['markets']) or 1
+    return {
+        'period': frame['period'],
+        'users': users,
+        'markets': len(frame['markets']),
+        'share': users / final * 100.0,
+    }
 
 
 def heatmap_summary(dataset, client: str, level: str = 'city') -> Dict[str, object]:
@@ -917,7 +905,8 @@ def location_detail(dataset, client: str, level: str, name: str):
 
 __all__ = [
     'CHART_HEIGHTS', 'base_layout', 'group', 'round_half_up',
-    'growth_map', 'heatmap_map', 'heatmap_summary', 'location_detail',
+    'growth_map', 'growth_timeline', 'growth_totals', 'heatmap_map',
+    'heatmap_summary', 'location_detail',
     'top_locations', 'churn_lines', 'correlation_heatmap', 'empty_figure',
     'engagement_trend', 'fmt_compact', 'fmt_value', 'lifetime_bars',
     'location_bar', 'relationship_scatter', 'revenue_mix_donut', 'revenue_trend',

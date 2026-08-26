@@ -508,6 +508,160 @@
   cursor: not-allowed;
 }
 
+/* --- Playback transport --------------------------------------------------
+   Plotly can draw its own play button and slider, but they sit inside the
+   plotting area where they read as map controls. The transport belongs with the
+   card's other controls, above the chart. */
+.fr-playback {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 0.7rem;
+}
+
+.fr-play-button {
+  flex: none;
+  min-width: 6.6rem;
+  padding: 0.42rem 0.85rem;
+  border: 1px solid var(--fr-border);
+  border-radius: var(--fr-radius-sm);
+  background: rgba(148, 163, 184, 0.08);
+  color: var(--fr-text);
+  font-family: 'Public Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 200ms var(--fr-ease), background 200ms var(--fr-ease);
+}
+
+.fr-play-button:hover {
+  border-color: rgba(107, 175, 232, 0.45);
+  background: rgba(107, 175, 232, 0.12);
+}
+
+.fr-play-button:focus-visible {
+  outline: 2px solid var(--fr-accent);
+  outline-offset: 2px;
+}
+
+.fr-scrub {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Dash's slider is rc-slider underneath. */
+.fr-page .fr-scrub .rc-slider-rail {
+  background: rgba(148, 163, 184, 0.22);
+  height: 4px;
+}
+
+.fr-page .fr-scrub .rc-slider-track {
+  background: var(--fr-accent);
+  height: 4px;
+}
+
+.fr-page .fr-scrub .rc-slider-handle {
+  width: 14px;
+  height: 14px;
+  margin-top: -5px;
+  border: 2px solid var(--fr-accent);
+  background: #0b0f17;
+  opacity: 1;
+  box-shadow: none;
+}
+
+.fr-page .fr-scrub .rc-slider-handle:hover,
+.fr-page .fr-scrub .rc-slider-handle:focus,
+.fr-page .fr-scrub .rc-slider-handle-dragging {
+  border-color: #9ecbf0;
+  box-shadow: 0 0 0 4px rgba(107, 175, 232, 0.2);
+}
+
+.fr-page .fr-scrub .rc-slider-dot {
+  display: none;
+}
+
+.fr-page .fr-scrub .rc-slider-mark-text {
+  color: var(--fr-text-muted);
+  font-size: 0.66rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* rc-slider centres every label on its tick, so the two end labels hang off
+   the rail — the last one gets squeezed against the card and breaks mid-word.
+   Anchor the ends to their own edge instead; the transform is inline, so it
+   takes a !important to reach. */
+.fr-page .fr-scrub .rc-slider-mark-text:first-child {
+  transform: translateX(0) !important;
+}
+
+.fr-page .fr-scrub .rc-slider-mark-text:last-child {
+  transform: translateX(-100%) !important;
+}
+
+.fr-page .fr-scrub .rc-slider-mark-text-active {
+  color: var(--fr-text-secondary);
+}
+
+/* The static twin uses a native range input; Dash uses rc-slider. Same shape,
+   two implementations, so both are styled here. */
+.fr-scrub--native {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.fr-scrub--native input[type='range'] {
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.22);
+  cursor: pointer;
+}
+
+.fr-scrub--native input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid var(--fr-accent);
+  background: #0b0f17;
+}
+
+.fr-scrub--native input[type='range']::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid var(--fr-accent);
+  background: #0b0f17;
+}
+
+.fr-scrub--native input[type='range']:focus-visible {
+  outline: 2px solid var(--fr-accent);
+  outline-offset: 3px;
+}
+
+.fr-scrub-marks {
+  display: flex;
+  justify-content: space-between;
+  color: var(--fr-text-muted);
+  font-size: 0.66rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .fr-playback {
+    flex-wrap: wrap;
+  }
+
+  .fr-play-button {
+    width: 100%;
+  }
+}
+
 /* --- Cards ---------------------------------------------------------------- */
 .fr-card {
   padding: 1.05rem 1.15rem 1.15rem;

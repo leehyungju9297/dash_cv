@@ -12,7 +12,7 @@ keeps its callback wiring instead of being torn down when a section is hidden.
 """
 
 import dash
-from dash import Input, Output, callback, dash_table, dcc, html
+from dash import Input, Output, State, callback, dash_table, dcc, html
 
 from demo_dashboard.config import (
     AXIS_METRICS,
@@ -59,6 +59,14 @@ SECTIONS = [
 ]
 
 GRAPH_CONFIG = {'displayModeBar': False, 'showTips': False, 'responsive': True}
+
+# Every account shares the same 24-month window, so the transport can be built
+# once rather than rebuilt whenever the client changes.
+GROWTH_MONTHS = fig_builders.growth_timeline(DATASET, DEFAULT_CLIENT)
+GROWTH_MARKS = {
+    index: {'label': month if index % 6 == 0 or index == len(GROWTH_MONTHS) - 1 else ''}
+    for index, month in enumerate(GROWTH_MONTHS)
+}
 
 METRIC_OPTIONS = [{'label': metric_label(key), 'value': key} for key in AXIS_METRICS]
 
@@ -419,15 +427,38 @@ panel_audience = html.Div(
                       'drill into it.'),
         ),
         _card(
-            _graph('fr-growth', 'growth'),
-            html.P(
-                'Each frame adds one month of cumulative arrivals. Bubble sizes are '
-                'pinned to the final month, so growth reads as growth rather than every '
-                'frame rescaling to its own peak.',
-                className='fr-note',
+            html.Div(
+                className='fr-playback',
+                children=[
+                    html.Button(
+                        '\u25b6  Play',
+                        id='fr-growth-play',
+                        className='fr-play-button',
+                        n_clicks=0,
+                        **{'aria-label': 'Play the month-by-month replay'},
+                    ),
+                    dcc.Slider(
+                        id='fr-growth-month',
+                        min=0,
+                        max=len(GROWTH_MONTHS) - 1,
+                        step=1,
+                        value=len(GROWTH_MONTHS) - 1,
+                        marks=GROWTH_MARKS,
+                        included=True,
+                        updatemode='drag',
+                        className='fr-scrub',
+                    ),
+                ],
             ),
-            title='How the Audience Spread',
-            subtitle='Cumulative arrival by market, replayed month by month.',
+            html.Div(id='fr-growth-readout', className='fr-readout'),
+            _graph('fr-growth', 'growth'),
+            # Drives playback. Disabled until the play button is pressed, so an
+            # idle page is not re-rendering a map every 420ms.
+            dcc.Interval(id='fr-growth-timer', interval=420, disabled=True),
+            title='Audience Growth by Month',
+            subtitle=('Where the audience had reached by the end of each month. Bubble '
+                      'size is the market\u2019s audience at that point, on a scale '
+                      'pinned to the final month, so growth reads as growth.'),
         ),
         _card(
             html.Div(id='fr-top-markets'),
@@ -962,12 +993,44 @@ def update_map_detail(click_data, client, level, display):
 
 
 @callback(
+    Output('fr-growth-timer', 'disabled'),
+    Output('fr-growth-play', 'children'),
+    Input('fr-growth-play', 'n_clicks'),
+    prevent_initial_call=True,
+)
+def toggle_growth_playback(clicks):
+    playing = bool(clicks) and clicks % 2 == 1
+    return not playing, ('\u275a\u275a  Pause' if playing else '\u25b6  Play')
+
+
+@callback(
+    Output('fr-growth-month', 'value'),
+    Input('fr-growth-timer', 'n_intervals'),
+    State('fr-growth-month', 'value'),
+    prevent_initial_call=True,
+)
+def advance_growth_month(_ticks, month):
+    """Step the timeline, wrapping so the replay loops rather than stopping on
+    the last month with the button still reading Pause."""
+    return 0 if month is None or month >= len(GROWTH_MONTHS) - 1 else month + 1
+
+
+@callback(
     Output('fr-growth', 'figure'),
+    Output('fr-growth-readout', 'children'),
     Input('fr-client', 'value'),
     Input('fr-loc-level', 'value'),
+    Input('fr-growth-month', 'value'),
 )
-def update_growth(client, level):
-    return fig_builders.growth_map(DATASET, client, level)
+def update_growth(client, level, month):
+    figure = fig_builders.growth_map(DATASET, client, level, month)
+    totals = fig_builders.growth_totals(DATASET, client, level, month)
+    readout = (
+        f"{totals['period']} \u00b7 {fmt_value(totals['users'])} users across "
+        f"{group(totals['markets'])} markets \u2014 "
+        f"{fmt_value(totals['share'], 'percent')} of the final audience."
+    )
+    return figure, readout
 
 
 @callback(

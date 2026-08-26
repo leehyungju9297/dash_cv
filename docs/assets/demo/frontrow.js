@@ -37,6 +37,7 @@
     display: 'market',
     mapMetric: 'users',
     mapSelection: null,
+    growthMonth: 0,
     segments: [],
     locLevel: 'city',
     locSegment: 'All',
@@ -511,19 +512,6 @@
     return Plotly.react(el, traces, layout, PLOT_CONFIG);
   }
 
-  /* Frames only attach through newPlot + addFrames; Plotly.react leaves stale
-     frames behind, which is why the animation is drawn from scratch. */
-  function drawAnimated(id, traces, layout, frames) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    var loading = el.querySelector('.fr-loading');
-    if (loading) loading.remove();
-    Plotly.purge(el);
-    Plotly.newPlot(el, traces, layout, PLOT_CONFIG).then(function () {
-      Plotly.addFrames(el, frames);
-    });
-  }
-
   function drawEmpty(id, message, height) {
     return draw(id, [], baseLayout(height || 300, {
       hovermode: false,
@@ -808,75 +796,79 @@
     }));
   }
 
+  /* The audience as it stood at the end of one month — one frame, not an
+     animation. plotly.js can drive its own play button and slider, but they sit
+     inside the plotting area where they read as map controls; the page owns the
+     transport and asks for a frame by index instead.
+     Mirrors figures.growth_map / growth_totals. */
   function renderGrowth() {
     var frames = growthFrames(state.client, state.locLevel);
     var markets = aggregateByLevel(state.client, state.locLevel);
-    if (frames.length < 2) return drawEmpty('fr-growth', 'Not enough history to animate.', CFG.chartHeights.growth);
+    var scrub = document.getElementById('fr-growth-month');
 
-    // Pinned to the final frame so a market growing is visible as growth, rather
-    // than every frame rescaling to its own peak and the map appearing static.
+    if (frames.length < 2) {
+      return drawEmpty('fr-growth', 'Not enough history to replay.', CFG.chartHeights.growth);
+    }
+
+    if (+scrub.max !== frames.length - 1) {
+      scrub.max = String(frames.length - 1);
+      scrub.value = String(frames.length - 1);
+      state.growthMonth = frames.length - 1;
+      document.getElementById('fr-growth-marks').innerHTML = frames
+        .filter(function (_, i) { return i % 6 === 0 || i === frames.length - 1; })
+        .map(function (f) { return '<span>' + f.period + '</span>'; })
+        .join('');
+    }
+
+    var index = Math.max(0, Math.min(state.growthMonth, frames.length - 1));
+    var rows = frames[index].markets;
+    // Pinned to the final month so a market growing looks like growth, rather
+    // than every frame rescaling to its own peak.
     var sizeRef = frames[frames.length - 1].markets.reduce(
       function (a, m) { return Math.max(a, m.users); }, 1);
 
-    function traceFor(frame) {
-      var rows = frame.markets;
-      return {
-        type: 'scattermap', mode: 'markers',
-        lat: rows.map(function (r) { return r.lat; }),
-        lon: rows.map(function (r) { return r.lon; }),
-        marker: {
-          size: bubbleSizes(rows.map(function (r) { return r.users; }), sizeRef),
-          color: rows.map(function (r) { return r.member_share * 100; }),
-          colorscale: CFG.heatmap.memberShareScale,
-          cmin: 0, cmax: 24, opacity: 0.8
-        },
-        text: rows.map(function (r) { return r.label; }),
-        customdata: rows.map(function (r) { return r.users; }),
-        hovertemplate: '<b>%{text}</b><br>%{customdata:,.0f} users<extra></extra>',
-        name: ''
-      };
+    draw('fr-growth', [{
+      type: 'scattermap', mode: 'markers',
+      lat: rows.map(function (r) { return r.lat; }),
+      lon: rows.map(function (r) { return r.lon; }),
+      marker: {
+        size: bubbleSizes(rows.map(function (r) { return r.users; }), sizeRef),
+        color: rows.map(function (r) { return r.member_share * 100; }),
+        colorscale: CFG.heatmap.memberShareScale,
+        cmin: 0, cmax: 24, opacity: 0.8
+      },
+      text: rows.map(function (r) { return r.label; }),
+      customdata: rows.map(function (r) { return r.users; }),
+      hovertemplate: '<b>%{text}</b><br>%{customdata:,.0f} users<extra></extra>',
+      name: ''
+    }], mapLayout(markets, CFG.chartHeights.growth,
+                  'growth-' + state.client + '-' + state.locLevel, { showlegend: false }));
+
+    var users = rows.reduce(function (a, m) { return a + m.users; }, 0);
+    var final = frames[frames.length - 1].markets
+      .reduce(function (a, m) { return a + m.users; }, 0) || 1;
+    document.getElementById('fr-growth-readout').textContent =
+      frames[index].period + ' · ' + fmtValue(users) + ' users across ' +
+      group(rows.length) + ' markets — ' + fmtValue(users / final * 100, 'percent') +
+      ' of the final audience.';
+  }
+
+  var _growthTimer = null;
+
+  function setGrowthPlaying(playing) {
+    var button = document.getElementById('fr-growth-play');
+    if (_growthTimer) { window.clearInterval(_growthTimer); _growthTimer = null; }
+    if (playing) {
+      _growthTimer = window.setInterval(function () {
+        var scrub = document.getElementById('fr-growth-month');
+        // Wrap rather than stop, so the replay never ends with the button still
+        // reading Pause.
+        state.growthMonth = state.growthMonth >= +scrub.max ? 0 : state.growthMonth + 1;
+        scrub.value = String(state.growthMonth);
+        renderGrowth();
+      }, 420);
     }
-
-    var playArgs = { frame: { duration: 320, redraw: true },
-                     transition: { duration: 0 }, mode: 'immediate' };
-
-    var layout = mapLayout(markets, CFG.chartHeights.growth, 'growth', {
-      showlegend: false,
-      updatemenus: [{
-        type: 'buttons', direction: 'left',
-        x: 0.01, y: 0.02, xanchor: 'left', yanchor: 'bottom',
-        pad: { l: 6, r: 6, t: 6, b: 6 },
-        bgcolor: 'rgba(11,15,23,0.78)',
-        bordercolor: CFG.surface.border,
-        font: { color: CFG.surface.text, size: 12 },
-        showactive: false,
-        buttons: [
-          { label: '▶  Play', method: 'animate', args: [null, playArgs] },
-          { label: '❚❚  Pause', method: 'animate',
-            args: [[null], { frame: { duration: 0, redraw: false }, mode: 'immediate' }] }
-        ]
-      }],
-      sliders: [{
-        active: 0,
-        x: 0.16, y: 0.02, len: 0.66, xanchor: 'left', yanchor: 'bottom',
-        pad: { t: 6, b: 6 },
-        bgcolor: 'rgba(148,163,184,0.35)',
-        bordercolor: 'rgba(0,0,0,0)',
-        activebgcolor: CFG.accents.blue,
-        tickcolor: 'rgba(0,0,0,0)',
-        font: { color: CFG.surface.text_secondary, size: 10 },
-        currentvalue: { prefix: 'Month: ', xanchor: 'left',
-                        font: { color: CFG.surface.text, size: 13 } },
-        steps: frames.map(function (f) {
-          return { label: f.period, method: 'animate',
-                   args: [[f.period], { frame: { duration: 0, redraw: true },
-                                        mode: 'immediate' }] };
-        })
-      }]
-    });
-
-    drawAnimated('fr-growth', [traceFor(frames[0])], layout,
-      frames.map(function (f) { return { name: f.period, data: [traceFor(f)] }; }));
+    button.innerHTML = playing ? '❚❚&nbsp; Pause' : '▶&nbsp; Play';
   }
 
   var _mapClickBound = false;
@@ -1484,6 +1476,16 @@
       // A market name is only meaningful at the level it was picked from.
       state.mapSelection = null;
       invalidate(['audience']);
+    });
+
+    document.getElementById('fr-growth-play').addEventListener('click', function () {
+      setGrowthPlaying(!_growthTimer);
+    });
+    document.getElementById('fr-growth-month').addEventListener('input', function (e) {
+      // Scrubbing takes over from playback rather than fighting it.
+      setGrowthPlaying(false);
+      state.growthMonth = parseInt(e.target.value, 10);
+      renderGrowth();
     });
     fillSelect('fr-loc-segment',
       [{ value: 'All', label: 'All users' }].concat(SEGMENT_NAMES.map(function (n) {
