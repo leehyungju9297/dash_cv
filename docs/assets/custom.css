@@ -175,7 +175,6 @@ a {
    heading. */
 p,
 li,
-.hero-subtitle,
 .section-hero-subtitle,
 .section-note,
 .research-figure-caption,
@@ -191,7 +190,6 @@ h2,
 h3,
 h4,
 h5,
-.hero-title,
 .work-card-title {
   text-wrap: balance;
 }
@@ -492,9 +490,6 @@ button:focus-visible,
   margin-top: var(--section-gap);
 }
 
-.content-stack > .affiliations {
-  margin-top: var(--space-5);
-}
 
 /* --- Section headings -----------------------------------------------------
    The rule above a section heading is what separates one section from the
@@ -612,60 +607,142 @@ button:focus-visible,
 
 /* ==========================================================================
    Hero
+
+   One proposition and the evidence for it. The children are placed straight
+   onto the hero's grid rather than wrapped in a copy column: that is what lets
+   the portrait sit beside the supporting line on desktop and drop into the flow
+   between that line and the proof row on mobile, from one copy of the markup.
    ========================================================================== */
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 236px;
+  grid-template-columns: minmax(0, 1fr) 132px;
   column-gap: var(--space-6);
   align-items: start;
 }
 
-.hero-copy {
+.hero > * {
+  grid-column: 1;
   min-width: 0;
 }
 
-.hero-name {
+.hero-eyebrow {
+  grid-column: 1 / -1;
   font-size: var(--t-label);
   font-weight: 600;
   color: var(--text-muted);
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  margin-bottom: var(--space-2);
 }
 
-.hero-role {
+/* The one dominant idea on the screen. */
+.hero-headline {
+  grid-column: 1 / -1;
+  margin-top: var(--space-2);
+  max-width: 620px;
   font-size: var(--t-display);
   font-weight: 650;
   line-height: 1.08;
   letter-spacing: -0.03em;
-  max-width: 760px;
   color: var(--text-primary);
 }
 
-.hero-role-descriptor {
-  margin-top: var(--space-2);
-  color: var(--text-secondary);
-  font-size: var(--t-small);
-  font-weight: 500;
-}
-
-/* The lead sentence — one size up from the paragraph beneath it, and the only
-   thing between the heading and the body copy. */
-.hero-title {
-  margin-top: var(--space-4);
-  max-width: var(--reading-max);
-  font-size: 1.25rem;
-  font-weight: 600;
-  line-height: 1.4;
-  color: var(--text-primary);
-}
-
-.hero-subtitle {
-  margin-top: var(--space-2);
-  max-width: var(--prose-max);
+.hero-support {
+  margin-top: var(--space-3);
+  max-width: 560px;
   font-size: var(--t-body-lg);
   color: var(--text-secondary);
+}
+
+/* The formal title, as metadata under the proposition rather than as the
+   proposition itself — and deliberately not three co-equal identities. */
+.hero-role-meta {
+  margin-top: var(--space-2);
+  font-size: var(--t-label);
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Small, square, and level with the supporting line rather than the headline,
+   so it never competes with either the proposition or the primary figure. */
+.hero-photo {
+  grid-column: 2;
+  grid-row: 3;
+  align-self: start;
+  margin-top: var(--space-3);
+  width: 132px;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: 50% 6%;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #F1EFEA;
+}
+
+/* ==========================================================================
+   Hero proof points
+
+   Evidence for the headline, not a metrics strip. One figure carries it and the
+   other two support: the primary is set at display size with a qualifier, the
+   secondary pair sit under a hairline at body size.
+   ========================================================================== */
+
+.hero-proof {
+  margin-top: var(--space-3);
+  max-width: 560px;
+}
+
+.hero-proof-headline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--space-2);
+}
+
+.hero-proof-value {
+  font-size: 2.5rem;
+  font-weight: 650;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.hero-proof-label {
+  font-size: var(--t-body-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.hero-proof-note {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: var(--t-label);
+}
+
+.hero-proof-secondary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-5);
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border);
+}
+
+.hero-proof-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4ch;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.hero-proof-figure {
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
 }
 
 .hero-cta {
@@ -715,9 +792,8 @@ button:focus-visible,
   color: var(--accent-text);
 }
 
-/* The third and fourth destinations in the hero are profiles, not calls to
-   action; they are set as text links so the two real CTAs stay legible as the
-   only two buttons. */
+/* The third and fourth destinations are profiles, not calls to action; they are
+   set as text links so the two real CTAs stay legible as the only buttons. */
 .hero-link {
   display: inline-flex;
   align-items: center;
@@ -744,20 +820,11 @@ button:focus-visible,
   line-height: 1.6;
 }
 
-.hero-photo {
-  width: 100%;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  object-position: 50% 2%;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  background: #F1EFEA;
-}
-
 /* --- Affiliations ---------------------------------------------------------
-   Employers, schools, partners and funders, as one quiet strip under the hero.
-   They are credibility, not content: knocked back by default, at full strength
-   on hover, where the name also appears. */
+   Employers, schools, partners and funders, as one quiet strip at the foot of
+   the page. They are supporting credibility, not the central proof of value:
+   knocked back by default, at full strength on hover, where the name also
+   appears. */
 .affiliations {
   border-top: 1px solid var(--border);
   padding-top: var(--space-4);
@@ -777,10 +844,13 @@ button:focus-visible,
 
 .affiliation-mark {
   display: block;
-  width: auto;
-  max-width: 124px;
-  /* max-height is set per mark inline — see AFFILIATIONS in pages/home.py for
-     why one shared value does not work. */
+  /* The size comes from the width and height attributes — see AFFILIATIONS in
+     pages/home.py for why one shared height does not work, and why both
+     dimensions are carried. A max-width here used to clamp the four widest
+     wordmarks, which silently undid the per-mark heights it exists to protect;
+     the cap is proportional now, so a narrow screen scales them instead. */
+  max-width: 100%;
+  height: auto;
   object-fit: contain;
   object-position: left center;
   filter: grayscale(1);
@@ -791,42 +861,6 @@ button:focus-visible,
 .affiliation-mark:hover {
   opacity: 1;
   filter: grayscale(0);
-}
-
-/* ==========================================================================
-   Hero proof points
-
-   Three figures, inline in the hero rather than in a band beneath it. They are
-   the first thing a reader who has read the role wants: how big, how deep, how
-   credible.
-   ========================================================================== */
-
-.hero-proof {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3) var(--space-6);
-  margin-top: var(--space-4);
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--border);
-}
-
-.hero-proof-item {
-  min-width: 0;
-}
-
-.hero-proof-value {
-  font-size: 1.5rem;
-  font-weight: 650;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-primary);
-}
-
-.hero-proof-label {
-  margin-top: 2px;
-  color: var(--text-muted);
-  font-size: var(--t-label);
 }
 
 /* ==========================================================================
@@ -2049,7 +2083,6 @@ a.contact-value:hover {
 /* --- 1024px --------------------------------------------------------------- */
 @media (max-width: 1024px) {
   .hero {
-    grid-template-columns: minmax(0, 1fr) 200px;
     column-gap: var(--space-5);
   }
 
@@ -2073,9 +2106,12 @@ a.contact-value:hover {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  /* One column: the portrait keeps its DOM position, which puts it between
+     the supporting line and the proof row exactly as intended. */
   .hero-photo {
-    width: min(200px, 50%);
-    aspect-ratio: 1 / 1;
+    grid-column: 1;
+    grid-row: auto;
+    width: 92px;
   }
 
   /* The rail moves directly under the opening summary rather than squeezing

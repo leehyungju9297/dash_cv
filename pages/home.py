@@ -10,14 +10,15 @@ from work_ui import FEATURED_SLUG, HOME_SECONDARY, by_slug, outcome, tags, work_
 dash.register_page(__name__, path='/', order=0, name='Home')
 
 
-# Three proof points, in the hero rather than in a band beneath it. Any more
-# and the hero stops being a summary. The two figures the old five-item band
-# also carried now sit in the experience bullets that describe them, which is
-# where a reader looking for them would be anyway.
-PROOF_POINTS = [
-    ('138', 'client app portfolio'),
-    ('1.6B+', 'session-minutes analysed'),
-    ('ICPR · ISPRS', 'peer-reviewed venues'),
+# The evidence for the headline, with one figure carrying it. The primary proof
+# is the scale of the production analytics work; the two secondary proofs say
+# how broad it was and that the research behind it was peer-reviewed.
+PRIMARY_PROOF = ('1.6B+', 'session-minutes analyzed',
+                 'through production analytics and reporting systems')
+
+SECONDARY_PROOF = [
+    ('138', 'client-app portfolio'),
+    ('ICPR / ISPRS', 'research publications'),
 ]
 
 CAPABILITY_LANES = [
@@ -62,23 +63,30 @@ SKILL_GROUPS = [
     ),
 ]
 
-# Employers, schools, research partners and funders, in one strip under the
-# portrait. Rendered as one-colour marks: eight brand palettes, half of them on
+# Employers, schools, research partners and funders, in one strip at the foot of
+# the page. Rendered as one-colour marks: nine brand palettes, half of them on
 # white rectangles, would fight everything else on the page.
+#
 # The third value is a rendered height in pixels, set per mark rather than
 # shared: a bounding box is not optical weight. TELEDYNE is a bold wordmark that
 # fills its box, while the Lassonde lockup is small type inside a tall one, so
 # the same height makes one shout and the other vanish.
+#
+# The fourth is the width that height produces. Every source file is 120px tall,
+# so it is `round(intrinsic_width * height / 120)`. It is carried here rather
+# than computed because it becomes a `width` attribute on the image: the strip
+# is lazy-loaded at the bottom of a long page, and without both dimensions the
+# marks occupy nothing until they arrive and the footer jumps when they do.
 AFFILIATIONS = [
-    ('myseat', 'MySeat Media', 30),
-    ('york-lassonde', 'York University, Lassonde School of Engineering', 30),
-    ('university-of-toronto', 'University of Toronto', 28),
-    ('ontario-mnrf', 'Ontario Ministry of Natural Resources and Forestry', 30),
-    ('teledyne', 'Teledyne Optech', 20),
-    ('thales', 'Thales Canada', 26),
-    ('nserc', 'NSERC', 26),
-    ('ausm-lab', 'AUSM Lab', 24),
-    ('geoict', 'GeoICT Lab', 22),
+    ('myseat', 'MySeat Media', 30, 65),
+    ('york-lassonde', 'York University, Lassonde School of Engineering', 30, 191),
+    ('university-of-toronto', 'University of Toronto', 28, 80),
+    ('ontario-mnrf', 'Ontario Ministry of Natural Resources and Forestry', 30, 68),
+    ('teledyne', 'Teledyne Optech', 20, 157),
+    ('thales', 'Thales Canada', 26, 89),
+    ('nserc', 'NSERC', 26, 65),
+    ('ausm-lab', 'AUSM Lab', 24, 145),
+    ('geoict', 'GeoICT Lab', 22, 156),
 ]
 
 
@@ -228,133 +236,124 @@ def _resume_track_card(title: str, copy: str):
 layout = html.Div(
     className='content-stack',
     children=[
+        # One proposition, then the evidence for it. The hero's children are
+        # placed straight onto its grid rather than wrapped in a copy column:
+        # that is what lets the portrait sit beside the supporting line on
+        # desktop and drop into the flow between that line and the proof row on
+        # mobile, from a single copy of the markup.
         html.Section(
             className='hero reveal-up',
             children=[
                 html.Div(
-                    className='hero-copy',
-                    children=[
-                        html.Div('HYUNGJU LEE', className='hero-name'),
-                        html.H1('Product Data Scientist, Analytics Engineer',
-                                className='hero-role'),
-                        html.Div(
-                            'Product Analytics · Analytics Engineering · Applied ML Research',
-                            className='hero-role-descriptor',
-                        ),
-                        html.P(
-                            'I connect product decision-making, data systems, and applied ML '
-                            'research to outcomes teams can act on.',
-                            className='hero-title',
-                        ),
-                        html.P(
-                            'I define the KPIs a subscription business runs on, build the event '
-                            'instrumentation and SQL/Python pipelines underneath them, and automate '
-                            'the reporting executives decide from \u2014 across a 138-client mobile '
-                            'and streaming portfolio. Statistics-trained, with peer-reviewed machine '
-                            'learning research in LiDAR 3D object detection.',
-                            className='hero-subtitle',
-                        ),
-                        html.Div(
-                            className='hero-proof',
-                            children=[
-                                html.Div(
-                                    className='hero-proof-item',
-                                    children=[
-                                        html.Div(value, className='hero-proof-value'),
-                                        html.Div(label, className='hero-proof-label'),
-                                    ],
-                                )
-                                for value, label in PROOF_POINTS
-                            ],
-                        ),
-                        html.Div(
-                            className='hero-cta',
-                            children=[
-                                # Two buttons, then two text links. The work and
-                                # the resume are what a reader is here for; the
-                                # profiles are destinations, not calls to action,
-                                # and are set as links so the two real CTAs stay
-                                # legible as the only two buttons.
-                                html.A(
-                                    'View selected work',
-                                    href='/projects',
-                                    className='cta-primary',
-                                    **{
-                                        'data-track': 'hero_cta_click',
-                                        'data-track-location': 'home_hero',
-                                        'data-track-label': 'selected_work',
-                                    },
-                                ),
-                                html.A(
-                                    'Download resume',
-                                    href='/assets/Hyungju_Lee_Resume.pdf',
-                                    download='Hyungju_Lee_Resume.pdf',
-                                    className='cta-secondary',
-                                    **{
-                                        'data-track': 'hero_cta_click',
-                                        'data-track-location': 'home_hero',
-                                        'data-track-label': 'download_resume',
-                                    },
-                                ),
-                                html.A(
-                                    'LinkedIn',
-                                    href=LINKEDIN_URL,
-                                    className='hero-link',
-                                    target='_blank',
-                                    rel='noreferrer',
-                                    **{
-                                        'data-track': 'hero_cta_click',
-                                        'data-track-location': 'home_hero',
-                                        'data-track-label': 'linkedin',
-                                    },
-                                ),
-                                html.A(
-                                    'GitHub',
-                                    href=GITHUB_URL,
-                                    className='hero-link',
-                                    target='_blank',
-                                    rel='noreferrer',
-                                    **{
-                                        'data-track': 'hero_cta_click',
-                                        'data-track-location': 'home_hero',
-                                        'data-track-label': 'github',
-                                    },
-                                ),
-                            ],
-                        ),
-                        html.Div(
-                            f'{LOCATION} | {PHONE_DISPLAY} | {EMAIL}',
-                            className='hero-contact',
-                        ),
-                    ],
+                    'HYUNGJU LEE · PRODUCT DATA SCIENTIST / ANALYTICS ENGINEER',
+                    className='hero-eyebrow',
                 ),
+                html.H1(
+                    'I turn product data into decision systems teams actually use.',
+                    className='hero-headline',
+                ),
+                html.P(
+                    'Product analytics, data systems, and applied ML research for '
+                    'measurable operating decisions.',
+                    className='hero-support',
+                ),
+                # The formal title, as metadata under the proposition rather than
+                # as the proposition itself.
+                html.Div('Product Data Scientist · Analytics Engineer',
+                         className='hero-role-meta'),
                 html.Img(
                     src='/assets/my_pic_web.jpg',
                     className='hero-photo',
                     alt='Portrait of Hyungju Lee',
                 ),
-            ],
-        ),
-        # The credibility strip is its own band rather than the hero's second
-        # row: it kept the hero 140px past the height a summary should be, and
-        # it reads better as the thing that follows the claim than as part of
-        # it.
-        html.Section(
-            className='affiliations reveal-up',
-            children=[
-                html.Div('Worked with and studied at', className='affiliations-label'),
                 html.Div(
-                    className='affiliations-grid',
+                    className='hero-proof',
                     children=[
-                        html.Img(
-                            src=f'/assets/logos/{slug}.png',
-                            alt=name,
-                            title=name,
-                            className='affiliation-mark',
-                            style={'maxHeight': f'{height}px'},
-                        )
-                        for slug, name, height in AFFILIATIONS
+                        html.Div(
+                            className='hero-proof-primary',
+                            children=[
+                                html.Div(
+                                    className='hero-proof-headline',
+                                    children=[
+                                        html.Span(PRIMARY_PROOF[0], className='hero-proof-value'),
+                                        html.Span(PRIMARY_PROOF[1], className='hero-proof-label'),
+                                    ],
+                                ),
+                                html.Div(PRIMARY_PROOF[2], className='hero-proof-note'),
+                            ],
+                        ),
+                        html.Div(
+                            className='hero-proof-secondary',
+                            children=[
+                                html.Div(
+                                    className='hero-proof-item',
+                                    children=[
+                                        html.Span(figure, className='hero-proof-figure'),
+                                        html.Span(label, className='hero-proof-text'),
+                                    ],
+                                )
+                                for figure, label in SECONDARY_PROOF
+                            ],
+                        ),
                     ],
+                ),
+                html.Div(
+                    className='hero-cta',
+                    children=[
+                        # Two buttons, then two text links. The work and the
+                        # resume are what a reader is here for; the profiles are
+                        # destinations, not calls to action, and are set as links
+                        # so the two real CTAs stay legible as the only buttons.
+                        html.A(
+                            'View selected work',
+                            href='/projects',
+                            className='cta-primary',
+                            **{
+                                'data-track': 'hero_cta_click',
+                                'data-track-location': 'home_hero',
+                                'data-track-label': 'selected_work',
+                            },
+                        ),
+                        html.A(
+                            'Download resume',
+                            href='/assets/Hyungju_Lee_Resume.pdf',
+                            download='Hyungju_Lee_Resume.pdf',
+                            className='cta-secondary',
+                            **{
+                                'data-track': 'hero_cta_click',
+                                'data-track-location': 'home_hero',
+                                'data-track-label': 'download_resume',
+                            },
+                        ),
+                        html.A(
+                            'LinkedIn',
+                            href=LINKEDIN_URL,
+                            className='hero-link',
+                            target='_blank',
+                            rel='noreferrer',
+                            **{
+                                'data-track': 'hero_cta_click',
+                                'data-track-location': 'home_hero',
+                                'data-track-label': 'linkedin',
+                            },
+                        ),
+                        html.A(
+                            'GitHub',
+                            href=GITHUB_URL,
+                            className='hero-link',
+                            target='_blank',
+                            rel='noreferrer',
+                            **{
+                                'data-track': 'hero_cta_click',
+                                'data-track-location': 'home_hero',
+                                'data-track-label': 'github',
+                            },
+                        ),
+                    ],
+                ),
+                html.Div(
+                    f'{LOCATION} | {PHONE_DISPLAY} | {EMAIL}',
+                    className='hero-contact',
                 ),
             ],
         ),
@@ -488,6 +487,29 @@ layout = html.Div(
                         html.Hr(),
                         html.Div('H.B.Sc., Statistics (Quantitative Finance Stream)', className='edu-title'),
                         html.Div('University of Toronto | 2015 - 2020', className='edu-meta'),
+                    ],
+                ),
+            ],
+        ),
+        # Supporting credibility, not the central proof of value: it sits after
+        # the record it supports rather than interrupting the run from the
+        # proposition to the work.
+        html.Section(
+            className='affiliations reveal-up',
+            children=[
+                html.Div('Worked with and studied at', className='affiliations-label'),
+                html.Div(
+                    className='affiliations-grid',
+                    children=[
+                        html.Img(
+                            src=f'/assets/logos/{slug}.png',
+                            alt=name,
+                            title=name,
+                            className='affiliation-mark',
+                            width=width,
+                            height=height,
+                        )
+                        for slug, name, height, width in AFFILIATIONS
                     ],
                 ),
             ],
