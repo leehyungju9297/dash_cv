@@ -176,23 +176,9 @@ app.layout = html.Div(
 )
 
 
-# The demo is a different product from the portfolio around it and is themed as
-# one — light and warm against the site's dark surface. The theme has to reach
-# the shared header and the ambient background too, or the seam between them
-# reads as a rendering bug rather than a deliberate change of register.
-LIGHT_ROUTES = {'/dashboard'}
-
-
-@app.callback(
-    Output('top-nav', 'children'),
-    Output('site-shell', 'className'),
-    Input('app-location', 'pathname'),
-)
+@app.callback(Output('top-nav', 'children'), Input('app-location', 'pathname'))
 def _refresh_nav(pathname):
-    shell = 'site-shell'
-    if _normalize_path(pathname) in LIGHT_ROUTES:
-        shell += ' site-shell--light'
-    return _nav_links(pathname), shell
+    return _nav_links(pathname)
 
 
 if __name__ == '__main__':

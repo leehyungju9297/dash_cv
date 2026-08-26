@@ -171,8 +171,10 @@ SURFACE = {
     'grid': 'rgba(26, 26, 24, 0.08)',
     'zeroline': 'rgba(26, 26, 24, 0.20)',
     'text': '#1A1A18',
-    'text_secondary': '#6B6862',
-    'text_muted': '#8A837A',
+    # Axis labels and tick text are text, and are held to the same contrast bar
+    # as the DOM: 7.2:1 and 5.1:1 on the card.
+    'text_secondary': '#57544E',
+    'text_muted': '#6F6A62',
     'border': '#E4E0D9',
 }
 

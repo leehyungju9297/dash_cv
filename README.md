@@ -148,21 +148,37 @@ collapses its container to zero on a width change while the figure keeps its own
 height — the SVG then escapes the card and paints over whatever follows it. Never
 add a chart without giving its container a height from this registry.
 
-### The demo is light, the site is dark
+### One warm light system, everywhere
 
-The dashboard is a different product from the portfolio around it and is themed
-as one: a warm off-white surface, a single terracotta accent, serif headings, and
-a categorical palette whose members are separated by lightness so every chart
-survives a greyscale print. `app.py` puts `site-shell--light` on the shell for
-the `/dashboard` route, so the shared header comes with it — a dark bar over a
-light page reads as a rendering fault rather than a change of register.
+The site and the demo share a palette: a warm off-white ground, white surfaces
+with a 1px hairline, near-black warm ink, a single terracotta accent, and muted
+sage/rust for positive and negative. Headings are a serif; body is a humanist
+sans. Radii are small and there are no gradients, glows, coloured accent bars or
+drop shadows on cards — surfaces are separated by whitespace and a border.
+
+Two rules the palette is built on, both measurable:
+
+* **Categorical colours are separated by lightness, not only hue.** The members
+  of `PALETTE` sit 9-11 CIE L* apart, so a chart that is legible in colour is
+  still legible photocopied or dropped into a greyscale deck. Ordered dimensions
+  (acquisition source, value tier, return reason) use a single-hue sequential
+  ramp instead, because their categories have an order a rainbow would hide.
+* **Contrast is checked rather than assumed.** Every visible text node on every
+  page is measured against the background actually painted behind it, and clears
+  WCAG AA at its own size. Terracotta at full strength is 3.8:1 on paper, so the
+  small uppercase labels that use it take `--accent-text` (5.7:1) instead; the
+  accent itself is for rules, fills and large type.
+
+The affiliation marks in `assets/logos/` are dark-on-transparent. They were
+white when the site was dark; recolouring is a matter of replacing RGB and
+leaving the alpha channel — the silhouette — alone.
 
 ### Affiliation marks
 
 `assets/logos/` holds the employer, school, partner and funder marks in the hero.
-They are white-on-transparent PNGs, not the source brand files: ten brand
-palettes, several of them on white rectangles, would fight everything else on a
-dark page.
+They are single-colour ink-on-transparent PNGs, not the source brand files: ten
+brand palettes, several of them on their own coloured rectangles, would fight
+everything else on the page.
 
 Each mark carries its own rendered height in `AFFILIATIONS` (pages/home.py)
 because a bounding box is not optical weight — a bold wordmark that fills its box

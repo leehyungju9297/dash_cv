@@ -28,11 +28,15 @@
   --tp-hairline: rgba(26, 26, 24, 0.07);
 
   --tp-text: #1A1A18;
-  --tp-text-secondary: #6B6862;
-  --tp-text-muted: #8A837A;
+  /* Both of these carry real text — labels, blurbs, notes — so both clear AA on
+     the card and on the page: 7.2:1 and 5.1:1. The lighter warm grey they
+     replaced measured 3.6:1 and failed every label on the page. */
+  --tp-text-secondary: #57544E;
+  --tp-text-muted: #6F6A62;
 
   --tp-accent: #C4633F;
   --tp-accent-deep: #8B462D;
+  --tp-accent-text: #9E4B34;
   --tp-accent-soft: #F5E5DE;
   --tp-positive: #4E6B4D;
   --tp-negative: #9E4B34;
@@ -45,62 +49,6 @@
 
   color: var(--tp-text);
   font-family: var(--tp-sans);
-}
-
-/* --- The route goes light, header and all ---------------------------------
-   The demo owns the whole page, not a card inside it. Leaving the site header
-   dark above a light page would put a hard black bar over the product. */
-.site-shell--light {
-  background: #FAF9F7;
-}
-
-.site-shell--light::before,
-.site-shell--light .bg-orb {
-  display: none;
-}
-
-.site-shell--light .site-header {
-  background: rgba(250, 249, 247, 0.92);
-  border-bottom: 1px solid #E4E0D9;
-  box-shadow: none;
-}
-
-.site-shell--light .top-nav-link {
-  color: #6B6862;
-}
-
-.site-shell--light .top-nav-link:hover,
-.site-shell--light .top-nav-link.active {
-  color: #1A1A18;
-}
-
-/* The site's active tab is a dark gradient pill; on paper it reads as a hole
-   punched in the header. Same idea, inverted for the light surface. */
-.site-shell--light .top-nav-link.active {
-  color: #8B462D;
-  background: #F5E5DE;
-  border-color: #E3C7BC;
-  box-shadow: none;
-}
-
-.site-shell--light .top-nav-link:hover {
-  background: rgba(26, 26, 24, 0.045);
-}
-
-.site-shell--light .brand-chip {
-  background: #1A1A18;
-  color: #FAF9F7;
-  border-color: #1A1A18;
-}
-
-.site-shell--light .back-to-top {
-  background: #FFFFFF;
-  border-color: #E4E0D9;
-  color: #1A1A18;
-}
-
-.site-shell--light #scroll-progress {
-  background: #C4633F;
 }
 
 /* --- Hero ----------------------------------------------------------------- */
@@ -116,7 +64,7 @@
 }
 
 .tp-hero .section-hero-eyebrow {
-  color: var(--tp-accent);
+  color: var(--tp-accent-text);
   font-family: var(--tp-sans);
   font-size: 0.7rem;
   font-weight: 700;
@@ -374,7 +322,9 @@
 }
 
 .tp-subtab--active .tp-subtab-blurb {
-  color: #8A6250;
+  /* On the tinted active chip rather than on paper, so it needs its own value:
+     the muted grey measures 4.4:1 against #F5E5DE and this measures 5.6:1. */
+  color: #75503F;
 }
 
 /* --- Headline numbers -----------------------------------------------------
