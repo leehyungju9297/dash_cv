@@ -74,8 +74,8 @@ GROWTH_MARKS = {
 TABLE_HEADER = {
     'backgroundColor': 'transparent',
     'border': 'none',
-    'borderBottom': '1px solid #E4E0D9',
-    'color': '#6B6862',
+    'borderBottom': '1px solid #E7E5E4',
+    'color': '#78716C',
     'fontSize': '11px',
     'fontWeight': '600',
     'letterSpacing': '0.06em',
@@ -85,9 +85,9 @@ TABLE_HEADER = {
 TABLE_CELL = {
     'backgroundColor': 'transparent',
     'border': 'none',
-    'borderBottom': '1px solid rgba(26, 26, 24, 0.06)',
-    'color': '#1A1A18',
-    'fontFamily': 'Public Sans, sans-serif',
+    'borderBottom': '1px solid rgba(28, 25, 23, 0.06)',
+    'color': '#1C1917',
+    'fontFamily': 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
     'fontSize': '12.5px',
     'padding': '9px 12px',
     'textAlign': 'right',
@@ -100,7 +100,9 @@ TABLE_CELL = {
 def _card(*children, title=None, subtitle=None, className=''):
     body = list(children)
     if title:
-        header = [html.H3(title, className='tp-card-title')]
+        # h2: the page title above is the h1, and there is no level between
+        # them — a card title is the page's first subdivision.
+        header = [html.H2(title, className='tp-card-title')]
         if subtitle:
             header.append(html.P(subtitle, className='tp-card-subtitle'))
         body = [html.Div(header, className='tp-card-header'), *body]
@@ -564,7 +566,7 @@ layout = html.Div(
                 html.Div(
                     [
                         html.P('LIVE DEMO', className='section-hero-eyebrow'),
-                        html.H2(f'{BRAND} — Retail Dashboard',
+                        html.H1(f'{BRAND} — Retail Dashboard',
                                 className='section-hero-title'),
                         html.P(
                             'A multi-brand direct-to-consumer analytics surface: '

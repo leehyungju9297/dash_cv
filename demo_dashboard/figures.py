@@ -95,18 +95,19 @@ CHART_HEIGHTS = {
     'return_reason': 340,
 }
 
-# A serif for chart titles and a humanist sans for the numbers: the dashboard
-# should not read as the same geometric-sans surface as the rest of the site.
+# One typeface, shared with the site around it. Both names resolve to Inter;
+# they stay separate so each call still says which role it is playing — display
+# type against UI type — rather than collapsing the distinction into one name.
 FONT = {
-    'family': 'Public Sans, Segoe UI, Helvetica Neue, sans-serif',
+    'family': 'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif',
     'color': SURFACE['text_secondary'],
     'size': 12,
 }
-SERIF = 'Source Serif 4, Iowan Old Style, Georgia, serif'
+SERIF = 'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif'
 
 # Fills lighter than this contrast ratio against the card carry an outline, so
 # the shape still reads when the colour does not.
-MARKER_LINE = 'rgba(26, 26, 24, 0.28)'
+MARKER_LINE = 'rgba(28, 25, 23, 0.28)'
 
 # Metrics that are levels rather than flows: rolling one up to a coarser grain
 # means taking the period's last value, not adding the days together.

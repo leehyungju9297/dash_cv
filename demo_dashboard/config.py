@@ -123,12 +123,15 @@ DRIVER_TERMS: List[Tuple[str, str]] = [
 #
 # Text colors clear WCAG AA against the page background; chart fills that fall
 # below 3:1 always carry a darker outline (see figures.MARKER_LINE).
-ACCENT = '#C4633F'          # terracotta — the one accent the product uses
-ACCENT_DEEP = '#8B462D'
-ACCENT_SOFT = '#F5E5DE'
+# The one accent the product uses, shared with the portfolio around it so the
+# demo and the site read as one system. The categorical PALETTE below is NOT
+# derived from it: that is an encoding, held to its own lightness spacing.
+ACCENT = '#C2410C'          # burnt orange
+ACCENT_DEEP = '#9A3412'
+ACCENT_SOFT = '#FFF7ED'
 
 POSITIVE = '#4E6B4D'        # muted sage
-NEGATIVE = '#9E4B34'        # muted rust
+NEGATIVE = '#9A3412'        # muted rust
 NEUTRAL = '#8A837A'         # warm grey
 
 # Categorical: nominal dimensions with no natural order.
@@ -166,16 +169,16 @@ ACCENTS: Dict[str, str] = {
 
 SURFACE = {
     'bg': 'rgba(0,0,0,0)',
-    'page': '#FAF9F7',
+    'page': '#FAF9F6',
     'card': '#FFFFFF',
-    'grid': 'rgba(26, 26, 24, 0.08)',
-    'zeroline': 'rgba(26, 26, 24, 0.20)',
-    'text': '#1A1A18',
+    'grid': 'rgba(28, 25, 23, 0.08)',
+    'zeroline': 'rgba(28, 25, 23, 0.20)',
+    'text': '#1C1917',
     # Axis labels and tick text are text, and are held to the same contrast bar
-    # as the DOM: 7.2:1 and 5.1:1 on the card.
-    'text_secondary': '#57544E',
-    'text_muted': '#6F6A62',
-    'border': '#E4E0D9',
+    # as the DOM: 7.3:1 and 4.9:1 on the card.
+    'text_secondary': '#57534E',
+    'text_muted': '#78716C',
+    'border': '#E7E5E4',
 }
 
 

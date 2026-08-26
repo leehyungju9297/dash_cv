@@ -125,9 +125,11 @@
   // ======================================================================
   // Layout
   // ======================================================================
-  var MARKER_LINE = 'rgba(26, 26, 24, 0.28)';
-  var SERIF = 'Source Serif 4, Iowan Old Style, Georgia, serif';
-  var FONT_FAMILY = 'Public Sans, Segoe UI, Helvetica Neue, sans-serif';
+  var MARKER_LINE = 'rgba(28, 25, 23, 0.28)';
+  // Mirrors demo_dashboard/figures.FONT and SERIF. Both resolve to Inter now;
+  // the two names stay so the file keeps saying which role each call is playing.
+  var SERIF = 'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+  var FONT_FAMILY = 'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
 
   function deepMerge(base, extra) {
     var out = {};
@@ -760,7 +762,9 @@
   function card(spec) {
     var node = el('section', 'tp-card');
     var header = el('div', 'tp-card-header');
-    header.appendChild(el('h3', 'tp-card-title', spec.title));
+    // h2, matching pages/dashboard.py: the page title is the h1 and a card
+    // title is the page's first subdivision, with no level in between.
+    header.appendChild(el('h2', 'tp-card-title', spec.title));
     if (spec.subtitle) header.appendChild(el('p', 'tp-card-subtitle', spec.subtitle));
     node.appendChild(header);
     (spec.build || []).forEach(function (build) {
