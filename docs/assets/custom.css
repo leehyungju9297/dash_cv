@@ -1076,6 +1076,10 @@ button:focus-visible,
   align-items: start;
 }
 
+.research-figure-card {
+  padding: 1.05rem 1.1rem;
+}
+
 .research-figure {
   margin: 0;
 }

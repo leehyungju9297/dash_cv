@@ -146,9 +146,15 @@ layout = html.Div(
                     'actually showing.',
                     className='section-note',
                 ),
+                # Wrapped in the same surface the field-work entry uses: without
+                # it the plates floated loose on the page while every other
+                # block on the site sat on a card.
                 html.Div(
-                    className='research-figure-grid',
-                    children=[_figure_card(figure) for figure in RESEARCH_FIGURES],
+                    className='glass-card research-figure-card reveal-up',
+                    children=html.Div(
+                        className='research-figure-grid',
+                        children=[_figure_card(figure) for figure in RESEARCH_FIGURES],
+                    ),
                 ),
             ],
         ),
