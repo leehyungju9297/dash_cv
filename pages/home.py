@@ -76,6 +76,26 @@ SKILL_GROUPS = [
     ),
 ]
 
+# Employers, schools, research partners and funders, in one strip under the
+# portrait. Rendered as one-colour marks: eight brand palettes, half of them on
+# white rectangles, would fight everything else on the page.
+# The third value is a rendered height in pixels, set per mark rather than
+# shared: a bounding box is not optical weight. TELEDYNE is a bold wordmark that
+# fills its box, while the Lassonde lockup is small type inside a tall one, so
+# the same height makes one shout and the other vanish.
+AFFILIATIONS = [
+    ('myseat', 'MySeat Media', 30),
+    ('york-lassonde', 'York University, Lassonde School of Engineering', 30),
+    ('university-of-toronto', 'University of Toronto', 28),
+    ('ontario-mnrf', 'Ontario Ministry of Natural Resources and Forestry', 30),
+    ('teledyne', 'Teledyne Optech', 20),
+    ('thales', 'Thales Canada', 26),
+    ('nserc', 'NSERC', 26),
+    ('ausm-lab', 'AUSM Lab', 24),
+    ('geoict', 'GeoICT Lab', 22),
+]
+
+
 RESUME_TRACKS = [
     {
         'title': 'Product / Analytics',
@@ -327,11 +347,33 @@ layout = html.Div(
                 ),
                 html.Div(
                     className='hero-photo-wrap',
-                    children=html.Img(
-                        src='/assets/my_pic_web.jpg',
-                        className='hero-photo',
-                        alt='Portrait of Hyungju Lee',
-                    ),
+                    children=[
+                        html.Img(
+                            src='/assets/my_pic_web.jpg',
+                            className='hero-photo',
+                            alt='Portrait of Hyungju Lee',
+                        ),
+                        html.Div(
+                            className='affiliations',
+                            children=[
+                                html.Div('Worked with and studied at',
+                                         className='affiliations-label'),
+                                html.Div(
+                                    className='affiliations-grid',
+                                    children=[
+                                        html.Img(
+                                            src=f'/assets/logos/{slug}.png',
+                                            alt=name,
+                                            title=name,
+                                            className='affiliation-mark',
+                                            style={'maxHeight': f'{height}px'},
+                                        )
+                                        for slug, name, height in AFFILIATIONS
+                                    ],
+                                ),
+                            ],
+                        ),
+                    ],
                 ),
             ],
         ),
@@ -414,7 +456,9 @@ layout = html.Div(
                     'Toronto, ON, Canada',
                     [
                         'Built KPI and decision systems spanning engagement, retention, churn, livestream activity, memberships, and revenue across a 138-client app ecosystem.',
-                        'Productionized SQL and Python data workflows across 6.65M+ sessions and 5.64B+ session-minutes for release diagnostics, segmentation, and cross-client benchmarking.',
+                        'Productionized SQL and Python data workflows across 17M+ sessions and '
+                        '1.6B+ session-minutes for release diagnostics, segmentation, and '
+                        'cross-client benchmarking.',
                         'Unified longitudinal analytics across 138 clients and 369K+ represented users, turning fragmented logs into reusable analytics infrastructure.',
                         'Led measurement and monetization analysis across $733K+ in subscription and in-app purchase revenue, linking revenue movement to behavior, acquisition, and membership signals.',
                         'Built dashboards, diagnostic tooling, and quasi-experimental evaluation used by product, growth, and leadership teams for recurring operating reviews.',

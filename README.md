@@ -112,6 +112,18 @@ collapses its container to zero on a width change while the figure keeps its own
 height — the SVG then escapes the card and paints over whatever follows it. Never
 add a chart without giving its container a height from this registry.
 
+### Affiliation marks
+
+`assets/logos/` holds the employer, school, partner and funder marks in the hero.
+They are white-on-transparent PNGs, not the source brand files: ten brand
+palettes, several of them on white rectangles, would fight everything else on a
+dark page.
+
+Each mark carries its own rendered height in `AFFILIATIONS` (pages/home.py)
+because a bounding box is not optical weight — a bold wordmark that fills its box
+and a lockup of small type inside a tall one need different sizes to read as
+equals.
+
 ### Research figures
 
 `assets/research/` holds the figures on the Research page. `research_content.py`

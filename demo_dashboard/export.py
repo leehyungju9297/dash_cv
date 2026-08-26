@@ -52,7 +52,7 @@ DATA_FILE = DOCS_DEMO / 'frontrow_data.json'
 # custom.css had to be remembered twice and silently wasn't.
 SHARED_ASSETS = ('dashboard.css', 'custom.css', 'enhancements.js', 'tracking.js',
                  'favicon.svg', 'Hyungju_Lee_Resume.pdf')
-SHARED_ASSET_DIRS = ('research', 'case_studies')
+SHARED_ASSET_DIRS = ('research', 'case_studies', 'logos')
 ASSETS_DIR = REPO_ROOT / 'assets'
 DOCS_ASSETS = REPO_ROOT / 'docs' / 'assets'
 

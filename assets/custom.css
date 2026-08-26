@@ -499,8 +499,62 @@ button:focus-visible,
 }
 
 .hero-photo-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
   width: min(360px, 100%);
   justify-self: center;
+}
+
+/* --- Affiliations --------------------------------------------------------
+   Employers, schools, partners and funders. The marks are single-colour so a
+   row of eight different brand palettes does not compete with the page; they
+   lift to full strength on hover, which is also where the name appears. */
+.affiliations {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.affiliations-label {
+  font-family: 'Sora', sans-serif;
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.affiliations-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+  gap: 0.75rem 1rem;
+}
+
+/* An odd count leaves the last mark beside an empty cell; centre it across both
+   instead. */
+.affiliations-grid > .affiliation-mark:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: auto;
+  max-width: 60%;
+}
+
+.affiliation-mark {
+  display: block;
+  width: 100%;
+  /* max-height is set per mark inline — see AFFILIATIONS in pages/home.py for
+     why one shared value does not work. */
+  object-fit: contain;
+  object-position: center;
+  opacity: 0.5;
+  transition: opacity 220ms var(--ease), transform 220ms var(--ease);
+}
+
+.affiliation-mark:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 .hero-photo {
