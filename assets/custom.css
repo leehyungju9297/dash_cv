@@ -178,8 +178,6 @@ li,
 .hero-subtitle,
 .section-hero-subtitle,
 .section-note,
-.subsection-note,
-.impact-detail,
 .research-figure-caption,
 .case-study-caption,
 .lane-copy,
@@ -194,9 +192,7 @@ h3,
 h4,
 h5,
 .hero-title,
-.impact-label,
-.case-study-title,
-.featured-case-title {
+.work-card-title {
   text-wrap: balance;
 }
 
@@ -253,8 +249,7 @@ button:focus-visible,
 /* The dashboard is the one route that earns extra width: it is a grid of
    charts, and charts lose resolution before text does. The dashboard page
    carries both classes on one element, so this is a compound selector. */
-.content-stack.tp-page,
-.content-stack--wide {
+.content-stack.tp-page {
   max-width: var(--page-max-wide);
 }
 
@@ -414,6 +409,50 @@ button:focus-visible,
   border-bottom-color: var(--accent);
 }
 
+/* The disclosure button. It only exists below 760px; above it the bar has room
+   for all five destinations and a button would be a step in the way. */
+.nav-toggle {
+  display: none;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: border-color var(--t-fast) var(--ease);
+}
+
+.nav-toggle:hover {
+  border-color: var(--accent);
+}
+
+.nav-toggle-bar {
+  display: block;
+  width: 16px;
+  height: 1.5px;
+  background: var(--text-primary);
+  transition: transform var(--t-fast) var(--ease),
+              opacity var(--t-fast) var(--ease);
+}
+
+.nav-toggle[aria-expanded='true'] .nav-toggle-bar:nth-child(1) {
+  transform: translateY(5.5px) rotate(45deg);
+}
+
+.nav-toggle[aria-expanded='true'] .nav-toggle-bar:nth-child(2) {
+  opacity: 0;
+}
+
+.nav-toggle[aria-expanded='true'] .nav-toggle-bar:nth-child(3) {
+  transform: translateY(-5.5px) rotate(-45deg);
+}
+
 /* The resume is a file, not a page, so it is set apart from the route links. */
 .top-nav-resume {
   color: var(--text-primary);
@@ -453,8 +492,8 @@ button:focus-visible,
   margin-top: var(--section-gap);
 }
 
-.content-stack > .impact-row {
-  margin-top: var(--space-6);
+.content-stack > .affiliations {
+  margin-top: var(--space-5);
 }
 
 /* --- Section headings -----------------------------------------------------
@@ -474,20 +513,14 @@ button:focus-visible,
   margin-top: var(--space-3);
 }
 
-.section-note,
-.subsection-note {
+.section-note {
   max-width: var(--prose-max);
   color: var(--text-muted);
   font-size: var(--t-small);
 }
 
-.section-note + *,
-.subsection-note + * {
+.section-note + * {
   margin-top: var(--space-4);
-}
-
-.section-subhead {
-  margin-top: var(--subsection-gap);
 }
 
 /* --- Eyebrows and category labels ----------------------------------------
@@ -501,10 +534,9 @@ button:focus-visible,
 .contact-label,
 .case-detail-label,
 .case-meta-label,
-.impact-label,
 .affiliations-label,
 .skill-level-title,
-.project-index-meta {
+.work-card-meta {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 600;
@@ -520,11 +552,9 @@ button:focus-visible,
   margin-top: var(--space-2);
 }
 
-.eyebrow--research,
 .paper-venue,
-.research-highlight-card .project-scope,
-.case-study-card--research .project-scope,
-.project-index-card--research .project-scope {
+.work-card--research .project-scope,
+.case-study-page--research .project-scope {
   color: var(--secondary-accent);
 }
 
@@ -587,23 +617,12 @@ button:focus-visible,
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 236px;
-  grid-template-rows: auto auto;
   column-gap: var(--space-6);
-  row-gap: var(--space-5);
   align-items: start;
 }
 
 .hero-copy {
-  grid-column: 1;
-  grid-row: 1;
   min-width: 0;
-}
-
-/* The photo and the affiliation strip are siblings in the markup but belong in
-   different regions of the grid: `display: contents` lifts them out of their
-   wrapper so each can be placed directly. */
-.hero-photo-wrap {
-  display: contents;
 }
 
 .hero-name {
@@ -647,29 +666,6 @@ button:focus-visible,
   max-width: var(--prose-max);
   font-size: var(--t-body-lg);
   color: var(--text-secondary);
-}
-
-/* Keyword list, not a pill rack: the terms read as one line of metadata
-   separated by middots. */
-.hero-signal-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0 var(--space-1);
-  margin-top: var(--space-3);
-  max-width: var(--prose-max);
-}
-
-.hero-signal-pill {
-  color: var(--text-muted);
-  font-size: var(--t-label);
-  font-weight: 500;
-}
-
-.hero-signal-pill + .hero-signal-pill::before {
-  content: '·';
-  margin-right: var(--space-1);
-  color: var(--border-strong);
 }
 
 .hero-cta {
@@ -748,19 +744,7 @@ button:focus-visible,
   line-height: 1.6;
 }
 
-.hero-contact a {
-  color: inherit;
-  text-decoration: none;
-  border-bottom: 1px solid var(--border-strong);
-}
-
-.hero-contact a:hover {
-  color: var(--accent-text);
-}
-
 .hero-photo {
-  grid-column: 2;
-  grid-row: 1;
   width: 100%;
   aspect-ratio: 4 / 5;
   object-fit: cover;
@@ -771,12 +755,10 @@ button:focus-visible,
 }
 
 /* --- Affiliations ---------------------------------------------------------
-   Employers, schools, partners and funders, as one quiet strip across the foot
-   of the hero. They are credibility, not content: knocked back by default, at
-   full strength on hover, where the name also appears. */
+   Employers, schools, partners and funders, as one quiet strip under the hero.
+   They are credibility, not content: knocked back by default, at full strength
+   on hover, where the name also appears. */
 .affiliations {
-  grid-column: 1 / -1;
-  grid-row: 2;
   border-top: 1px solid var(--border);
   padding-top: var(--space-4);
 }
@@ -812,57 +794,233 @@ button:focus-visible,
 }
 
 /* ==========================================================================
-   Metrics band
+   Hero proof points
+
+   Three figures, inline in the hero rather than in a band beneath it. They are
+   the first thing a reader who has read the role wants: how big, how deep, how
+   credible.
    ========================================================================== */
 
-.impact-row {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  border-top: 1px solid var(--border-strong);
-  border-bottom: 1px solid var(--border);
-  padding-block: var(--space-4);
+.hero-proof {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-6);
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
 }
 
-.impact-chip {
-  padding-inline: var(--space-4);
-  border-left: 1px solid var(--border);
+.hero-proof-item {
   min-width: 0;
 }
 
-.impact-chip:first-child {
-  padding-left: 0;
-  border-left: 0;
-}
-
-.impact-value {
-  font-size: 1.875rem;
+.hero-proof-value {
+  font-size: 1.5rem;
   font-weight: 650;
-  line-height: 1.05;
+  line-height: 1.1;
   letter-spacing: -0.03em;
-  /* Tabular figures so a row of numbers shares one rhythm. */
   font-variant-numeric: tabular-nums;
   color: var(--text-primary);
-  overflow-wrap: anywhere;
 }
 
-/* One entry carries venue names rather than a figure; it takes a smaller size
-   so it does not set the height of the whole band. */
-.impact-value--text {
-  font-size: 1.125rem;
-  letter-spacing: -0.01em;
-  line-height: 1.25;
-}
-
-.impact-label {
-  margin-top: var(--space-1);
-  color: var(--text-secondary);
-}
-
-.impact-detail {
-  margin-top: var(--space-1);
+.hero-proof-label {
+  margin-top: 2px;
   color: var(--text-muted);
   font-size: var(--t-label);
-  line-height: 1.5;
+}
+
+/* ==========================================================================
+   Work cards
+
+   One card, used by the home page and the index. Category, title, outcome,
+   role and year, tags, a way in — in that order, every time. The outcome is
+   set heavier than the metadata under it, because it is the line the card
+   exists to deliver.
+   ========================================================================== */
+
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--card-gap);
+}
+
+.work-grid--secondary {
+  margin-top: var(--card-gap);
+}
+
+.work-card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--card-padding);
+  text-decoration: none;
+  color: inherit;
+}
+
+.work-card--research:hover {
+  border-color: var(--secondary-accent-border);
+}
+
+.work-card-title {
+  margin-top: var(--space-1);
+  font-size: var(--t-h3);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+
+/* The result, not a description of the work. */
+.work-card-outcome {
+  margin-top: var(--space-1);
+  max-width: var(--prose-max);
+  color: var(--text-primary);
+  font-size: var(--t-small);
+}
+
+.work-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--space-1);
+  margin-top: var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--t-label);
+}
+
+.work-card-period {
+  font-variant-numeric: tabular-nums;
+}
+
+.work-card-period::before {
+  content: '·';
+  margin-right: var(--space-1);
+  color: var(--border-strong);
+}
+
+.work-card .skill-cloud {
+  margin-top: var(--space-2);
+}
+
+.work-card-link {
+  margin-top: auto;
+  padding-top: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--accent-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.work-card--research .work-card-link {
+  color: var(--secondary-accent);
+}
+
+.work-card-link::after {
+  content: '\2192';
+  transition: transform var(--t-fast) var(--ease);
+}
+
+.work-card:hover .work-card-link::after {
+  transform: translateX(3px);
+}
+
+.work-card:hover .work-card-title {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* --- The featured project -------------------------------------------------
+   The same card, given a picture and a row of its own. It is the only item on
+   the home page with a screenshot, because it is the only one whose software
+   this repository contains. */
+.featured-work {
+  display: grid;
+  grid-template-columns: minmax(0, 46%) minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.featured-work-image-link {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+}
+
+.featured-work-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: 50% 0%;
+  transition: transform 400ms var(--ease);
+}
+
+.featured-work:hover .featured-work-image {
+  transform: scale(1.02);
+}
+
+.featured-work-body {
+  padding: var(--card-padding);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.featured-work-body .project-scope {
+  margin-top: var(--space-1);
+}
+
+.featured-work-title {
+  margin-top: var(--space-1);
+  font-size: 1.375rem;
+  font-weight: 650;
+  line-height: 1.22;
+  letter-spacing: -0.02em;
+}
+
+.featured-work-outcome {
+  margin-top: var(--space-2);
+  max-width: var(--prose-max);
+  color: var(--text-primary);
+  font-size: var(--t-body);
+}
+
+.featured-work-body .skill-cloud {
+  margin-top: var(--space-2);
+}
+
+.featured-work-link {
+  align-self: flex-start;
+  margin-top: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 40px;
+  color: var(--accent-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.featured-work-link::after {
+  content: '\2192';
+  transition: transform var(--t-fast) var(--ease);
+}
+
+.featured-work-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.featured-work-link:hover::after {
+  transform: translateX(3px);
+}
+
+/* A quiet way out of a section that deliberately shows only part of the work. */
+.section-cta {
+  margin-top: var(--space-3);
+  align-self: flex-start;
 }
 
 /* ==========================================================================
@@ -917,252 +1075,6 @@ button:focus-visible,
 
 .lane-card .skill-cloud {
   margin-top: var(--space-2);
-}
-
-/* ==========================================================================
-   Selected work — one featured card, then a two-column supporting grid
-   ========================================================================== */
-
-.featured-case-grid {
-  counter-reset: work;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--card-gap);
-}
-
-.featured-case-card {
-  counter-increment: work;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-/* A supporting card alone on the last row spans the leftover track rather than
-   leaving a hole beside it. */
-.featured-case-grid > .featured-case-card:last-child:nth-child(even) {
-  grid-column: 1 / -1;
-}
-
-/* The screenshots are shot to fill this frame, so they crop rather than
-   letterbox — a contained image inside a padded box spends the card's best row
-   on background. */
-.featured-case-image-link {
-  position: relative;
-  display: block;
-  overflow: hidden;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-}
-
-.featured-case-image {
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  object-position: 50% 0%;
-  transition: transform 400ms var(--ease);
-}
-
-.featured-case-card:hover .featured-case-image {
-  transform: scale(1.02);
-}
-
-.featured-case-body {
-  position: relative;
-  padding: var(--card-padding);
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-}
-
-/* The work index, set in the corner of the plate the way a figure number sits
-   on a plate in a report. */
-.featured-case-body::before {
-  content: counter(work, decimal-leading-zero);
-  position: absolute;
-  top: var(--card-padding);
-  right: var(--card-padding);
-  color: var(--border-strong);
-  font-size: var(--t-label);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
-}
-
-.featured-case-body .project-scope {
-  padding-right: var(--space-5);
-}
-
-.featured-case-title,
-.research-highlight-title {
-  font-size: var(--t-h3);
-  font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: -0.015em;
-}
-
-.featured-case-summary,
-.research-highlight-summary {
-  margin-top: var(--space-1);
-  max-width: var(--reading-max);
-  color: var(--text-secondary);
-  font-size: var(--t-small);
-}
-
-.featured-case-card .skill-cloud,
-.research-highlight-card .skill-cloud {
-  margin-top: var(--space-2);
-}
-
-.featured-case-highlights,
-.research-highlight-list {
-  margin-top: var(--space-2);
-  padding-left: 1.05rem;
-  max-width: var(--prose-max);
-  color: var(--text-secondary);
-  font-size: var(--t-small);
-}
-
-.featured-case-highlights li,
-.research-highlight-list li {
-  margin-bottom: var(--space-1);
-}
-
-.featured-case-highlights li:last-child,
-.research-highlight-list li:last-child,
-.exp-bullets li:last-child,
-.case-detail-list li:last-child,
-.case-study-list li:last-child {
-  margin-bottom: 0;
-}
-
-.featured-case-highlights li::marker,
-.research-highlight-list li::marker,
-.case-detail-list li::marker,
-.exp-bullets li::marker,
-.case-study-list li::marker {
-  color: var(--border-strong);
-}
-
-/* The outcome line — the one sentence a reader skimming the card should keep. */
-.featured-case-caption,
-.research-highlight-caption {
-  margin-top: var(--space-3);
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--border);
-  max-width: var(--reading-max);
-  color: var(--text-secondary);
-  font-size: var(--t-label);
-}
-
-/* A link with a moving arrow, not a third button. */
-.featured-case-cta {
-  margin-top: var(--space-2);
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  min-height: 40px;
-  color: var(--accent-text);
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: color var(--t-fast) var(--ease);
-}
-
-.featured-case-cta::after {
-  content: '\2192';
-  transition: transform var(--t-fast) var(--ease);
-}
-
-.featured-case-cta:hover {
-  color: var(--accent-hover);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.featured-case-cta:hover::after {
-  transform: translateX(3px);
-}
-
-.research-highlight-card .featured-case-cta {
-  color: var(--secondary-accent);
-}
-
-.research-highlight-card .featured-case-cta:hover {
-  color: var(--secondary-accent-hover);
-}
-
-/* The featured card: image beside copy, spanning the grid. */
-.featured-case-card-primary {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: minmax(0, 46%) minmax(0, 1fr);
-}
-
-/* The image column is as tall as the copy beside it, which is taller than a
-   16:9 frame. Stretching the shot to fill it cropped a wide dashboard panel
-   into a near-square strip — the chart's own axis went off both sides. The
-   frame keeps its aspect and centres in the column instead. */
-.featured-case-card-primary .featured-case-image-link {
-  border-bottom: 0;
-  border-right: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-}
-
-.featured-case-card-primary .featured-case-image {
-  height: auto;
-  min-height: 0;
-  aspect-ratio: 16 / 9;
-}
-
-.featured-case-card-primary .featured-case-body {
-  justify-content: center;
-}
-
-/* --- Research previews ---------------------------------------------------- */
-.research-highlight-grid {
-  counter-reset: study;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--card-gap);
-}
-
-.research-highlight-grid > *:last-child:nth-child(odd) {
-  grid-column: 1 / -1;
-}
-
-.glass-card.research-highlight-card {
-  counter-increment: study;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  padding: var(--card-padding);
-}
-
-.research-highlight-card:hover {
-  border-color: var(--secondary-accent-border);
-}
-
-.research-highlight-card::before {
-  content: 'R' counter(study, decimal-leading-zero);
-  position: absolute;
-  top: var(--card-padding);
-  right: var(--card-padding);
-  color: var(--border-strong);
-  font-size: var(--t-label);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
-}
-
-.research-highlight-card .project-scope {
-  padding-right: var(--space-5);
-}
-
-.research-highlight-caption {
-  margin-top: auto;
 }
 
 /* ==========================================================================
@@ -1400,89 +1312,12 @@ button:focus-visible,
 }
 
 /* ==========================================================================
-   Project index (Selected Work page)
+   Case study pages
 
-   The anchors at the top of the page are an index, not a table of contents:
-   each entry says what the project was and what came of it, then hands off to
-   the case study below.
-   ========================================================================== */
-
-.project-index-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--card-gap);
-}
-
-.project-index-card {
-  display: flex;
-  flex-direction: column;
-  padding: var(--card-padding);
-  text-decoration: none;
-  color: inherit;
-}
-
-.project-index-card--research:hover {
-  border-color: var(--secondary-accent-border);
-}
-
-.project-index-title {
-  margin-top: var(--space-1);
-  font-size: var(--t-h3);
-  font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: -0.015em;
-}
-
-.project-index-outcome {
-  margin-top: var(--space-1);
-  max-width: var(--reading-max);
-  color: var(--text-secondary);
-  font-size: var(--t-small);
-}
-
-/* Role and context, on one line of small caps under the outcome. */
-.project-index-meta {
-  margin-top: var(--space-2);
-  color: var(--text-muted);
-  letter-spacing: 0.06em;
-}
-
-.project-index-card .skill-cloud {
-  margin-top: var(--space-2);
-}
-
-.project-index-link {
-  margin-top: var(--space-3);
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--border);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  color: var(--accent-text);
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.project-index-card--research .project-index-link {
-  color: var(--secondary-accent);
-}
-
-.project-index-link::after {
-  content: '\2192';
-  transition: transform var(--t-fast) var(--ease);
-}
-
-.project-index-card:hover .project-index-link::after {
-  transform: translateX(3px);
-}
-
-.project-index-card:hover .project-index-title {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-/* ==========================================================================
-   Case studies
+   One route per project, on one template: a reading column capped at
+   --reading-max with a metadata rail beside it, and the results lifted out of
+   the prose so the lines a reader is scanning for are the ones that carry
+   weight.
    ========================================================================== */
 
 /* An inline text link inside running copy — deliberately not a button, so it
@@ -1502,75 +1337,145 @@ button:focus-visible,
   text-decoration-color: currentColor;
 }
 
-.case-study-stack {
-  counter-reset: casestudy;
-  display: grid;
-  gap: var(--space-6);
-}
-
-.case-study-card {
-  counter-increment: casestudy;
-  position: relative;
-  padding: var(--space-5);
-  scroll-margin-top: 88px;
-  transition: border-color var(--t-base) var(--ease);
-}
-
-.case-study-card:hover {
-  border-color: var(--border-strong);
-}
-
-.case-study-card::before {
-  content: counter(casestudy, decimal-leading-zero);
-  position: absolute;
-  top: var(--space-5);
-  right: var(--space-5);
-  color: var(--border-strong);
-  font-size: var(--t-label);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
-}
-
-.case-study-head {
-  padding-right: var(--space-6);
-  border-bottom: 1px solid var(--border);
-  padding-bottom: var(--space-4);
-}
-
-.case-study-title {
-  margin-top: var(--space-1);
-  font-size: 1.5rem;
-  font-weight: 650;
-  line-height: 1.22;
-  letter-spacing: -0.022em;
+.case-study-header {
   max-width: var(--reading-max);
 }
 
-/* The outcome sentence, directly under the title. */
-.case-study-problem {
-  margin-top: var(--space-2);
-  max-width: var(--prose-max);
-  font-size: var(--t-body-lg);
-  color: var(--text-secondary);
+.case-backlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  /* The way back to the index is the first control on the page, so it carries a
+     real target rather than the height of its own 13px label. */
+  min-height: 44px;
+  margin-bottom: var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--t-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color var(--t-fast) var(--ease);
 }
 
-/* The reading column and the metadata rail. Prose is capped at --reading-max
-   and the rail takes what a label needs and no more. */
+.case-backlink::before {
+  content: '\2190';
+  transition: transform var(--t-fast) var(--ease);
+}
+
+.case-backlink:hover {
+  color: var(--accent-text);
+}
+
+.case-backlink:hover::before {
+  transform: translateX(-3px);
+}
+
+.case-study-header .section-hero-title {
+  margin-top: var(--space-1);
+  font-size: clamp(2rem, 3.6vw, 2.5rem);
+}
+
+/* The outcome, at the top, before any of the detail that produced it. */
+.case-lede {
+  margin-top: var(--space-3);
+  max-width: var(--prose-max);
+  font-size: var(--t-body-lg);
+  color: var(--text-primary);
+}
+
+.case-study-header .skill-cloud {
+  margin-top: var(--space-3);
+}
+
 .case-study-body {
-  margin-top: var(--space-4);
   display: grid;
-  grid-template-columns: minmax(0, var(--reading-max)) minmax(0, 232px);
-  gap: var(--space-5);
+  grid-template-columns: minmax(0, var(--reading-max)) minmax(0, 220px);
+  gap: var(--space-6);
   align-items: start;
 }
 
 .case-study-main {
   min-width: 0;
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-5);
 }
 
+.case-detail-block {
+  min-width: 0;
+}
+
+.case-detail-label {
+  color: var(--text-muted);
+}
+
+.case-detail-label + * {
+  margin-top: var(--space-2);
+}
+
+.case-detail-copy {
+  max-width: var(--prose-max);
+  color: var(--text-secondary);
+  font-size: var(--t-body);
+}
+
+.case-detail-list {
+  padding-left: 1.05rem;
+  max-width: var(--prose-max);
+  color: var(--text-secondary);
+  font-size: var(--t-small);
+}
+
+.case-detail-list li {
+  margin-bottom: var(--space-1);
+}
+
+.case-detail-list li:last-child {
+  margin-bottom: 0;
+}
+
+.case-detail-list li::marker {
+  color: var(--border-strong);
+}
+
+.case-detail-cta {
+  justify-self: start;
+}
+
+/* --- Results --------------------------------------------------------------
+   The lines a reader is scanning for. They sit on a rule rather than a bullet
+   and carry the page's ink weight, so a skim lands on them. */
+.result-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+  max-width: var(--prose-max);
+}
+
+.result-item {
+  position: relative;
+  padding-left: var(--space-4);
+  color: var(--text-primary);
+  font-size: var(--t-body);
+  line-height: 1.5;
+}
+
+.result-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: var(--space-2);
+  height: 2px;
+  background: var(--accent);
+}
+
+.case-study-page--research .result-item::before {
+  background: var(--secondary-accent);
+}
+
+/* --- Metadata rail -------------------------------------------------------- */
 .case-study-side {
   min-width: 0;
   display: grid;
@@ -1579,73 +1484,36 @@ button:focus-visible,
   border-left: 1px solid var(--border);
 }
 
-.case-detail-block,
 .case-meta {
   min-width: 0;
 }
 
-.case-detail-label,
 .case-meta-label {
   color: var(--text-muted);
 }
 
-.case-detail-label + *,
-.case-meta-label + * {
+.case-meta-value {
   margin-top: var(--space-1);
-}
-
-.case-detail-list,
-.case-study-list {
-  padding-left: 1.05rem;
-  max-width: var(--prose-max);
-  color: var(--text-secondary);
-  font-size: var(--t-small);
-}
-
-.case-detail-list li,
-.case-study-list li {
-  margin-bottom: var(--space-1);
-}
-
-.case-detail-copy {
-  max-width: var(--prose-max);
-  color: var(--text-secondary);
-  font-size: var(--t-small);
-}
-
-.case-meta-copy {
-  max-width: var(--prose-max);
   color: var(--text-secondary);
   font-size: 0.875rem;
+  line-height: 1.5;
 }
 
-/* The rail's lists are narrow, so they lose the bullet indent and read as a
-   stacked list of values. */
-.case-study-side .case-detail-list {
+.case-meta-list {
   list-style: none;
-  padding-left: 0;
-  font-size: 0.875rem;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
 }
 
-.case-study-side .case-detail-list li {
+.case-meta-list li {
   padding-left: var(--space-2);
   border-left: 2px solid var(--border);
-  margin-bottom: var(--space-1);
 }
 
-.case-tools-wrap {
-  min-width: 0;
-}
-
-/* --- Research case studies -----------------------------------------------
-   The same object in the same design language; only the semantic accent moves
-   from the accent to teal. */
-.case-study-card--research:hover {
-  border-color: var(--border-strong);
-}
-
+/* --- Figures -------------------------------------------------------------- */
 .case-study-figure {
-  margin-bottom: var(--space-4);
+  margin: 0;
 }
 
 .case-study-image-link {
@@ -1682,16 +1550,14 @@ button:focus-visible,
   font-size: var(--t-label);
 }
 
-/* --- Live demo showcase ---------------------------------------------------
-   One shot per row, at the full width of the plate. Three across fits, but a
-   dashboard panel rendered 340px wide is a thumbnail of a screenshot rather
+/* One shot per row, at the full width of the column. Three across fits, but a
+   dashboard panel rendered 240px wide is a thumbnail of a screenshot rather
    than a screenshot: the axis labels, the anomaly callouts and the retention
    triangle's own numbers are the evidence, and none of them survive that. */
 .demo-shot-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-5);
-  margin-top: var(--space-4);
+  gap: var(--space-4);
 }
 
 .demo-shot {
@@ -1703,6 +1569,8 @@ button:focus-visible,
   width: 100%;
   height: auto;
   display: block;
+  /* The static build lazy-loads these; without a declared ratio the box is zero
+     until the file arrives and everything below it jumps. */
   aspect-ratio: 16 / 9;
   object-fit: contain;
   border-radius: 0;
@@ -1714,19 +1582,52 @@ button:focus-visible,
   background: var(--bg);
 }
 
-.demo-showcase .cta-secondary {
-  align-self: flex-start;
-  margin-top: var(--space-4);
+/* --- Previous / next ------------------------------------------------------
+   A ring, so no case study is a dead end. */
+.case-pager {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--card-gap);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-strong);
 }
 
-/* The demo has no metadata rail — its evidence is the screenshots, which want
-   the full plate. */
-.demo-showcase .case-study-body {
-  grid-template-columns: minmax(0, 1fr);
+.case-pager-link {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--t-base) var(--ease),
+              transform var(--t-base) var(--ease);
 }
 
-.demo-showcase .case-study-main {
-  max-width: none;
+.case-pager-link:hover {
+  border-color: var(--accent-border);
+  transform: translateY(-2px);
+}
+
+.case-pager-next {
+  text-align: right;
+}
+
+.case-pager-label {
+  color: var(--text-muted);
+  font-size: var(--t-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.case-pager-title {
+  color: var(--text-primary);
+  font-size: var(--t-small);
+  font-weight: 600;
+  line-height: 1.35;
 }
 
 /* ==========================================================================
@@ -2079,15 +1980,11 @@ a.contact-value:hover {
   animation: revealUp 320ms var(--ease) both;
 }
 
-.case-study-stack > .reveal-up:nth-child(2),
 .contact-grid > .reveal-up:nth-child(2),
-.lane-grid > .reveal-up:nth-child(2),
-.research-highlight-grid > .reveal-up:nth-child(2) { animation-delay: 50ms; }
+.lane-grid > .reveal-up:nth-child(2) { animation-delay: 50ms; }
 
-.case-study-stack > .reveal-up:nth-child(n + 3),
 .contact-grid > .reveal-up:nth-child(n + 3),
-.lane-grid > .reveal-up:nth-child(n + 3),
-.research-highlight-grid > .reveal-up:nth-child(n + 3) { animation-delay: 100ms; }
+.lane-grid > .reveal-up:nth-child(n + 3) { animation-delay: 100ms; }
 
 @keyframes revealUp {
   from {
@@ -2135,17 +2032,7 @@ a.contact-value:hover {
 
   .case-study-body {
     grid-template-columns: minmax(0, 1fr) minmax(0, 200px);
-    gap: var(--space-4);
-  }
-
-  .impact-row {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    row-gap: var(--space-4);
-  }
-
-  .impact-chip:nth-child(3n + 1) {
-    padding-left: 0;
-    border-left: 0;
+    gap: var(--space-5);
   }
 
   .glass-card.field-work-card {
@@ -2163,34 +2050,26 @@ a.contact-value:hover {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .hero-copy,
   .hero-photo {
-    grid-column: 1;
-  }
-
-  .hero-photo {
-    grid-row: auto;
     width: min(200px, 50%);
     aspect-ratio: 1 / 1;
   }
 
-  .affiliations {
-    grid-column: 1;
-    grid-row: auto;
-  }
-
-  /* The rail moves below the reading column rather than squeezing beside it. */
+  /* The rail moves directly under the opening summary rather than squeezing
+     beside it, so the metadata is read before the detail instead of after. */
   .case-study-body {
     grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
   }
 
   .case-study-side {
+    order: -1;
     padding-left: 0;
-    padding-top: var(--space-4);
+    padding-bottom: var(--space-4);
     border-left: 0;
-    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-4);
+    gap: var(--space-3) var(--space-4);
   }
 
   .lane-grid,
@@ -2205,17 +2084,15 @@ a.contact-value:hover {
     grid-column: 1 / -1;
   }
 
-  .featured-case-grid,
-  .featured-case-card-primary,
-  .project-index-grid,
-  .research-highlight-grid,
+  .work-grid,
+  .featured-work,
   .research-figure-grid,
   .field-work-card,
   .contact-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .featured-case-card-primary .featured-case-image-link {
+  .featured-work-image-link {
     border-right: 0;
     border-bottom: 1px solid var(--border);
     display: block;
@@ -2260,33 +2137,6 @@ a.contact-value:hover {
     padding-block: var(--space-5) var(--space-7);
   }
 
-  .header-inner {
-    min-height: 64px;
-    gap: var(--space-3);
-  }
-
-  .top-nav {
-    gap: var(--space-3);
-  }
-
-  .top-nav-link {
-    font-size: var(--t-label);
-  }
-
-  .impact-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .impact-chip:nth-child(3n + 1) {
-    padding-left: var(--space-4);
-    border-left: 1px solid var(--border);
-  }
-
-  .impact-chip:nth-child(2n + 1) {
-    padding-left: 0;
-    border-left: 0;
-  }
-
   .lane-grid,
   .resume-track-grid,
   .research-theme-grid,
@@ -2301,58 +2151,114 @@ a.contact-value:hover {
     grid-column: auto;
   }
 
-  .case-study-card {
-    padding: var(--card-padding);
-  }
-
-  .case-study-card::before {
-    top: var(--card-padding);
-    right: var(--card-padding);
-  }
-
-  .case-study-head {
-    padding-right: var(--space-6);
-  }
-
   .exp-meta {
     text-align: left;
   }
 }
 
-/* --- 560px ---------------------------------------------------------------- */
-@media (max-width: 560px) {
+/* --- 760px: the navigation collapses ---------------------------------------
+   Above this the bar holds five destinations comfortably. Below it they were
+   wrapping under the wordmark on every route and pushing the header past
+   100px, so they move behind a disclosure and the closed header holds at
+   64px. */
+@media (max-width: 760px) {
   .header-inner {
-    flex-wrap: wrap;
-    padding-block: var(--space-1);
+    min-height: 64px;
+    gap: var(--space-2);
+    position: relative;
+    flex-wrap: nowrap;
+    padding-block: 0;
+  }
+
+  .nav-toggle {
+    display: flex;
+    order: 2;
   }
 
   .top-nav {
+    display: none;
+    order: 3;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
     justify-content: flex-start;
-    row-gap: var(--space-1);
+    gap: 0;
+    padding: var(--space-2) var(--page-gutter) var(--space-3);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-float);
   }
 
+  .top-nav.open {
+    display: flex;
+  }
+
+  .top-nav-link {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0;
+    font-size: var(--t-body);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .top-nav-link:last-child {
+    border-bottom: 0;
+  }
+
+  .top-nav-link:hover {
+    border-bottom-color: var(--border);
+  }
+
+  .top-nav-link.active {
+    border-bottom-color: var(--border);
+    color: var(--accent-text);
+  }
+
+  /* The current route is still marked without relying on the underline the
+     desktop bar uses, which reads as a divider here. */
+  .top-nav-link.active::before {
+    content: '';
+    width: 3px;
+    align-self: stretch;
+    margin-right: var(--space-2);
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  .top-nav-resume {
+    margin-top: var(--space-2);
+    justify-content: center;
+    min-height: 48px;
+    border: 1px solid var(--border-strong);
+  }
+
+  .top-nav-resume.active::before,
+  .top-nav-resume::before {
+    content: none;
+  }
+}
+
+/* --- 560px ---------------------------------------------------------------- */
+@media (max-width: 560px) {
   .cta-primary,
   .cta-secondary {
     flex: 1 1 auto;
   }
 
-  .impact-row {
+  .hero-proof {
+    gap: var(--space-3) var(--space-5);
+  }
+
+  .case-pager {
     grid-template-columns: minmax(0, 1fr);
-    row-gap: var(--space-3);
   }
 
-  .impact-chip {
-    padding-inline: 0;
-    border-left: 0;
-  }
-
-  .impact-chip + .impact-chip {
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--border);
-  }
-
-  .case-study-side {
-    grid-template-columns: minmax(0, 1fr);
+  .case-pager-next {
+    text-align: left;
   }
 
   .affiliations-grid {

@@ -3,51 +3,37 @@ from typing import List
 import dash
 from dash import html
 
-from case_studies import CASE_STUDIES, LIVE_DEMO, RESEARCH_HIGHLIGHTS
 from profile_data import EMAIL, GITHUB_URL, LINKEDIN_URL, LOCATION, PHONE_DISPLAY
+from work_ui import FEATURED_SLUG, HOME_SECONDARY, by_slug, outcome, tags, work_card
 
 
 dash.register_page(__name__, path='/', order=0, name='Home')
 
 
-# Deliberately not the three words already in the descriptor above them: these
-# say what the work actually consists of.
-HERO_SIGNAL_PILLS = [
-    'KPI Architecture',
-    'Event Instrumentation',
-    'Retention & Churn',
-    'Subscription Revenue',
-    'Quasi-Experimental Design',
-    'LiDAR 3D Detection',
-]
-
-IMPACT_CHIPS = [
-    ('138', 'Client portfolio',
-     'Mobile and streaming apps reporting on one source-of-truth KPI layer'),
-    ('1.6B+', 'Session-minutes analysed',
-     'Six years of longitudinal engagement across a 774K-user base'),
-    ('34', 'Scheduled jobs in production',
-     'Executive and client reporting that refreshes without anyone touching it'),
-    ('5,000+', 'Labelled benchmark objects',
-     'LiDAR annotation and evaluation workflows behind two published datasets'),
-    ('ICPR · ISPRS', 'Peer-reviewed venues',
-     'Plus the Best Master\u2019s Thesis award, York University 2022'),
+# Three proof points, in the hero rather than in a band beneath it. Any more
+# and the hero stops being a summary. The two figures the old five-item band
+# also carried now sit in the experience bullets that describe them, which is
+# where a reader looking for them would be anyway.
+PROOF_POINTS = [
+    ('138', 'client app portfolio'),
+    ('1.6B+', 'session-minutes analysed'),
+    ('ICPR · ISPRS', 'peer-reviewed venues'),
 ]
 
 CAPABILITY_LANES = [
     {
         'title': 'Product Analytics / Decision Systems',
-        'copy': 'KPI architecture, behavioral diagnostics, experimentation, monetization analysis, and operating reviews used to support product and growth decisions.',
+        'copy': 'KPI architecture, retention and monetization, and operating reviews.',
         'tags': ['Metric Contracts', 'Retention', 'Monetization', 'Cohorts', 'Quasi-Experimental Analysis', 'Decision Dashboards'],
     },
     {
         'title': 'Data Systems / Automation',
-        'copy': 'SQL and Python workflows for analytics engineering, multi-tenant data models, recurring reporting, automation, and decision-ready reporting surfaces.',
+        'copy': 'SQL and Python analytics engineering: data models, pipelines, automation.',
         'tags': ['Analytics Engineering', 'Data Modeling', 'ETL Workflows', 'Automation', 'Dash / FastAPI', 'Data Quality'],
     },
     {
         'title': 'AI / ML / Research Work',
-        'copy': 'LiDAR, point cloud, and computer-vision research spanning dataset curation, benchmark design, deep learning experimentation, evaluation, and technical synthesis.',
+        'copy': 'LiDAR and 3D vision research: datasets, benchmarks, model evaluation.',
         'tags': ['Computer Vision', '3D Vision', 'LiDAR', 'Detection', 'Segmentation', 'Benchmarking'],
     },
 ]
@@ -112,22 +98,6 @@ RESUME_TRACKS = [
 ]
 
 
-def _impact_chip(value: str, label: str, detail: str):
-    # A chip whose value is a name, not a figure, needs a smaller type size or it
-    # sets the height of the whole row.
-    value_class = 'impact-value'
-    if not any(character.isdigit() for character in value):
-        value_class += ' impact-value--text'
-    return html.Div(
-        className='impact-chip',
-        children=[
-            html.Div(value, className=value_class),
-            html.Div(label, className='impact-label'),
-            html.Div(detail, className='impact-detail'),
-        ],
-    )
-
-
 def _tag_cloud(tags: List[str]):
     return html.Div(
         className='skill-cloud',
@@ -177,140 +147,59 @@ def _experience_block(title: str, company: str, period: str, location: str, bull
     )
 
 
-def _case_preview_card(case, primary: bool = False):
-    card_class = 'glass-card card-hover featured-case-card'
-    if primary:
-        card_class += ' featured-case-card-primary'
+def _featured_card():
+    """The featured project: a picture, the outcome, and a way in.
 
-    children = []
-    if case.get('thumbnail_src'):
-        children.append(
-            # The card's button below points at the same anchor, so the image
-            # link is hidden from assistive tech and the tab order rather than
-            # announced as a second, unlabelled copy of it.
-            html.A(
-                href=f"/projects#{case['slug']}",
-                className='featured-case-image-link',
-                tabIndex='-1',
-                **{
-                    'aria-hidden': 'true',
-                    'data-track': 'featured_case_image_click',
-                    'data-track-location': 'home_featured_case',
-                    'data-track-label': case['slug'],
-                },
-                children=html.Img(
-                    src=case['thumbnail_src'],
-                    className='featured-case-image',
-                    alt=case['thumbnail_alt'],
-                ),
-            )
-        )
-    else:
-        card_class += ' featured-case-card-textual'
-
-    return html.Article(
-        className=card_class,
-        children=children + [
-            html.Div(
-                className='featured-case-body',
-                children=[
-                    html.Div(case['scope'], className='project-scope'),
-                    html.H3(case['title'], className='featured-case-title'),
-                    html.P(case['problem_line'], className='featured-case-summary'),
-                    _tag_cloud(case['tags']),
-                    html.Ul(
-                        className='featured-case-highlights',
-                        children=[html.Li(item) for item in case['highlights']],
-                    ),
-                    html.P(case['homepage_caption'], className='featured-case-caption'),
-                    html.A(
-                        'View Work Sample',
-                        href=f"/projects#{case['slug']}",
-                        className='cta-secondary featured-case-cta',
-                        **{
-                            'data-track': 'featured_case_cta_click',
-                            'data-track-location': 'home_featured_case',
-                            'data-track-label': case['slug'],
-                        },
-                    ),
-                ],
-            ),
-        ],
-    )
-
-
-def _demo_preview_card():
-    """The live demo, leading the featured row.
-
-    It is the only item on the page with a screenshot, because it is the only
-    one whose software this repository actually contains.
+    It is the only home-page card with a screenshot, because it is the only item
+    whose software this repository actually contains. Everything else about it
+    is the same card the index uses.
     """
-    shot = LIVE_DEMO['shots'][0]
+    item = by_slug(FEATURED_SLUG)
     return html.Article(
-        className='glass-card card-hover featured-case-card featured-case-card-primary',
+        className='glass-card card-hover featured-work',
         children=[
             html.A(
-                href='/dashboard',
-                className='featured-case-image-link',
+                href=f"/projects/{item['slug']}",
+                className='featured-work-image-link',
                 tabIndex='-1',
                 **{
                     'aria-hidden': 'true',
-                    'data-track': 'featured_case_image_click',
-                    'data-track-location': 'home_featured_case',
-                    'data-track-label': LIVE_DEMO['slug'],
+                    'data-track': 'featured_work_image_click',
+                    'data-track-location': 'home_selected_work',
+                    'data-track-label': item['slug'],
                 },
                 children=html.Img(
-                    src=shot['src'],
-                    className='featured-case-image',
-                    alt=shot['alt'],
+                    src=item['shots'][0]['src'],
+                    className='featured-work-image',
+                    alt=item['shots'][0]['alt'],
                 ),
             ),
             html.Div(
-                className='featured-case-body',
+                className='featured-work-body',
                 children=[
-                    html.Div(LIVE_DEMO['scope'], className='project-scope'),
-                    html.H3(LIVE_DEMO['title'], className='featured-case-title'),
-                    html.P(LIVE_DEMO['problem_line'], className='featured-case-summary'),
-                    _tag_cloud(LIVE_DEMO['tags']),
-                    html.Ul(
-                        className='featured-case-highlights',
-                        children=[html.Li(item) for item in LIVE_DEMO['highlights']],
+                    html.Div('FEATURED PROJECT', className='eyebrow'),
+                    html.Div(item['scope'], className='project-scope'),
+                    html.H3(item['title'], className='featured-work-title'),
+                    html.P(outcome(item), className='featured-work-outcome'),
+                    html.Div(
+                        className='work-card-meta',
+                        children=[
+                            html.Span(item['role'], className='work-card-role'),
+                            html.Span(item['period'], className='work-card-period'),
+                        ],
                     ),
-                    html.P(LIVE_DEMO['homepage_caption'],
-                           className='featured-case-caption'),
+                    tags(item, 4),
                     html.A(
-                        'Open the live demo \u2192',
-                        href='/dashboard',
-                        className='cta-secondary featured-case-cta',
+                        'Read case study',
+                        href=f"/projects/{item['slug']}",
+                        className='featured-work-link',
                         **{
-                            'data-track': 'featured_case_cta_click',
-                            'data-track-location': 'home_featured_case',
-                            'data-track-label': LIVE_DEMO['slug'],
+                            'data-track': 'work_card_click',
+                            'data-track-location': 'home_featured',
+                            'data-track-label': item['slug'],
                         },
                     ),
                 ],
-            ),
-        ],
-    )
-
-
-def _research_preview_card(item):
-    return html.Article(
-        className='glass-card card-hover research-highlight-card reveal-up',
-        children=[
-            html.Div(item['scope'], className='project-scope'),
-            html.H3(item['title'], className='research-highlight-title'),
-            html.P(item['problem_line'], className='research-highlight-summary'),
-            _tag_cloud(item['tags']),
-            html.Ul(
-                className='research-highlight-list',
-                children=[html.Li(point) for point in item['highlights']],
-            ),
-            html.P(item['homepage_caption'], className='research-highlight-caption'),
-            html.A(
-                'View Project Summary',
-                href=f"/projects#{item['slug']}",
-                className='cta-secondary featured-case-cta',
             ),
         ],
     )
@@ -343,20 +232,30 @@ layout = html.Div(
                             className='hero-role-descriptor',
                         ),
                         html.P(
-                            'I own the measurement layer of a subscription product end to end.',
+                            'I connect product decision-making, data systems, and applied ML '
+                            'research to outcomes teams can act on.',
                             className='hero-title',
                         ),
                         html.P(
-                            'Source-of-truth KPI definitions, the event instrumentation and SQL/Python '
-                            'pipelines underneath them, and the reporting executives decide from \u2014 '
-                            'across a 138-client mobile and streaming portfolio with six years of '
-                            'longitudinal history. Statistics-trained, with peer-reviewed machine '
+                            'I define the KPIs a subscription business runs on, build the event '
+                            'instrumentation and SQL/Python pipelines underneath them, and automate '
+                            'the reporting executives decide from \u2014 across a 138-client mobile '
+                            'and streaming portfolio. Statistics-trained, with peer-reviewed machine '
                             'learning research in LiDAR 3D object detection.',
                             className='hero-subtitle',
                         ),
                         html.Div(
-                            className='hero-signal-row',
-                            children=[html.Span(pill, className='hero-signal-pill') for pill in HERO_SIGNAL_PILLS],
+                            className='hero-proof',
+                            children=[
+                                html.Div(
+                                    className='hero-proof-item',
+                                    children=[
+                                        html.Div(value, className='hero-proof-value'),
+                                        html.Div(label, className='hero-proof-label'),
+                                    ],
+                                )
+                                for value, label in PROOF_POINTS
+                            ],
                         ),
                         html.Div(
                             className='hero-cta',
@@ -377,7 +276,7 @@ layout = html.Div(
                                     },
                                 ),
                                 html.A(
-                                    'Resume (PDF)',
+                                    'Download resume',
                                     href='/assets/Hyungju_Lee_Resume.pdf',
                                     download='Hyungju_Lee_Resume.pdf',
                                     className='cta-secondary',
@@ -419,41 +318,35 @@ layout = html.Div(
                         ),
                     ],
                 ),
-                html.Div(
-                    className='hero-photo-wrap',
-                    children=[
-                        html.Img(
-                            src='/assets/my_pic_web.jpg',
-                            className='hero-photo',
-                            alt='Portrait of Hyungju Lee',
-                        ),
-                        html.Div(
-                            className='affiliations',
-                            children=[
-                                html.Div('Worked with and studied at',
-                                         className='affiliations-label'),
-                                html.Div(
-                                    className='affiliations-grid',
-                                    children=[
-                                        html.Img(
-                                            src=f'/assets/logos/{slug}.png',
-                                            alt=name,
-                                            title=name,
-                                            className='affiliation-mark',
-                                            style={'maxHeight': f'{height}px'},
-                                        )
-                                        for slug, name, height in AFFILIATIONS
-                                    ],
-                                ),
-                            ],
-                        ),
-                    ],
+                html.Img(
+                    src='/assets/my_pic_web.jpg',
+                    className='hero-photo',
+                    alt='Portrait of Hyungju Lee',
                 ),
             ],
         ),
+        # The credibility strip is its own band rather than the hero's second
+        # row: it kept the hero 140px past the height a summary should be, and
+        # it reads better as the thing that follows the claim than as part of
+        # it.
         html.Section(
-            className='impact-row reveal-up',
-            children=[_impact_chip(*chip) for chip in IMPACT_CHIPS],
+            className='affiliations reveal-up',
+            children=[
+                html.Div('Worked with and studied at', className='affiliations-label'),
+                html.Div(
+                    className='affiliations-grid',
+                    children=[
+                        html.Img(
+                            src=f'/assets/logos/{slug}.png',
+                            alt=name,
+                            title=name,
+                            className='affiliation-mark',
+                            style={'maxHeight': f'{height}px'},
+                        )
+                        for slug, name, height in AFFILIATIONS
+                    ],
+                ),
+            ],
         ),
         html.Section(
             className='reveal-up',
@@ -474,36 +367,29 @@ layout = html.Div(
             children=[
                 html.H2('Selected Work', className='section-title'),
                 html.P(
-                    'Representative work across product analytics, technical decision systems, and AI/ML-oriented research.',
-                    className='section-note',
-                ),
-                html.Div('PRODUCT ANALYTICS / DECISION SYSTEMS', className='eyebrow'),
-                html.P(
                     [
-                        'Production-facing systems for KPI monitoring, behavioral diagnostics, '
-                        'segmentation, and operating reviews. All three run as an ',
-                        html.A('interactive dashboard', href='/dashboard',
-                               className='inline-link',
-                               **{'data-track': 'live_demo_click',
+                        'One build shown in full, four more in brief. All seven are in the ',
+                        html.A('project index', href='/projects', className='inline-link',
+                               **{'data-track': 'work_index_click',
                                   'data-track-location': 'home_selected_work'}),
                         '.',
                     ],
-                    className='subsection-note',
+                    className='section-note',
                 ),
+                # The featured item is the one whose software this repository
+                # actually contains, so it is the only one that gets a picture.
+                _featured_card(),
                 html.Div(
-                    className='featured-case-grid',
-                    children=[_demo_preview_card()] + [
-                        _case_preview_card(case) for case in CASE_STUDIES
-                    ],
+                    className='work-grid work-grid--secondary',
+                    children=[work_card(by_slug(slug), track_location='home_selected_work')
+                              for slug in HOME_SECONDARY],
                 ),
-                html.Div('AI / ML / RESEARCH WORK', className='eyebrow eyebrow--research section-subhead'),
-                html.P(
-                    'Compact research and technical summaries from AUSM Lab work in LiDAR, 3D vision, benchmarking, and evaluation methodology.',
-                    className='subsection-note',
-                ),
-                html.Div(
-                    className='research-highlight-grid',
-                    children=[_research_preview_card(item) for item in RESEARCH_HIGHLIGHTS],
+                html.A(
+                    'View all seven projects',
+                    href='/projects',
+                    className='cta-secondary section-cta',
+                    **{'data-track': 'work_index_click',
+                       'data-track-location': 'home_selected_work_footer'},
                 ),
             ],
         ),
@@ -537,7 +423,7 @@ layout = html.Div(
                         'cross-client benchmarking.',
                         'Unified longitudinal analytics across 138 clients and 369K+ represented users, turning fragmented logs into reusable analytics infrastructure.',
                         'Led measurement and monetization analysis across $733K+ in subscription and in-app purchase revenue, linking revenue movement to behavior, acquisition, and membership signals.',
-                        'Built dashboards, diagnostic tooling, and quasi-experimental evaluation used by product, growth, and leadership teams for recurring operating reviews.',
+                        'Built dashboards, diagnostic tooling, and quasi-experimental evaluation used by product, growth, and leadership teams for recurring operating reviews, with 34 scheduled jobs refreshing executive and client reporting unattended.',
                     ],
                 ),
                 _experience_block(

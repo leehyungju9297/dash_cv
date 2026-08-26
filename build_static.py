@@ -135,8 +135,14 @@ def _rewriter(prefix: str):
         if value in routes:
             return routes[value]
         for route, target in routes.items():
-            if route != '/' and value.startswith(route + '#'):
+            if route == '/':
+                continue
+            if value.startswith(route + '#'):
                 return target + value[len(route):]
+            # A nested route — /projects/<slug> — becomes a directory of its own
+            # in the mirror, so it needs the trailing slash the app does not use.
+            if value.startswith(route + '/'):
+                return target + value[len(route) + 1:] + '/'
         return value
 
     return rewrite
@@ -152,21 +158,58 @@ PAGES = [
 MAIN = re.compile(r'(<main class="page-wrap">\n).*?(^\s*</main>)', re.S | re.M)
 
 
+def _splice(target: str, body: str) -> None:
+    path = DOCS / target
+    source = path.read_text()
+    replaced, count = MAIN.subn(lambda m: m.group(1) + body + m.group(2), source, count=1)
+    if count != 1:
+        raise SystemExit(f'{target}: could not find the <main class="page-wrap"> block')
+    path.write_text(replaced)
+
+
+def _shell(index_source: str, *, title: str, description: str, body: str) -> str:
+    """A detail page's document, built from the index page's own head and header.
+
+    The seven case-study routes have no hand-maintained file to splice into, so
+    their shell is taken from `docs/projects/index.html` — the page they sit
+    under and share a nav state with — and only the title, the description and
+    the main block differ. Deriving it rather than templating it separately is
+    what keeps the head and header identical across all of them.
+    """
+    doc = index_source
+    doc = re.sub(r'<title>.*?</title>', f'<title>{html_lib.escape(title)}</title>', doc, count=1)
+    doc = re.sub(r'(<meta\s+name="description"\s+content=)"[^"]*"',
+                 lambda m: m.group(1) + '"' + html_lib.escape(description, quote=True) + '"', doc, count=1)
+    doc = re.sub(r'(<meta property="og:title" content=)"[^"]*"',
+                 lambda m: m.group(1) + '"' + html_lib.escape(title, quote=True) + '"', doc, count=1)
+    doc = re.sub(r'(<meta\s+property="og:description"\s+content=)"[^"]*"',
+                 lambda m: m.group(1) + '"' + html_lib.escape(description, quote=True) + '"', doc, count=1)
+    # One directory deeper than the index, so every relative path gains a level.
+    doc = doc.replace('"../', '"../../')
+    doc = MAIN.sub(lambda m: m.group(1) + body + m.group(2), doc, count=1)
+    return doc
+
+
 def main() -> None:
     import app  # noqa: F401  — importing the app is what registers the pages.
+    from work_ui import WORK, outcome
 
     for module, target, prefix in PAGES:
         layout = dash.page_registry[module]['layout']
-        body = _render(layout, _rewriter(prefix), depth=4)
-
-        path = DOCS / target
-        source = path.read_text()
-        replaced, count = MAIN.subn(
-            lambda m: m.group(1) + body + m.group(2), source, count=1)
-        if count != 1:
-            raise SystemExit(f'{target}: could not find the <main class="page-wrap"> block')
-        path.write_text(replaced)
+        _splice(target, _render(layout, _rewriter(prefix), depth=4))
         print(f'rendered docs/{target}')
+
+    index_source = (DOCS / 'projects/index.html').read_text()
+    for item in WORK:
+        page = dash.page_registry[f"pages.project_detail.{item['slug'].replace('-', '_')}"]
+        body = _render(page['layout'], _rewriter('../../'), depth=4)
+        target = DOCS / 'projects' / item['slug'] / 'index.html'
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(_shell(index_source,
+                                 title=f"{item['title']} | Hyungju Lee",
+                                 description=outcome(item),
+                                 body=body))
+        print(f"rendered docs/projects/{item['slug']}/index.html")
 
 
 if __name__ == '__main__':

@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Executive KPI Monitoring Across Client App Ecosystems | Hyungju Lee</title>
+    <meta
+      name="description"
+      content="Reduced ambiguity in KPI discussions by giving leadership one shared source of truth."
+    />
+    <meta property="og:title" content="Executive KPI Monitoring Across Client App Ecosystems | Hyungju Lee" />
+    <meta
+      property="og:description"
+      content="Reduced ambiguity in KPI discussions by giving leadership one shared source of truth."
+    />
+    <meta property="og:type" content="website" />
+    <noscript><style>.reveal-up { opacity: 1 !important; transform: none !important; }</style></noscript>
+    <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg" />
+    <link rel="stylesheet" href="../../assets/custom.css" />
+  </head>
+  <body>
+    <div id="scroll-progress"></div>
+    <div class="site-shell">
+      <div class="bg-orb orb-1"></div>
+      <div class="bg-orb orb-2"></div>
+      <header class="site-header">
+        <div class="header-inner">
+          <a class="brand-chip" href="../../" title="Home">Hyungju Lee</a>
+          <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="top-nav" aria-label="Open navigation"><span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span></button>
+          <nav class="top-nav" id="top-nav">
+            <a class="top-nav-link active" href="../../projects/">Selected Work</a>
+            <a class="top-nav-link" href="../../dashboard/">Live Demo</a>
+            <a class="top-nav-link" href="../../publications/">Research</a>
+            <a class="top-nav-link" href="../../contact/">Contact</a>
+            <a class="top-nav-link top-nav-resume" href="../../assets/Hyungju_Lee_Resume.pdf" download="Hyungju_Lee_Resume.pdf" data-track="nav_resume_click" data-track-location="site_header">Resume</a>
+          </nav>
+        </div>
+      </header>
+
+      <main class="page-wrap">
+        <div class="content-stack case-study-page">
+          <section class="case-study-header reveal-up">
+            <a class="case-backlink" href="../../projects/">Selected Work</a>
+            <div class="project-scope">PRODUCT ANALYTICS / DECISION SYSTEMS</div>
+            <h1 class="section-hero-title">Executive KPI Monitoring Across Client App Ecosystems</h1>
+            <p class="case-lede">Reduced ambiguity in KPI discussions by giving leadership one shared source of truth.</p>
+            <div class="skill-cloud">
+              <span class="skill-pill">KPI Architecture</span>
+              <span class="skill-pill">Decision Systems</span>
+              <span class="skill-pill">Monetization</span>
+              <span class="skill-pill">Release Diagnostics</span>
+            </div>
+          </section>
+          <section class="case-study-body">
+            <div class="case-study-main">
+              <section class="case-detail-block">
+                <h2 class="case-detail-label">Overview</h2>
+                <p class="case-detail-copy">Built a production KPI monitoring surface for a white-label app ecosystem where leadership needed daily visibility into product health, operational movement, and revenue signals.</p>
+              </section>
+              <section class="case-detail-block">
+                <h2 class="case-detail-label">Problem</h2>
+                <p class="case-detail-copy">Core metrics lived in separate pipelines and ad-hoc reports, making trend diagnosis slow and decision-making inconsistent across client accounts.</p>
+              </section>
+              <section class="case-detail-block">
+                <h2 class="case-detail-label">Approach</h2>
+                <ul class="case-detail-list">
+                  <li>Metric normalization and daily aggregation pipelines.</li>
+                  <li>Comparative time-series monitoring with event annotation.</li>
+                  <li>Segmented filtering by account context to isolate client-level behavior.</li>
+                </ul>
+              </section>
+              <section class="case-detail-block">
+                <h2 class="case-detail-label">What I built</h2>
+                <ul class="case-detail-list">
+                  <li>Defined metric contracts for DAU, memberships, downloads, new memberships, and revenue.</li>
+                  <li>Implemented multi-axis charting with event overlays to contextualize spikes and declines.</li>
+                  <li>Added summary tables for quick mean/min/max/total diagnostics.</li>
+                  <li>Shipped date-range and client selectors for leadership and PM review workflows.</li>
+                  <li>Rebuilt the surface as a React/TypeScript SPA on a FastAPI service, with the API client generated from the OpenAPI schema so a contract change breaks the build rather than a chart. The migration was complete but not released.</li>
+                </ul>
+              </section>
+              <section class="case-detail-block">
+                <h2 class="case-detail-label">Results</h2>
+                <ul class="result-list">
+                  <li class="result-item">Reduced ambiguity in KPI discussions by giving leadership one shared source of truth.</li>
+                  <li class="result-item">Enabled faster root-cause conversations around membership and usage swings.</li>
+                  <li class="result-item">Turned fragmented reporting into a repeatable decision system rather than one-off dashboards.</li>
+                </ul>
+              </section>
+            </div>
+            <aside class="case-study-side" aria-label="Project metadata">
+              <div class="case-meta">
+                <div class="case-meta-label">Role</div>
+                <div class="case-meta-value">Data Scientist / Analytics Engineer · MySeat Media</div>
+              </div>
+              <div class="case-meta">
+                <div class="case-meta-label">Timeframe</div>
+                <div class="case-meta-value">2023 – Present</div>
+              </div>
+              <div class="case-meta">
+                <div class="case-meta-label">Domain</div>
+                <div class="case-meta-value">Mobile &amp; streaming subscription apps</div>
+              </div>
+              <div class="case-meta">
+                <div class="case-meta-label">Data / system inputs</div>
+                <div class="case-meta-value">
+                  <ul class="case-meta-list">
+                    <li>Daily product event logs spanning notifications, auctions, livestreams, timeline posts, and downloads.</li>
+                    <li>Membership and subscription status snapshots.</li>
+                    <li>Revenue records from recurring app monetization flows.</li>
+                    <li>Client-level filters and date-window controls for multi-tenant analysis.</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="case-meta">
+                <div class="case-meta-label">Tools and methods</div>
+                <div class="case-meta-value">
+                  <div class="skill-cloud">
+                    <span class="skill-pill">Python</span>
+                    <span class="skill-pill">SQL</span>
+                    <span class="skill-pill">Dash/Plotly</span>
+                    <span class="skill-pill">Pandas/Polars</span>
+                    <span class="skill-pill">Flask</span>
+                    <span class="skill-pill">Celery</span>
+                    <span class="skill-pill">React</span>
+                    <span class="skill-pill">TypeScript</span>
+                    <span class="skill-pill">FastAPI</span>
+                    <span class="skill-pill">ECharts</span>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </section>
+          <nav class="case-pager" aria-label="Project navigation">
+            <a class="case-pager-link case-pager-prev" href="../../projects/tidepool-commerce-analytics/">
+              <span class="case-pager-label">Previous project</span>
+              <span class="case-pager-title">Tidepool Commerce Analytics — Live Retail Dashboard</span>
+            </a>
+            <a class="case-pager-link case-pager-next" href="../../projects/behavior-geography-correlation/">
+              <span class="case-pager-label">Next project</span>
+              <span class="case-pager-title">Behavior, Geography, and Correlation Diagnostics</span>
+            </a>
+          </nav>
+        </div>
+      </main>
+    </div>
+
+    <button class="back-to-top" id="back-to-top" aria-label="Back to top">↑</button>
+
+    <script defer src="../../assets/tracking.js"></script>
+    <script defer src="../../assets/enhancements.js"></script>
+  </body>
+</html>

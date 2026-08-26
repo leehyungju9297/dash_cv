@@ -26,7 +26,8 @@
       <header class="site-header">
         <div class="header-inner">
           <a class="brand-chip" href="./" title="Home">Hyungju Lee</a>
-          <nav class="top-nav">
+          <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="top-nav" aria-label="Open navigation"><span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span></button>
+          <nav class="top-nav" id="top-nav">
             <a class="top-nav-link" href="./projects/">Selected Work</a>
             <a class="top-nav-link" href="./dashboard/">Live Demo</a>
             <a class="top-nav-link" href="./publications/">Research</a>
@@ -43,67 +44,44 @@
               <div class="hero-name">HYUNGJU LEE</div>
               <h1 class="hero-role">Product Data Scientist, Analytics Engineer</h1>
               <div class="hero-role-descriptor">Product Analytics · Analytics Engineering · Applied ML Research</div>
-              <p class="hero-title">I own the measurement layer of a subscription product end to end.</p>
-              <p class="hero-subtitle">Source-of-truth KPI definitions, the event instrumentation and SQL/Python pipelines underneath them, and the reporting executives decide from — across a 138-client mobile and streaming portfolio with six years of longitudinal history. Statistics-trained, with peer-reviewed machine learning research in LiDAR 3D object detection.</p>
-              <div class="hero-signal-row">
-                <span class="hero-signal-pill">KPI Architecture</span>
-                <span class="hero-signal-pill">Event Instrumentation</span>
-                <span class="hero-signal-pill">Retention &amp; Churn</span>
-                <span class="hero-signal-pill">Subscription Revenue</span>
-                <span class="hero-signal-pill">Quasi-Experimental Design</span>
-                <span class="hero-signal-pill">LiDAR 3D Detection</span>
+              <p class="hero-title">I connect product decision-making, data systems, and applied ML research to outcomes teams can act on.</p>
+              <p class="hero-subtitle">I define the KPIs a subscription business runs on, build the event instrumentation and SQL/Python pipelines underneath them, and automate the reporting executives decide from — across a 138-client mobile and streaming portfolio. Statistics-trained, with peer-reviewed machine learning research in LiDAR 3D object detection.</p>
+              <div class="hero-proof">
+                <div class="hero-proof-item">
+                  <div class="hero-proof-value">138</div>
+                  <div class="hero-proof-label">client app portfolio</div>
+                </div>
+                <div class="hero-proof-item">
+                  <div class="hero-proof-value">1.6B+</div>
+                  <div class="hero-proof-label">session-minutes analysed</div>
+                </div>
+                <div class="hero-proof-item">
+                  <div class="hero-proof-value">ICPR · ISPRS</div>
+                  <div class="hero-proof-label">peer-reviewed venues</div>
+                </div>
               </div>
               <div class="hero-cta">
                 <a class="cta-primary" href="./projects/" data-track-label="selected_work" data-track="hero_cta_click" data-track-location="home_hero">View selected work</a>
-                <a class="cta-secondary" download="Hyungju_Lee_Resume.pdf" href="./assets/Hyungju_Lee_Resume.pdf" data-track-label="download_resume" data-track="hero_cta_click" data-track-location="home_hero">Resume (PDF)</a>
+                <a class="cta-secondary" download="Hyungju_Lee_Resume.pdf" href="./assets/Hyungju_Lee_Resume.pdf" data-track-label="download_resume" data-track="hero_cta_click" data-track-location="home_hero">Download resume</a>
                 <a class="hero-link" href="https://www.linkedin.com/in/hyungju9297/" rel="noreferrer" target="_blank" data-track-label="linkedin" data-track="hero_cta_click" data-track-location="home_hero">LinkedIn</a>
                 <a class="hero-link" href="https://github.com/leehyungju9297" rel="noreferrer" target="_blank" data-track-label="github" data-track="hero_cta_click" data-track-location="home_hero">GitHub</a>
               </div>
               <div class="hero-contact">Toronto, ON, Canada | +1 (416) 706-8011 | leehyungju9297@gmail.com</div>
             </div>
-            <div class="hero-photo-wrap">
-              <img alt="Portrait of Hyungju Lee" class="hero-photo" src="./assets/my_pic_web.jpg" loading="lazy" />
-              <div class="affiliations">
-                <div class="affiliations-label">Worked with and studied at</div>
-                <div class="affiliations-grid">
-                  <img alt="MySeat Media" class="affiliation-mark" src="./assets/logos/myseat.png" style="max-height:30px" title="MySeat Media" loading="lazy" />
-                  <img alt="York University, Lassonde School of Engineering" class="affiliation-mark" src="./assets/logos/york-lassonde.png" style="max-height:30px" title="York University, Lassonde School of Engineering" loading="lazy" />
-                  <img alt="University of Toronto" class="affiliation-mark" src="./assets/logos/university-of-toronto.png" style="max-height:28px" title="University of Toronto" loading="lazy" />
-                  <img alt="Ontario Ministry of Natural Resources and Forestry" class="affiliation-mark" src="./assets/logos/ontario-mnrf.png" style="max-height:30px" title="Ontario Ministry of Natural Resources and Forestry" loading="lazy" />
-                  <img alt="Teledyne Optech" class="affiliation-mark" src="./assets/logos/teledyne.png" style="max-height:20px" title="Teledyne Optech" loading="lazy" />
-                  <img alt="Thales Canada" class="affiliation-mark" src="./assets/logos/thales.png" style="max-height:26px" title="Thales Canada" loading="lazy" />
-                  <img alt="NSERC" class="affiliation-mark" src="./assets/logos/nserc.png" style="max-height:26px" title="NSERC" loading="lazy" />
-                  <img alt="AUSM Lab" class="affiliation-mark" src="./assets/logos/ausm-lab.png" style="max-height:24px" title="AUSM Lab" loading="lazy" />
-                  <img alt="GeoICT Lab" class="affiliation-mark" src="./assets/logos/geoict.png" style="max-height:22px" title="GeoICT Lab" loading="lazy" />
-                </div>
-              </div>
-            </div>
+            <img alt="Portrait of Hyungju Lee" class="hero-photo" src="./assets/my_pic_web.jpg" loading="lazy" />
           </section>
-          <section class="impact-row reveal-up">
-            <div class="impact-chip">
-              <div class="impact-value">138</div>
-              <div class="impact-label">Client portfolio</div>
-              <div class="impact-detail">Mobile and streaming apps reporting on one source-of-truth KPI layer</div>
-            </div>
-            <div class="impact-chip">
-              <div class="impact-value">1.6B+</div>
-              <div class="impact-label">Session-minutes analysed</div>
-              <div class="impact-detail">Six years of longitudinal engagement across a 774K-user base</div>
-            </div>
-            <div class="impact-chip">
-              <div class="impact-value">34</div>
-              <div class="impact-label">Scheduled jobs in production</div>
-              <div class="impact-detail">Executive and client reporting that refreshes without anyone touching it</div>
-            </div>
-            <div class="impact-chip">
-              <div class="impact-value">5,000+</div>
-              <div class="impact-label">Labelled benchmark objects</div>
-              <div class="impact-detail">LiDAR annotation and evaluation workflows behind two published datasets</div>
-            </div>
-            <div class="impact-chip">
-              <div class="impact-value impact-value--text">ICPR · ISPRS</div>
-              <div class="impact-label">Peer-reviewed venues</div>
-              <div class="impact-detail">Plus the Best Master’s Thesis award, York University 2022</div>
+          <section class="affiliations reveal-up">
+            <div class="affiliations-label">Worked with and studied at</div>
+            <div class="affiliations-grid">
+              <img alt="MySeat Media" class="affiliation-mark" src="./assets/logos/myseat.png" style="max-height:30px" title="MySeat Media" loading="lazy" />
+              <img alt="York University, Lassonde School of Engineering" class="affiliation-mark" src="./assets/logos/york-lassonde.png" style="max-height:30px" title="York University, Lassonde School of Engineering" loading="lazy" />
+              <img alt="University of Toronto" class="affiliation-mark" src="./assets/logos/university-of-toronto.png" style="max-height:28px" title="University of Toronto" loading="lazy" />
+              <img alt="Ontario Ministry of Natural Resources and Forestry" class="affiliation-mark" src="./assets/logos/ontario-mnrf.png" style="max-height:30px" title="Ontario Ministry of Natural Resources and Forestry" loading="lazy" />
+              <img alt="Teledyne Optech" class="affiliation-mark" src="./assets/logos/teledyne.png" style="max-height:20px" title="Teledyne Optech" loading="lazy" />
+              <img alt="Thales Canada" class="affiliation-mark" src="./assets/logos/thales.png" style="max-height:26px" title="Thales Canada" loading="lazy" />
+              <img alt="NSERC" class="affiliation-mark" src="./assets/logos/nserc.png" style="max-height:26px" title="NSERC" loading="lazy" />
+              <img alt="AUSM Lab" class="affiliation-mark" src="./assets/logos/ausm-lab.png" style="max-height:24px" title="AUSM Lab" loading="lazy" />
+              <img alt="GeoICT Lab" class="affiliation-mark" src="./assets/logos/geoict.png" style="max-height:22px" title="GeoICT Lab" loading="lazy" />
             </div>
           </section>
           <section class="reveal-up">
@@ -112,7 +90,7 @@
             <div class="lane-grid">
               <article class="glass-card lane-card reveal-up">
                 <h3 class="lane-title">Product Analytics / Decision Systems</h3>
-                <p class="lane-copy">KPI architecture, behavioral diagnostics, experimentation, monetization analysis, and operating reviews used to support product and growth decisions.</p>
+                <p class="lane-copy">KPI architecture, retention and monetization, and operating reviews.</p>
                 <div class="skill-cloud">
                   <span class="skill-pill">Metric Contracts</span>
                   <span class="skill-pill">Retention</span>
@@ -124,7 +102,7 @@
               </article>
               <article class="glass-card lane-card reveal-up">
                 <h3 class="lane-title">Data Systems / Automation</h3>
-                <p class="lane-copy">SQL and Python workflows for analytics engineering, multi-tenant data models, recurring reporting, automation, and decision-ready reporting surfaces.</p>
+                <p class="lane-copy">SQL and Python analytics engineering: data models, pipelines, automation.</p>
                 <div class="skill-cloud">
                   <span class="skill-pill">Analytics Engineering</span>
                   <span class="skill-pill">Data Modeling</span>
@@ -136,7 +114,7 @@
               </article>
               <article class="glass-card lane-card reveal-up">
                 <h3 class="lane-title">AI / ML / Research Work</h3>
-                <p class="lane-copy">LiDAR, point cloud, and computer-vision research spanning dataset curation, benchmark design, deep learning experimentation, evaluation, and technical synthesis.</p>
+                <p class="lane-copy">LiDAR and 3D vision research: datasets, benchmarks, model evaluation.</p>
                 <div class="skill-cloud">
                   <span class="skill-pill">Computer Vision</span>
                   <span class="skill-pill">3D Vision</span>
@@ -150,156 +128,94 @@
           </section>
           <section class="reveal-up">
             <h2 class="section-title">Selected Work</h2>
-            <p class="section-note">Representative work across product analytics, technical decision systems, and AI/ML-oriented research.</p>
-            <div class="eyebrow">PRODUCT ANALYTICS / DECISION SYSTEMS</div>
-            <p class="subsection-note">
-Production-facing systems for KPI monitoring, behavioral diagnostics, segmentation, and operating reviews. All three run as an               <a class="inline-link" href="./dashboard/" data-track="live_demo_click" data-track-location="home_selected_work">interactive dashboard</a>
+            <p class="section-note">
+One build shown in full, four more in brief. All seven are in the               <a class="inline-link" href="./projects/" data-track="work_index_click" data-track-location="home_selected_work">project index</a>
 .            </p>
-            <div class="featured-case-grid">
-              <article class="glass-card card-hover featured-case-card featured-case-card-primary">
-                <a class="featured-case-image-link" href="./dashboard/" tabindex="-1" aria-hidden="true" data-track-label="tidepool-commerce-analytics" data-track="featured_case_image_click" data-track-location="home_featured_case">
-                  <img alt="Revenue and orders on independent axes with promotion markers and outliers ringed on the series." class="featured-case-image" src="./assets/demo_shots/trading-performance.jpg" loading="lazy" />
-                </a>
-                <div class="featured-case-body">
-                  <div class="project-scope">PRODUCT ANALYTICS / DATA VISUALIZATION</div>
-                  <h3 class="featured-case-title">Tidepool Commerce Analytics — Live Retail Dashboard</h3>
-                  <p class="featured-case-summary">Designed and built a multi-brand direct-to-consumer analytics surface end to end: the synthetic dataset, the analysis, the chart craft, and two independent front ends that agree to the last digit.</p>
-                  <div class="skill-cloud">
-                    <span class="skill-pill">Cohort Retention</span>
-                    <span class="skill-pill">RFM Segmentation</span>
-                    <span class="skill-pill">Driver Decomposition</span>
-                    <span class="skill-pill">Event Study</span>
-                    <span class="skill-pill">Geospatial</span>
-                    <span class="skill-pill">Data Visualization</span>
-                  </div>
-                  <ul class="featured-case-highlights">
-                    <li>Nine views across sales performance, customers, marketing and operations.</li>
-                    <li>Retention triangles, RFM quadrants, revenue driver walks and event studies.</li>
-                    <li>Ships twice — a Dash app and a plotly.js build — from one dataset.</li>
-                  </ul>
-                  <p class="featured-case-caption">A working retail analytics product, built from generated data.</p>
-                  <a class="cta-secondary featured-case-cta" href="./dashboard/" data-track-label="tidepool-commerce-analytics" data-track="featured_case_cta_click" data-track-location="home_featured_case">Open the live demo →</a>
+            <article class="glass-card card-hover featured-work">
+              <a class="featured-work-image-link" href="./projects/tidepool-commerce-analytics/" tabindex="-1" data-track-label="tidepool-commerce-analytics" aria-hidden="true" data-track="featured_work_image_click" data-track-location="home_selected_work">
+                <img alt="Revenue and orders on independent axes with promotion markers and outliers ringed on the series." class="featured-work-image" src="./assets/demo_shots/trading-performance.jpg" loading="lazy" />
+              </a>
+              <div class="featured-work-body">
+                <div class="eyebrow">FEATURED PROJECT</div>
+                <div class="project-scope">PRODUCT ANALYTICS / DATA VISUALIZATION</div>
+                <h3 class="featured-work-title">Tidepool Commerce Analytics — Live Retail Dashboard</h3>
+                <p class="featured-work-outcome">Designed and built a multi-brand direct-to-consumer analytics surface end to end: the synthetic dataset, the analysis, the chart craft, and two independent front ends that agree to the last digit.</p>
+                <div class="work-card-meta">
+                  <span class="work-card-role">Designed and built end to end for this portfolio</span>
+                  <span class="work-card-period">2026</span>
                 </div>
-              </article>
-              <article class="glass-card card-hover featured-case-card featured-case-card-textual">
-                <div class="featured-case-body">
-                  <div class="project-scope">PRODUCT ANALYTICS / DECISION SYSTEMS</div>
-                  <h3 class="featured-case-title">Executive KPI Monitoring Across Client App Ecosystems</h3>
-                  <p class="featured-case-summary">Built a multi-tenant KPI operating system spanning engagement, retention, memberships, monetization, notifications, auctions, livestreams, and timeline activity.</p>
-                  <div class="skill-cloud">
-                    <span class="skill-pill">KPI Architecture</span>
-                    <span class="skill-pill">Decision Systems</span>
-                    <span class="skill-pill">Monetization</span>
-                    <span class="skill-pill">Release Diagnostics</span>
-                  </div>
-                  <ul class="featured-case-highlights">
-                    <li>Metric contracts and time-series monitoring for leadership review.</li>
-                    <li>Event overlays and diagnostics for release, campaign, and intervention analysis.</li>
-                    <li>Reusable decision surface for product, growth, and executive operating cadence.</li>
-                  </ul>
-                  <p class="featured-case-caption">Decision-ready analytics operating layer for a 138-client app ecosystem.</p>
-                  <a class="cta-secondary featured-case-cta" href="./projects/#executive-kpi-monitoring" data-track-label="executive-kpi-monitoring" data-track="featured_case_cta_click" data-track-location="home_featured_case">View Work Sample</a>
+                <div class="skill-cloud">
+                  <span class="skill-pill">Cohort Retention</span>
+                  <span class="skill-pill">RFM Segmentation</span>
+                  <span class="skill-pill">Driver Decomposition</span>
+                  <span class="skill-pill">Event Study</span>
                 </div>
-              </article>
-              <article class="glass-card card-hover featured-case-card featured-case-card-textual">
-                <div class="featured-case-body">
-                  <div class="project-scope">PRODUCT ANALYTICS / DECISION SYSTEMS</div>
-                  <h3 class="featured-case-title">Behavior, Geography, and Correlation Diagnostics</h3>
-                  <p class="featured-case-summary">Built exploratory diagnostics to connect user behavior, memberships, geography, and engagement relationships into decision-ready analysis.</p>
-                  <div class="skill-cloud">
-                    <span class="skill-pill">Behavioral Analytics</span>
-                    <span class="skill-pill">Correlation Diagnostics</span>
-                    <span class="skill-pill">Segmentation</span>
-                    <span class="skill-pill">Geo Analysis</span>
-                  </div>
-                  <ul class="featured-case-highlights">
-                    <li>Correlation analysis across engagement, content, and monetization signals.</li>
-                    <li>Geography and user-segmentation views for pattern triage.</li>
-                    <li>Used to separate weak noise from repeatable product-relevant relationships.</li>
-                  </ul>
-                  <p class="featured-case-caption">Integrated diagnostic layer for product triage, hypothesis generation, and follow-up analysis.</p>
-                  <a class="cta-secondary featured-case-cta" href="./projects/#behavior-geography-correlation" data-track-label="behavior-geography-correlation" data-track="featured_case_cta_click" data-track-location="home_featured_case">View Work Sample</a>
+                <a class="featured-work-link" href="./projects/tidepool-commerce-analytics/" data-track-label="tidepool-commerce-analytics" data-track="work_card_click" data-track-location="home_featured">Read case study</a>
+              </div>
+            </article>
+            <div class="work-grid work-grid--secondary">
+              <a class="glass-card card-hover work-card" href="./projects/executive-kpi-monitoring/" data-track-label="executive-kpi-monitoring" data-track="work_card_click" data-track-location="home_selected_work">
+                <div class="project-scope">PRODUCT ANALYTICS / DECISION SYSTEMS</div>
+                <h3 class="work-card-title">Executive KPI Monitoring Across Client App Ecosystems</h3>
+                <p class="work-card-outcome">Reduced ambiguity in KPI discussions by giving leadership one shared source of truth.</p>
+                <div class="work-card-meta">
+                  <span class="work-card-role">Data Scientist / Analytics Engineer · MySeat Media</span>
+                  <span class="work-card-period">2023 – Present</span>
                 </div>
-              </article>
-              <article class="glass-card card-hover featured-case-card featured-case-card-textual">
-                <div class="featured-case-body">
-                  <div class="project-scope">PRODUCT ANALYTICS / DECISION SYSTEMS</div>
-                  <h3 class="featured-case-title">Geo-Segmented User Intelligence</h3>
-                  <p class="featured-case-summary">Built geo-distribution and segment analysis views to understand where users are concentrated and how membership and account mixes differ geographically.</p>
-                  <div class="skill-cloud">
-                    <span class="skill-pill">Geo Analytics</span>
-                    <span class="skill-pill">Audience Intelligence</span>
-                    <span class="skill-pill">Segmentation</span>
-                    <span class="skill-pill">Data Visualization</span>
-                  </div>
-                  <ul class="featured-case-highlights">
-                    <li>Map-based user distribution analysis.</li>
-                    <li>Segmentation by user and account type.</li>
-                    <li>Supports market concentration, rollout, and audience strategy discussions.</li>
-                  </ul>
-                  <p class="featured-case-caption">Geographic intelligence layer for segment-aware audience analysis across regions.</p>
-                  <a class="cta-secondary featured-case-cta" href="./projects/#geo-segmented-user-intelligence" data-track-label="geo-segmented-user-intelligence" data-track="featured_case_cta_click" data-track-location="home_featured_case">View Work Sample</a>
+                <div class="skill-cloud">
+                  <span class="skill-pill">KPI Architecture</span>
+                  <span class="skill-pill">Decision Systems</span>
+                  <span class="skill-pill">Monetization</span>
                 </div>
-              </article>
-            </div>
-            <div class="eyebrow eyebrow--research section-subhead">AI / ML / RESEARCH WORK</div>
-            <p class="subsection-note">Compact research and technical summaries from AUSM Lab work in LiDAR, 3D vision, benchmarking, and evaluation methodology.</p>
-            <div class="research-highlight-grid">
-              <article class="glass-card card-hover research-highlight-card reveal-up">
+                <span class="work-card-link">Read case study</span>
+              </a>
+              <a class="glass-card card-hover work-card" href="./projects/geo-segmented-user-intelligence/" data-track-label="geo-segmented-user-intelligence" data-track="work_card_click" data-track-location="home_selected_work">
+                <div class="project-scope">PRODUCT ANALYTICS / DECISION SYSTEMS</div>
+                <h3 class="work-card-title">Geo-Segmented User Intelligence</h3>
+                <p class="work-card-outcome">Made geographic concentration visible for stakeholder planning and prioritization.</p>
+                <div class="work-card-meta">
+                  <span class="work-card-role">Data Scientist / Analytics Engineer · MySeat Media</span>
+                  <span class="work-card-period">2023 – Present</span>
+                </div>
+                <div class="skill-cloud">
+                  <span class="skill-pill">Geo Analytics</span>
+                  <span class="skill-pill">Audience Intelligence</span>
+                  <span class="skill-pill">Segmentation</span>
+                </div>
+                <span class="work-card-link">Read case study</span>
+              </a>
+              <a class="glass-card card-hover work-card work-card--research" href="./projects/lidar-benchmark-engineering/" data-track-label="lidar-benchmark-engineering" data-track="work_card_click" data-track-location="home_selected_work">
                 <div class="project-scope">AI / ML / RESEARCH WORK</div>
-                <h3 class="research-highlight-title">LiDAR Benchmark and Annotation Pipeline Engineering</h3>
-                <p class="research-highlight-summary">Built reproducible airborne LiDAR dataset, annotation, and benchmark workflows for single-tree detection and 3D perception research.</p>
+                <h3 class="work-card-title">LiDAR Benchmark and Annotation Pipeline Engineering</h3>
+                <p class="work-card-outcome">Supported peer-reviewed outputs at ICPR 2022 and downstream dataset work.</p>
+                <div class="work-card-meta">
+                  <span class="work-card-role">Research Engineer / Computer Vision Researcher · AUSM Lab</span>
+                  <span class="work-card-period">2019 – 2024</span>
+                </div>
                 <div class="skill-cloud">
                   <span class="skill-pill">LiDAR</span>
                   <span class="skill-pill">Point Clouds</span>
                   <span class="skill-pill">Dataset Engineering</span>
-                  <span class="skill-pill">Benchmark Design</span>
                 </div>
-                <ul class="research-highlight-list">
-                  <li>Produced 5,000+ benchmark-grade tree annotations with QA workflows.</li>
-                  <li>Defined benchmark splits, metadata structure, and repeatable evaluation inputs.</li>
-                  <li>Turned fragmented academic processing into reusable research infrastructure.</li>
-                </ul>
-                <p class="research-highlight-caption">Research infrastructure spanning data curation, annotation design, benchmark construction, and evaluation protocol definition.</p>
-                <a class="cta-secondary featured-case-cta" href="./projects/#lidar-benchmark-engineering">View Project Summary</a>
-              </article>
-              <article class="glass-card card-hover research-highlight-card reveal-up">
+                <span class="work-card-link">Read case study</span>
+              </a>
+              <a class="glass-card card-hover work-card work-card--research" href="./projects/volumetric-3d-vision-evaluation/" data-track-label="volumetric-3d-vision-evaluation" data-track="work_card_click" data-track-location="home_selected_work">
                 <div class="project-scope">AI / ML / RESEARCH WORK</div>
-                <h3 class="research-highlight-title">3D Vision Experimentation for Detection and Comparative Model Analysis</h3>
-                <p class="research-highlight-summary">Designed and evaluated deep learning workflows for detecting individual trees from airborne LiDAR using 3D and volumetric representations.</p>
+                <h3 class="work-card-title">3D Vision Experimentation for Detection and Comparative Model Analysis</h3>
+                <p class="work-card-outcome">Produced thesis work awarded Best Master's Thesis at York University.</p>
+                <div class="work-card-meta">
+                  <span class="work-card-role">Research Engineer / Computer Vision Researcher · AUSM Lab</span>
+                  <span class="work-card-period">2019 – 2024</span>
+                </div>
                 <div class="skill-cloud">
                   <span class="skill-pill">3D Vision</span>
                   <span class="skill-pill">Deep Learning</span>
                   <span class="skill-pill">Detection</span>
-                  <span class="skill-pill">Model Evaluation</span>
                 </div>
-                <ul class="research-highlight-list">
-                  <li>Worked across model design, data representation, and evaluation setup.</li>
-                  <li>Compared model behavior across input formulations and thresholds.</li>
-                  <li>Connected experiment outputs to thesis and publication-grade technical synthesis.</li>
-                </ul>
-                <p class="research-highlight-caption">Applied ML research work spanning model experimentation, error analysis, and evaluation methodology.</p>
-                <a class="cta-secondary featured-case-cta" href="./projects/#volumetric-3d-vision-evaluation">View Project Summary</a>
-              </article>
-              <article class="glass-card card-hover research-highlight-card reveal-up">
-                <div class="project-scope">AI / ML / RESEARCH WORK</div>
-                <h3 class="research-highlight-title">Segmentation and Scene-Understanding Benchmark Analysis</h3>
-                <p class="research-highlight-summary">Contributed to dataset and evaluation work supporting semantic segmentation and scene-understanding research on large-scale aerial LiDAR data.</p>
-                <div class="skill-cloud">
-                  <span class="skill-pill">Semantic Segmentation</span>
-                  <span class="skill-pill">Scene Understanding</span>
-                  <span class="skill-pill">Perception</span>
-                  <span class="skill-pill">Research Methodology</span>
-                </div>
-                <ul class="research-highlight-list">
-                  <li>Connected dataset design with segmentation-oriented model evaluation.</li>
-                  <li>Framed point cloud labeling around scene understanding, not only detection.</li>
-                  <li>Emphasized benchmark quality, comparability, and methodological clarity.</li>
-                </ul>
-                <p class="research-highlight-caption">Segmentation-oriented research support spanning data design, evaluation framing, and technical synthesis.</p>
-                <a class="cta-secondary featured-case-cta" href="./projects/#segmentation-scene-understanding">View Project Summary</a>
-              </article>
+                <span class="work-card-link">Read case study</span>
+              </a>
             </div>
+            <a class="cta-secondary section-cta" href="./projects/" data-track="work_index_click" data-track-location="home_selected_work_footer">View all seven projects</a>
           </section>
           <section class="reveal-up">
             <h2 class="section-title">Core Skills</h2>
@@ -384,7 +300,7 @@ Production-facing systems for KPI monitoring, behavioral diagnostics, segmentati
                 <li>Productionized SQL and Python data workflows across 17M+ sessions and 1.6B+ session-minutes for release diagnostics, segmentation, and cross-client benchmarking.</li>
                 <li>Unified longitudinal analytics across 138 clients and 369K+ represented users, turning fragmented logs into reusable analytics infrastructure.</li>
                 <li>Led measurement and monetization analysis across $733K+ in subscription and in-app purchase revenue, linking revenue movement to behavior, acquisition, and membership signals.</li>
-                <li>Built dashboards, diagnostic tooling, and quasi-experimental evaluation used by product, growth, and leadership teams for recurring operating reviews.</li>
+                <li>Built dashboards, diagnostic tooling, and quasi-experimental evaluation used by product, growth, and leadership teams for recurring operating reviews, with 34 scheduled jobs refreshing executive and client reporting unattended.</li>
               </ul>
             </article>
             <article class="glass-card experience-card reveal-up">

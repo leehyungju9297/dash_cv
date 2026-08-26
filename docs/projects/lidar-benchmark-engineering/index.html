@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LiDAR Benchmark and Annotation Pipeline Engineering | Hyungju Lee</title>
+    <meta
+      name="description"
+      content="Supported peer-reviewed outputs at ICPR 2022 and downstream dataset work."
+    />
+    <meta property="og:title" content="LiDAR Benchmark and Annotation Pipeline Engineering | Hyungju Lee" />
+    <meta
+      property="og:description"
+      content="Supported peer-reviewed outputs at ICPR 2022 and downstream dataset work."
+    />
+    <meta property="og:type" content="website" />
+    <noscript><style>.reveal-up { opacity: 1 !important; transform: none !important; }</style></noscript>
+    <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg" />
+    <link rel="stylesheet" href="../../assets/custom.css" />
+  </head>
+  <body>
+    <div id="scroll-progress"></div>
+    <div class="site-shell">
+      <div class="bg-orb orb-1"></div>
+      <div class="bg-orb orb-2"></div>
+      <header class="site-header">
+        <div class="header-inner">
+          <a class="brand-chip" href="../../" title="Home">Hyungju Lee</a>
+          <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="top-nav" aria-label="Open navigation"><span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span></button>
+          <nav class="top-nav" id="top-nav">
+            <a class="top-nav-link active" href="../../projects/">Selected Work</a>
+            <a class="top-nav-link" href="../../dashboard/">Live Demo</a>
+            <a class="top-nav-link" href="../../publications/">Research</a>
+            <a class="top-nav-link" href="../../contact/">Contact</a>
+            <a class="top-nav-link top-nav-resume" href="../../assets/Hyungju_Lee_Resume.pdf" download="Hyungju_Lee_Resume.pdf" data-track="nav_resume_click" data-track-location="site_header">Resume</a>
+          </nav>
+        </div>
+      </header>
+
+      <main class="page-wrap">
+        <div class="content-stack case-study-page case-study-page--research">
+          <section class="case-study-header reveal-up">
+            <a class="case-backlink" href="../../projects/">Selected Work</a>
+            <div class="project-scope">AI / ML / RESEARCH WORK</div>
+            <h1 class="section-hero-title">LiDAR Benchmark and Annotation Pipeline Engineering</h1>
+            <p class="case-lede">Supported peer-reviewed outputs at ICPR 2022 and downstream dataset work.</p>
+            <div class="skill-cloud">
+              <span class="skill-pill">LiDAR</span>
+              <span class="skill-pill">Point Clouds</span>
+              <span class="skill-pill">Dataset Engineering</span>
+              <span class="skill-pill">Benchmark Design</span>
+            </div>
+          </section>
+          <section class="case-study-body">
+            <div class="case-study-main">
+              <section class="case-detail-block">
+                <h2 class="case-detail-label">Overview</h2>
+                <p class="case-detail-copy">Built the research data backbone for AUSM Lab work on airborne LiDAR tree detection, turning raw point clouds into benchmark-ready corpora and reproducible evaluation assets.</p>
+              </section>
+              <section class="case-detail-block">
+                <h2 class="case-detail-label">Problem</h2>
+                <p class="case-detail-copy">The field lacked public, benchmark-grade datasets and evaluation consistency, which made model comparison noisy and hard to defend.</p>
+              </section>
+              <section class="case-detail-block">
+                <h2 class="case-detail-label">Approach</h2>
+                <ul class="case-detail-list">
+                  <li>3D point cloud preprocessing and volumetric feature construction.</li>
+                  <li>Dataset curation, annotation QA, and benchmark protocol design.</li>
+                  <li>Evaluation pipeline design for repeatable detection benchmarking.</li>
+                </ul>
+              </section>
+              <section class="case-detail-block">
+                <h2 class="case-detail-label">What I built</h2>
+                <ul class="case-detail-list">
+                  <li>Designed annotation conventions and QA loops for 5,000+ single-tree labels.</li>
+                  <li>Structured benchmark datasets and reproducible split logic for model evaluation.</li>
+                  <li>Documented preprocessing and experiment assets so research results were traceable and publication-ready.</li>
+                </ul>
+              </section>
+              <section class="case-detail-block">
+                <h2 class="case-detail-label">Results</h2>
+                <ul class="result-list">
+                  <li class="result-item">Supported peer-reviewed outputs at ICPR 2022 and downstream dataset work.</li>
+                  <li class="result-item">Reduced ambiguity in model comparison by standardizing data and evaluation inputs.</li>
+                  <li class="result-item">Created reusable research infrastructure instead of one-off experiments.</li>
+                </ul>
+              </section>
+            </div>
+            <aside class="case-study-side" aria-label="Project metadata">
+              <div class="case-meta">
+                <div class="case-meta-label">Role</div>
+                <div class="case-meta-value">Research Engineer / Computer Vision Researcher · AUSM Lab</div>
+              </div>
+              <div class="case-meta">
+                <div class="case-meta-label">Timeframe</div>
+                <div class="case-meta-value">2019 – 2024</div>
+              </div>
+              <div class="case-meta">
+                <div class="case-meta-label">Domain</div>
+                <div class="case-meta-value">Airborne LiDAR / 3D vision</div>
+              </div>
+              <div class="case-meta">
+                <div class="case-meta-label">Data / system inputs</div>
+                <div class="case-meta-value">
+                  <ul class="case-meta-list">
+                    <li>Airborne LiDAR point clouds and derived volumetric representations.</li>
+                    <li>Annotation workflows for tree instance labeling and quality assurance.</li>
+                    <li>Benchmark splits, metadata schemas, and evaluation artifacts.</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="case-meta">
+                <div class="case-meta-label">Tools and methods</div>
+                <div class="case-meta-value">
+                  <div class="skill-cloud">
+                    <span class="skill-pill">Python</span>
+                    <span class="skill-pill">NumPy</span>
+                    <span class="skill-pill">Pandas</span>
+                    <span class="skill-pill">LiDAR / Point Cloud Processing</span>
+                    <span class="skill-pill">Annotation QA</span>
+                    <span class="skill-pill">Benchmark Design</span>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </section>
+          <nav class="case-pager" aria-label="Project navigation">
+            <a class="case-pager-link case-pager-prev" href="../../projects/geo-segmented-user-intelligence/">
+              <span class="case-pager-label">Previous project</span>
+              <span class="case-pager-title">Geo-Segmented User Intelligence</span>
+            </a>
+            <a class="case-pager-link case-pager-next" href="../../projects/volumetric-3d-vision-evaluation/">
+              <span class="case-pager-label">Next project</span>
+              <span class="case-pager-title">3D Vision Experimentation for Detection and Comparative Model Analysis</span>
+            </a>
+          </nav>
+        </div>
+      </main>
+    </div>
+
+    <button class="back-to-top" id="back-to-top" aria-label="Back to top">↑</button>
+
+    <script defer src="../../assets/tracking.js"></script>
+    <script defer src="../../assets/enhancements.js"></script>
+  </body>
+</html>

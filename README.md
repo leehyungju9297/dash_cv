@@ -15,11 +15,27 @@ Open `http://127.0.0.1:8050`.
 
 ## Public pages
 
-- `/` Home
-- `/projects` Selected Work
+- `/` Home — a recruiter-first summary: role, value proposition, three proof
+  points, two calls to action, then capability lanes and selected work
+- `/projects` Selected Work — a project index, not a document. Seven cards, each
+  carrying the outcome, the role and the timeframe
+- `/projects/<slug>` one route per project, on one case-study template
 - `/dashboard` Live Demo (interactive analytics dashboard)
 - `/publications` Publications
 - `/contact` Contact
+
+### Work items and their routes
+
+`case_studies.py` is the single source for every work item; `work_ui.py` holds
+the ordering, the shared card and the previous/next ring. A project needs an
+entry in `case_studies.py` and nothing else: `pages/project_detail.py` registers
+`/projects/<slug>` for each one from a single loop, the index and the home page
+pick it up from the same list, and `build_static.py` writes its page into the
+mirror.
+
+The case-study template is fixed — title, category and outcome; overview; role,
+timeframe, domain and tools in a rail; problem; approach; what I built; results;
+previous/next — so the seven read the same way and can be compared.
 
 ## Live demo dashboard
 
@@ -147,11 +163,19 @@ editing any of `pages/home.py`, `projects.py`, `publications.py` or
 python3 -m build_static
 ```
 
-Only `<main>` is generated. The document head, the site header and the closing
-scripts stay hand-maintained in `docs/**/index.html`, because they differ per
-page (meta descriptions, Open Graph tags, the active nav item, the shell's width
-modifier) and change rarely. A markup change *inside* a page needs no second
-edit; a change to the header or the head still needs one per file.
+Only `<main>` is generated for the four hand-kept pages. Their document head,
+site header and closing scripts stay hand-maintained in `docs/**/index.html`,
+because they differ per page (meta descriptions, Open Graph tags, the active nav
+item, the shell's width modifier) and change rarely.
+
+The seven case-study pages have no hand-kept file at all: their whole document
+is derived from `docs/projects/index.html` — the page they sit under and share a
+nav state with — with only the title, the description and the main block
+differing. Deriving rather than templating them separately is what keeps the
+head and header identical across all seven.
+
+A markup change *inside* a page needs no second edit; a change to the shared
+header or head still needs one per hand-kept file.
 
 ### Chart heights
 
@@ -189,6 +213,12 @@ and clamped so it can never exceed the column.
 Sections are `64px` apart (`40px` below 900px), a heading sits `16px` from its
 content, a card title `8px` from its body, and card padding and grid gaps are
 both `24px`. Nothing picks its own spacing.
+
+Below `760px` the navigation collapses behind a disclosure button
+(`assets/enhancements.js` owns `aria-expanded` and the `open` class). Above it
+the bar holds all five destinations and a button would be a step in the way;
+below it they were wrapping under the wordmark and pushing the header past
+100px. The closed header holds at `64px` either way.
 
 ### One warm light system, everywhere
 

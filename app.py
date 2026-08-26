@@ -133,8 +133,10 @@ def _nav_links(current_path='/'):
     pages.sort(key=lambda x: x.get('order', 999))
     links = []
     for page in pages:
-        class_name = 'top-nav-link active' if normalized_path == page['path'] else 'top-nav-link'
-        links.append(dcc.Link(page['name'], href=page['path'], className=class_name))
+        path = page['path']
+        active = normalized_path == path or normalized_path.startswith(path + '/')
+        class_name = 'top-nav-link active' if active else 'top-nav-link'
+        links.append(dcc.Link(page['name'], href=path, className=class_name))
     # The resume is a file rather than a route, so it closes the bar and is
     # marked as the one item that is not a page.
     links.append(
@@ -176,6 +178,20 @@ app.layout = html.Div(
                             href='/',
                             className='brand-chip',
                             title='Home',
+                        ),
+                        html.Button(
+                            id='nav-toggle',
+                            className='nav-toggle',
+                            **{
+                                'aria-expanded': 'false',
+                                'aria-controls': 'top-nav',
+                                'aria-label': 'Open navigation',
+                            },
+                            children=[
+                                html.Span(className='nav-toggle-bar'),
+                                html.Span(className='nav-toggle-bar'),
+                                html.Span(className='nav-toggle-bar'),
+                            ],
                         ),
                         html.Nav(id='top-nav', className='top-nav', children=_nav_links('/')),
                     ],

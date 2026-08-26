@@ -4,14 +4,18 @@ from typing import Dict, List
 WorkItem = Dict[str, object]
 
 
-# The role and organisation behind each item, carried as data rather than
-# derived in the page so it can be corrected in one place. These restate what
-# the Experience section already says; there is deliberately no per-project
-# year, because the repository records none.
+# Role, timeframe and domain per item, carried as data rather than derived in
+# the page so they can be corrected in one place. These restate facts the site
+# already carries: the roles and engagement periods are the ones the Experience
+# section lists, and the demo's year is this repository's own history. There is
+# no per-project date more precise than the engagement it happened inside — if
+# a project ran over a narrower window, correct `period` here.
 CASE_STUDIES: List[WorkItem] = [
     {
         'slug': 'executive-kpi-monitoring',
         'role': 'Data Scientist / Analytics Engineer · MySeat Media',
+        'period': '2023 – Present',
+        'domain': 'Mobile & streaming subscription apps',
         'scope': 'PRODUCT ANALYTICS / DECISION SYSTEMS',
         'title': 'Executive KPI Monitoring Across Client App Ecosystems',
         'problem_line': 'Built a multi-tenant KPI operating system spanning engagement, retention, memberships, monetization, notifications, auctions, livestreams, and timeline activity.',
@@ -62,6 +66,8 @@ CASE_STUDIES: List[WorkItem] = [
     {
         'slug': 'behavior-geography-correlation',
         'role': 'Data Scientist / Analytics Engineer · MySeat Media',
+        'period': '2023 – Present',
+        'domain': 'Mobile & streaming subscription apps',
         'scope': 'PRODUCT ANALYTICS / DECISION SYSTEMS',
         'title': 'Behavior, Geography, and Correlation Diagnostics',
         'problem_line': 'Built exploratory diagnostics to connect user behavior, memberships, geography, and engagement relationships into decision-ready analysis.',
@@ -107,6 +113,8 @@ CASE_STUDIES: List[WorkItem] = [
     {
         'slug': 'geo-segmented-user-intelligence',
         'role': 'Data Scientist / Analytics Engineer · MySeat Media',
+        'period': '2023 – Present',
+        'domain': 'Mobile & streaming subscription apps',
         'scope': 'PRODUCT ANALYTICS / DECISION SYSTEMS',
         'title': 'Geo-Segmented User Intelligence',
         'problem_line': 'Built geo-distribution and segment analysis views to understand where users are concentrated and how membership and account mixes differ geographically.',
@@ -165,6 +173,8 @@ CASE_STUDIES: List[WorkItem] = [
 LIVE_DEMO: WorkItem = {
     'slug': 'tidepool-commerce-analytics',
     'role': 'Designed and built end to end for this portfolio',
+    'period': '2026',
+    'domain': 'Direct-to-consumer retail',
     'scope': 'PRODUCT ANALYTICS / DATA VISUALIZATION',
     'title': 'Tidepool Commerce Analytics — Live Retail Dashboard',
     'problem_line': (
@@ -216,6 +226,8 @@ RESEARCH_HIGHLIGHTS: List[WorkItem] = [
     {
         'slug': 'lidar-benchmark-engineering',
         'role': 'Research Engineer / Computer Vision Researcher · AUSM Lab',
+        'period': '2019 – 2024',
+        'domain': 'Airborne LiDAR / 3D vision',
         'scope': 'AI / ML / RESEARCH WORK',
         'title': 'LiDAR Benchmark and Annotation Pipeline Engineering',
         'problem_line': 'Built reproducible airborne LiDAR dataset, annotation, and benchmark workflows for single-tree detection and 3D perception research.',
@@ -259,6 +271,8 @@ RESEARCH_HIGHLIGHTS: List[WorkItem] = [
     {
         'slug': 'volumetric-3d-vision-evaluation',
         'role': 'Research Engineer / Computer Vision Researcher · AUSM Lab',
+        'period': '2019 – 2024',
+        'domain': 'Airborne LiDAR / 3D vision',
         'scope': 'AI / ML / RESEARCH WORK',
         'title': '3D Vision Experimentation for Detection and Comparative Model Analysis',
         'problem_line': 'Designed and evaluated deep learning workflows for detecting individual trees from airborne LiDAR using 3D and volumetric representations.',
@@ -302,6 +316,8 @@ RESEARCH_HIGHLIGHTS: List[WorkItem] = [
     {
         'slug': 'segmentation-scene-understanding',
         'role': 'Research Engineer / Computer Vision Researcher · AUSM Lab',
+        'period': '2019 – 2024',
+        'domain': 'Airborne LiDAR / 3D vision',
         'scope': 'AI / ML / RESEARCH WORK',
         'title': 'Segmentation and Scene-Understanding Benchmark Analysis',
         'problem_line': 'Contributed to dataset and evaluation work supporting semantic segmentation and scene-understanding research on large-scale aerial LiDAR data.',
