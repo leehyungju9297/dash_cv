@@ -27,6 +27,32 @@ def _text_section(title: str, text: str):
     )
 
 
+def _demo_callout():
+    """A single pointer to the running demo, for the case studies it covers."""
+    covered = [case for case in CASE_STUDIES if case.get('has_demo')]
+    if not covered:
+        return None
+    return html.Div(
+        className='demo-callout',
+        children=[
+            html.Span(
+                f'All {len(covered)} of these run as one interactive dashboard, '
+                'on synthetic data.',
+                className='demo-callout-copy',
+            ),
+            html.A(
+                'Open the live demo \u2192',
+                href='/dashboard',
+                className='cta-secondary',
+                **{
+                    'data-track': 'case_study_demo_click',
+                    'data-track-location': 'case_studies_page',
+                },
+            ),
+        ],
+    )
+
+
 def _work_card(item):
     children = [
         html.Div(item['scope'], className='project-scope'),
@@ -60,26 +86,6 @@ def _work_card(item):
                         ),
                     ),
                     html.Figcaption(item['image_caption'], className='case-study-caption'),
-                ],
-            )
-        )
-
-    if item.get('has_demo'):
-        children.append(
-            html.Div(
-                className='case-tools-wrap',
-                children=[
-                    html.H4('Live demo', className='case-detail-label'),
-                    html.A(
-                        'Open the interactive dashboard \u2192',
-                        href='/dashboard',
-                        className='cta-secondary featured-case-cta',
-                        **{
-                            'data-track': 'case_study_demo_click',
-                            'data-track-location': 'case_studies_page',
-                            'data-track-label': item['slug'],
-                        },
-                    ),
                 ],
             )
         )
@@ -152,6 +158,9 @@ layout = html.Div(
                     'Production-facing work in KPI systems, behavioral analysis, segmentation, and decision support.',
                     className='subsection-note',
                 ),
+                # One callout for the section rather than the same button
+                # repeated under each of the three case studies it covers.
+                _demo_callout(),
                 *[_work_card(case) for case in CASE_STUDIES],
                 html.Div('AI / ML / RESEARCH WORK', className='eyebrow section-subhead'),
                 html.P(

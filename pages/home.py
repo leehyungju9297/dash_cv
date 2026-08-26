@@ -153,10 +153,15 @@ def _case_preview_card(case, primary: bool = False):
     return html.Article(
         className=card_class,
         children=[
+            # The card's button below points at the same anchor, so the image
+            # link is hidden from assistive tech and the tab order rather than
+            # announced as a second, unlabelled copy of it.
             html.A(
                 href=f"/projects#{case['slug']}",
                 className='featured-case-image-link',
+                tabIndex='-1',
                 **{
+                    'aria-hidden': 'true',
                     'data-track': 'featured_case_image_click',
                     'data-track-location': 'home_featured_case',
                     'data-track-label': case['slug'],
@@ -259,31 +264,14 @@ layout = html.Div(
                         html.Div(
                             className='hero-cta',
                             children=[
-                                html.A(
-                                    'View Selected Work',
-                                    href='/projects',
-                                    className='cta-primary',
-                                    **{
-                                        'data-track': 'hero_cta_click',
-                                        'data-track-location': 'home_hero',
-                                        'data-track-label': 'view_selected_work',
-                                    },
-                                ),
-                                html.A(
-                                    'Try the Live Demo',
-                                    href='/dashboard',
-                                    className='cta-secondary',
-                                    **{
-                                        'data-track': 'hero_cta_click',
-                                        'data-track-location': 'home_hero',
-                                        'data-track-label': 'live_demo',
-                                    },
-                                ),
+                                # Selected Work and Live Demo sit in the nav
+                                # directly above this row; the hero offers what
+                                # navigation cannot reach instead of repeating it.
                                 html.A(
                                     'Resume (PDF)',
                                     href='/assets/Hyungju_Lee_Resume.pdf',
                                     download='Hyungju_Lee_Resume.pdf',
-                                    className='cta-secondary',
+                                    className='cta-primary',
                                     **{
                                         'data-track': 'hero_cta_click',
                                         'data-track-location': 'home_hero',
@@ -360,7 +348,15 @@ layout = html.Div(
                 ),
                 html.Div('PRODUCT ANALYTICS / DECISION SYSTEMS', className='eyebrow'),
                 html.P(
-                    'Production-facing systems for KPI monitoring, behavioral diagnostics, segmentation, and operating reviews.',
+                    [
+                        'Production-facing systems for KPI monitoring, behavioral diagnostics, '
+                        'segmentation, and operating reviews. All three run as an ',
+                        html.A('interactive dashboard', href='/dashboard',
+                               className='inline-link',
+                               **{'data-track': 'live_demo_click',
+                                  'data-track-location': 'home_selected_work'}),
+                        '.',
+                    ],
                     className='subsection-note',
                 ),
                 html.Div(

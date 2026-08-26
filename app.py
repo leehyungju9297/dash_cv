@@ -89,7 +89,9 @@ app.index_string = """
 </html>
 """
 
-VISIBLE_PATHS = {'/', '/projects', '/dashboard', '/publications', '/contact'}
+# '/' is deliberately absent: the brand mark in the header is the link home,
+# so a Home item would be the same destination twice in one bar.
+VISIBLE_PATHS = {'/projects', '/dashboard', '/publications', '/contact'}
 
 PERSON_JSON_LD = {
     '@context': 'https://schema.org',
@@ -144,7 +146,19 @@ app.layout = html.Div(
                 html.Div(
                     className='header-inner',
                     children=[
-                        dcc.Link('HJ', href='/', className='brand-chip'),
+                        # dcc.Link takes no arbitrary attributes, so the
+                        # accessible name is carried by hidden text rather than
+                        # an aria-label: the visible mark reads "HJ", which on
+                        # its own does not tell a screen reader where it goes.
+                        dcc.Link(
+                            [
+                                html.Span('HJ', **{'aria-hidden': 'true'}),
+                                html.Span('Home', className='visually-hidden'),
+                            ],
+                            href='/',
+                            className='brand-chip',
+                            title='Home',
+                        ),
                         html.Nav(id='top-nav', className='top-nav', children=_nav_links('/')),
                     ],
                 )
