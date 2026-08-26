@@ -1165,8 +1165,23 @@ button:focus-visible,
    Experience
    ========================================================================== */
 
+/* An entry is one editorial block, not a two-column layout with a rail. The
+   header splits — role and company left, period and location right — and the
+   bullets underneath span both columns. Before this the header ran the full
+   container while the bullets stopped at their reading measure, which left a
+   430px void down the right of every entry.
+
+   The entry itself is narrower than the container and centred in it, so the
+   right-aligned metadata sits close enough to the bullets to read as the same
+   block. */
 .glass-card.experience-card {
   position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--space-5);
+  row-gap: var(--space-4);
+  max-width: 840px;
+  margin-inline: auto;
   background: none;
   border: 0;
   border-left: 1px solid var(--border-strong);
@@ -1195,13 +1210,15 @@ button:focus-visible,
   background: var(--border-strong);
 }
 
+/* The wrapper carries no box of its own — its two halves are the grid items. */
 .exp-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: var(--space-1) var(--space-4);
-  margin-bottom: var(--space-2);
+  display: contents;
+}
+
+.exp-identity {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
 }
 
 .exp-title {
@@ -1219,15 +1236,21 @@ button:focus-visible,
 }
 
 .exp-meta {
+  grid-column: 2;
+  grid-row: 1;
   text-align: right;
   color: var(--text-muted);
   font-size: var(--t-label);
   font-variant-numeric: tabular-nums;
 }
 
+/* Full entry width, left edge shared with the role above it. Capping the text
+   at 700px leaves a normal rag rather than a column. */
 .exp-bullets {
+  grid-column: 1 / -1;
+  grid-row: 2;
   padding-left: 1.05rem;
-  max-width: var(--prose-max);
+  max-width: 700px;
   color: var(--text-secondary);
   font-size: var(--t-small);
 }
@@ -2151,8 +2174,23 @@ a.contact-value:hover {
     grid-column: auto;
   }
 
+  /* One column: role, company, period and location stack, and the bullets keep
+     the full width beneath them. No rail, no blank column. */
+  .glass-card.experience-card {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-1);
+    max-width: none;
+  }
+
   .exp-meta {
+    grid-column: 1;
+    grid-row: auto;
     text-align: left;
+  }
+
+  .exp-bullets {
+    grid-row: auto;
+    margin-top: var(--space-2);
   }
 }
 

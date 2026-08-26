@@ -130,16 +130,26 @@ def _experience_block(title: str, company: str, period: str, location: str, bull
     return html.Article(
         className='glass-card experience-card reveal-up',
         children=[
+            # The header's two halves are placed directly on the entry's grid
+            # (`.exp-head` is display:contents), so the bullet list beneath them
+            # can span both columns instead of sitting in the left one.
             html.Div(
                 className='exp-head',
                 children=[
                     html.Div(
-                        [
+                        className='exp-identity',
+                        children=[
                             html.H3(title, className='exp-title'),
                             html.Div(company, className='exp-company'),
-                        ]
+                        ],
                     ),
-                    html.Div([html.Div(period), html.Div(location)], className='exp-meta'),
+                    html.Div(
+                        className='exp-meta',
+                        children=[
+                            html.Div(period, className='exp-period'),
+                            html.Div(location, className='exp-location'),
+                        ],
+                    ),
                 ],
             ),
             html.Ul([html.Li(b) for b in bullets], className='exp-bullets'),
