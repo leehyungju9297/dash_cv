@@ -47,6 +47,38 @@ html {
   color-scheme: dark;
 }
 
+/* Stop the browser leaving a single word on the last line. `pretty` is the
+   widow/orphan pass for running text; `balance` evens the lines of a short
+   heading, which is why headings opt into it separately below. */
+p,
+li,
+.hero-subtitle,
+.section-hero-subtitle,
+.section-note,
+.subsection-note,
+.impact-detail,
+.research-figure-caption,
+.case-study-caption,
+.lane-copy,
+.research-theme-copy,
+.paper-abstract {
+  text-wrap: pretty;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+.hero-title,
+.hero-role-descriptor,
+.affiliations-label,
+.impact-label,
+.case-study-title,
+.featured-case-title {
+  text-wrap: balance;
+}
+
 /* The page ambience is painted on a viewport-fixed layer, not on <body>.
    A background on <body> is sized to the *document*, so the same gradient
    resolved completely differently per page: the 900px contact page showed the
@@ -521,6 +553,7 @@ button:focus-visible,
   font-size: 0.63rem;
   font-weight: 700;
   letter-spacing: 0.16em;
+  text-align: center;
   text-transform: uppercase;
   color: var(--muted);
 }

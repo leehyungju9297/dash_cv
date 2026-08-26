@@ -24,6 +24,7 @@ from demo_dashboard.config import (
     DATE_PRESETS,
     DEFAULT_CLIENT,
     DEFAULT_PRESET,
+    SEGMENT_COLORS,
     SEGMENT_NAMES,
     metric_format,
     metric_label,
@@ -123,6 +124,29 @@ def _kpi_tile(slot_id, label, accent):
         ],
         className=f'fr-tile fr-tile--{accent}',
     )
+
+
+def _segment_options(disabled=False):
+    """Segment filters as labelled swatches rather than a row of tick boxes.
+
+    The swatch is the same colour the segment is drawn in on the map, so the
+    control reads as a legend that can be switched off — which is what it is.
+    """
+    return [
+        {
+            'label': html.Span(
+                [
+                    html.Span(className='fr-segment-dot',
+                              style={'backgroundColor': SEGMENT_COLORS[name]}),
+                    html.Span(name, className='fr-segment-name'),
+                ],
+                className='fr-segment-face',
+            ),
+            'value': name,
+            'disabled': disabled,
+        }
+        for name in SEGMENT_NAMES
+    ]
 
 
 def _graph(graph_id, chart):
@@ -371,11 +395,15 @@ panel_audience = html.Div(
                         'Lifecycle segments',
                         dcc.Checklist(
                             id='fr-segments',
-                            options=[{'label': name, 'value': name} for name in SEGMENT_NAMES],
+                            options=_segment_options(),
                             value=list(SEGMENT_NAMES),
-                            className='fr-checklist fr-checklist--inline',
-                            inputClassName='fr-checkbox',
-                            labelClassName='fr-checklist-label',
+                            className='fr-segment-toggles',
+                            inputClassName='fr-segment-input',
+                            labelClassName='fr-segment-toggle',
+                            # dcc.Checklist writes display:block onto each label
+                            # inline, which no stylesheet rule can outrank.
+                            labelStyle={'display': 'inline-flex',
+                                        'alignItems': 'center'},
                         ),
                         grow=True,
                     ),
@@ -866,9 +894,7 @@ def sync_map_controls(display):
     something the map ignores.
     """
     individual = display == 'individual'
-    options = [{'label': name, 'value': name, 'disabled': not individual}
-               for name in SEGMENT_NAMES]
-    return individual, options
+    return individual, _segment_options(disabled=not individual)
 
 
 @callback(

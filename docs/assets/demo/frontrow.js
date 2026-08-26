@@ -341,24 +341,47 @@
     return out;
   }
 
-  // Metros are tight, sparse international markets spread wider.
-  var SPREAD_DEGREES = 0.42;
-  var SPREAD_INTERNATIONAL = 0.62;
+  // How far the tail of a market reaches. Most users land far inside this — see
+  // the concentration term below — so it is the outer extent, not the radius.
+  var SPREAD_DEGREES = 0.95;
+  var SPREAD_INTERNATIONAL = 1.35;
 
   /* One marker per mapped user, not a sample: MapLibre draws the full ~270k
      cloud in about the time it draws 5,000, and the density is the point of the
-     view. No per-point label — at this scale a single fan cannot be hovered. */
+     view. No per-point label — at this scale a single fan cannot be hovered.
+
+     The scatter is deliberately not a disc. Jittering each coordinate
+     independently and uniformly draws every metro as the same round blob, which
+     is what a city-centroid fallback looks like when geolocation has failed —
+     the one thing this view must not be mistaken for. Each market instead gets
+     two to four population centres, an elliptical bias, and a squared radial
+     term that puts most users near a centre and a thin tail beyond it.
+
+     Mirrors demo_dashboard/geo.spread_within_city draw for draw. */
   function spreadWithinCity(rows, salt) {
     var points = [];
 
     rows.forEach(function (row) {
-      var allocation = row.users;
       var rng = new Lcg((row.seed ^ stringSeed(salt)) >>> 0);
-      var spread = row.country === 'United States' ? SPREAD_DEGREES : SPREAD_INTERNATIONAL;
+      var base = row.country === 'United States' ? SPREAD_DEGREES : SPREAD_INTERNATIONAL;
+
+      var stretchX = 0.75 + rng.nextFloat() * 0.9;
+      var stretchY = 0.75 + rng.nextFloat() * 0.9;
+      var centreCount = 2 + Math.trunc(rng.nextFloat() * 3);
+      var centres = [], pullTotal = 0;
+      for (var c = 0; c < centreCount; c++) {
+        var offset = c === 0 ? 0 : 0.34;          // first centre is the city itself
+        var dLat = rng.jitter(base * offset) * stretchY;
+        var dLon = rng.jitter(base * offset) * stretchX * 1.3;
+        var pull = 0.45 + rng.nextFloat();
+        centres.push([dLat, dLon, pull]);
+        pullTotal += pull;
+      }
+
       var weights = SEGMENT_NAMES.map(function (s) { return Math.max(row.segments[s], 0) + 0.5; });
       var pool = weights.reduce(function (a, b) { return a + b; }, 0);
 
-      for (var i = 0; i < allocation; i++) {
+      for (var i = 0; i < row.users; i++) {
         var draw = rng.nextFloat() * pool;
         var segment = SEGMENT_NAMES[SEGMENT_NAMES.length - 1];
         var running = 0;
@@ -366,9 +389,37 @@
           running += weights[j];
           if (draw < running) { segment = SEGMENT_NAMES[j]; break; }
         }
+
+        var pick = rng.nextFloat() * pullTotal;
+        var centre = centres[centres.length - 1];
+        running = 0;
+        for (var k = 0; k < centres.length; k++) {
+          running += centres[k][2];
+          if (pick < running) { centre = centres[k]; break; }
+        }
+
+        // A direction, by rejection so no sine or cosine is involved.
+        var dx = 0, dy = 0, accepted = false;
+        for (var attempt = 0; attempt < 12; attempt++) {
+          dx = rng.nextFloat() * 2 - 1;
+          dy = rng.nextFloat() * 2 - 1;
+          if (dx * dx + dy * dy <= 1) { accepted = true; break; }
+        }
+        if (!accepted) { dx = 0; dy = 0; }
+
+        // Squared radius: dense core, thin tail.
+        var reach = rng.nextFloat();
+        reach *= reach;
+        // A small share live well outside the metro. Without them every market
+        // ends at a hard edge and the country between cities is empty, which
+        // real location data never is.
+        if (rng.nextFloat() < 0.05) {
+          reach *= 3.0 + rng.nextFloat() * 4.0;
+        }
+
         points.push({
-          lat: roundCoord(row.lat + rng.jitter(spread)),
-          lon: roundCoord(row.lon + rng.jitter(spread * 1.3)),
+          lat: roundCoord(row.lat + centre[0] + dy * base * reach * stretchY),
+          lon: roundCoord(row.lon + centre[1] + dx * base * reach * stretchX * 1.3),
           segment: segment
         });
       }
@@ -1412,9 +1463,15 @@
     onSelect('fr-map-metric', 'mapMetric', ['audience']);
     syncMapControls();
 
+    /* Segment filters as labelled swatches, not tick boxes: the swatch is the
+       colour the segment is drawn in, so the control doubles as the map legend. */
     document.getElementById('fr-segments').innerHTML = SEGMENT_NAMES.map(function (name) {
-      return '<label class="fr-checklist-label"><input class="fr-checkbox" type="checkbox" value="' +
-        name + '" checked />' + name + '</label>';
+      return '<label class="fr-segment-toggle">' +
+        '<input class="fr-segment-input" type="checkbox" value="' + name + '" checked />' +
+        '<span class="fr-segment-face">' +
+        '<span class="fr-segment-dot" style="background-color:' + SEGMENT_COLORS[name] + '"></span>' +
+        '<span class="fr-segment-name">' + name + '</span>' +
+        '</span></label>';
     }).join('');
     document.getElementById('fr-segments').addEventListener('change', function () {
       state.segments = readChecked('fr-segments');

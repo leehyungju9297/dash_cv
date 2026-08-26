@@ -413,6 +413,101 @@
   cursor: pointer;
 }
 
+/* --- Segment filter ------------------------------------------------------
+   A row of tick boxes said nothing about what each segment looks like on the
+   map. These are the map legend with the switch built in: the swatch is the
+   colour the segment is drawn in, and switching one off dims the whole chip. */
+.fr-segment-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding-bottom: 0.3rem;
+}
+
+.fr-segment-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fr-segment-toggle {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--fr-border);
+  border-radius: 999px;
+  padding: 0.28rem 0.66rem 0.28rem 0.52rem;
+  background: rgba(148, 163, 184, 0.05);
+  cursor: pointer;
+  transition: border-color 200ms var(--fr-ease), background 200ms var(--fr-ease),
+              opacity 200ms var(--fr-ease);
+}
+
+.fr-segment-face {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.fr-segment-dot {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  border-radius: 999px;
+  /* Set inline from the segment palette so the swatch and the map cannot
+     disagree about what colour a segment is. */
+  transition: transform 200ms var(--fr-ease), opacity 200ms var(--fr-ease);
+}
+
+.fr-segment-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--fr-text-secondary);
+  white-space: nowrap;
+}
+
+.fr-segment-toggle:hover {
+  border-color: rgba(148, 163, 184, 0.3);
+  background: rgba(148, 163, 184, 0.09);
+}
+
+.fr-segment-toggle:has(.fr-segment-input:checked) {
+  border-color: rgba(148, 163, 184, 0.34);
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.fr-segment-toggle:has(.fr-segment-input:checked) .fr-segment-name {
+  color: var(--fr-text);
+}
+
+/* Off: the chip stays legible but clearly inactive, and the swatch shrinks
+   rather than vanishing so the colour key is still readable. */
+.fr-segment-toggle:not(:has(.fr-segment-input:checked)) {
+  background: transparent;
+}
+
+.fr-segment-toggle:not(:has(.fr-segment-input:checked)) .fr-segment-dot {
+  transform: scale(0.66);
+  opacity: 0.35;
+}
+
+.fr-segment-toggle:not(:has(.fr-segment-input:checked)) .fr-segment-name {
+  color: var(--fr-text-muted);
+}
+
+.fr-segment-toggle:has(.fr-segment-input:focus-visible) {
+  outline: 2px solid var(--fr-accent);
+  outline-offset: 2px;
+}
+
+/* The aggregate views have no per-user markers to filter. */
+.fr-segment-toggle:has(.fr-segment-input:disabled) {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* --- Cards ---------------------------------------------------------------- */
 .fr-card {
   padding: 1.05rem 1.15rem 1.15rem;
@@ -439,6 +534,24 @@
   font-weight: 650;
   letter-spacing: -0.02em;
   color: var(--fr-text);
+}
+
+/* Same widow control as the site shell — the demo's card subtitles and notes
+   are running text and were dropping single words onto their own line. */
+.fr-page p,
+.fr-card-subtitle,
+.fr-note,
+.fr-readout,
+.fr-banner-copy,
+.fr-nav-blurb,
+.fr-spec-value {
+  text-wrap: pretty;
+}
+
+.fr-card-title,
+.fr-tile-label,
+.fr-hero-label {
+  text-wrap: balance;
 }
 
 .fr-card-subtitle {

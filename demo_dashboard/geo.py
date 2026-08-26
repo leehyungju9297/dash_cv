@@ -140,10 +140,11 @@ def _place_label(level: str, entry: Dict) -> str:
 # --------------------------------------------------------------------------
 # Individual markers
 # --------------------------------------------------------------------------
-# Metros are tight, sparse international markets spread wider, so a marker cloud
-# reads as a city rather than a uniform blob.
-_SPREAD_DEGREES = 0.42
-_SPREAD_INTERNATIONAL = 0.62
+# How far the tail of a market reaches. Most users land far inside this — see
+# the concentration term in spread_within_city — so it is the outer extent, not
+# the radius of the cloud.
+_SPREAD_DEGREES = 0.95
+_SPREAD_INTERNATIONAL = 1.35
 
 
 # Three decimals is about 100 m, two orders of magnitude finer than the jitter
@@ -159,13 +160,41 @@ def spread_within_city(rows: Sequence[Dict], salt: str = '') -> List[Dict]:
     the point of the view. The markers carry no per-point label — at this scale
     an individual fan cannot be hovered anyway, and the strings were more than
     half the payload. Drill-down lives in the market and density views.
+
+    The scatter is deliberately not a disc. Jittering each coordinate
+    independently and uniformly draws every metro as the same round blob, which
+    is exactly what a city-centroid fallback looks like when geolocation has
+    failed — the one thing this view must not be mistaken for. Instead each
+    market gets two to four population centres, an elliptical bias, and a
+    squared radial term that puts most users near a centre and a thin tail well
+    beyond it.
+
+    Every draw is integer-LCG arithmetic with no transcendental functions, so
+    the JavaScript mirror produces the identical cloud.
     """
     points: List[Dict] = []
 
     for row in rows:
         rng = Lcg(row['seed'] ^ string_seed(salt))
-        spread = (_SPREAD_DEGREES if row['country'] == 'United States'
-                  else _SPREAD_INTERNATIONAL)
+        base = (_SPREAD_DEGREES if row['country'] == 'United States'
+                else _SPREAD_INTERNATIONAL)
+
+        # Market shape, drawn once: how elongated it is, and where its
+        # population centres sit relative to the nominal city point.
+        stretch_x = 0.75 + rng.next_float() * 0.9
+        stretch_y = 0.75 + rng.next_float() * 0.9
+        centre_count = 2 + int(rng.next_float() * 3)
+        centres = []
+        for index in range(centre_count):
+            # The first centre is the city itself; the rest are satellites.
+            offset = 0.0 if index == 0 else 0.34
+            centres.append((
+                rng.jitter(base * offset) * stretch_y,
+                rng.jitter(base * offset) * stretch_x * 1.3,
+                0.45 + rng.next_float(),          # relative pull
+            ))
+        pull_total = sum(c[2] for c in centres)
+
         weights = [max(row['segments'][seg], 0) + 0.5 for seg in SEGMENT_NAMES]
         pool = sum(weights)
 
@@ -178,9 +207,39 @@ def spread_within_city(rows: Sequence[Dict], salt: str = '') -> List[Dict]:
                 if draw < running:
                     segment = name
                     break
+
+            pick = rng.next_float() * pull_total
+            running = 0.0
+            centre = centres[-1]
+            for candidate in centres:
+                running += candidate[2]
+                if pick < running:
+                    centre = candidate
+                    break
+
+            # A direction, by rejection so no sine or cosine is involved.
+            for _ in range(12):
+                dx = rng.next_float() * 2.0 - 1.0
+                dy = rng.next_float() * 2.0 - 1.0
+                if dx * dx + dy * dy <= 1.0:
+                    break
+            else:
+                dx = dy = 0.0
+
+            # Squared radius: dense core, thin tail.
+            reach = rng.next_float()
+            reach *= reach
+            # A small share live well outside the metro. Without them every
+            # market ends at a hard edge and the country between cities is
+            # empty, which real location data never is.
+            if rng.next_float() < 0.05:
+                reach *= 3.0 + rng.next_float() * 4.0
+
             points.append({
-                'lat': round(row['lat'] + rng.jitter(spread), _COORD_DECIMALS),
-                'lon': round(row['lon'] + rng.jitter(spread * 1.3), _COORD_DECIMALS),
+                'lat': round(row['lat'] + centre[0]
+                             + dy * base * reach * stretch_y, _COORD_DECIMALS),
+                'lon': round(row['lon'] + centre[1]
+                             + dx * base * reach * stretch_x * 1.3, _COORD_DECIMALS),
                 'segment': segment,
             })
 
