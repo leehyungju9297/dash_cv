@@ -178,7 +178,7 @@ def _experience_block(title: str, company: str, period: str, location: str, bull
 
 
 def _case_preview_card(case, primary: bool = False):
-    card_class = 'glass-card featured-case-card'
+    card_class = 'glass-card card-hover featured-case-card'
     if primary:
         card_class += ' featured-case-card-primary'
 
@@ -247,7 +247,7 @@ def _demo_preview_card():
     """
     shot = LIVE_DEMO['shots'][0]
     return html.Article(
-        className='glass-card featured-case-card featured-case-card-primary',
+        className='glass-card card-hover featured-case-card featured-case-card-primary',
         children=[
             html.A(
                 href='/dashboard',
@@ -296,7 +296,7 @@ def _demo_preview_card():
 
 def _research_preview_card(item):
     return html.Article(
-        className='glass-card research-highlight-card reveal-up',
+        className='glass-card card-hover research-highlight-card reveal-up',
         children=[
             html.Div(item['scope'], className='project-scope'),
             html.H3(item['title'], className='research-highlight-title'),

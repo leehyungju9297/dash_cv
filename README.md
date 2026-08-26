@@ -131,11 +131,27 @@ python3 -m demo_dashboard.export
 
 Editing `docs/assets/` directly is a mistake — the next export overwrites it.
 
-The dashboard's own markup is *not* maintained twice: `docs/assets/demo/tidepool.js`
-generates every panel from the section config that travels in the payload, so the
-static build cannot drift from the Dash page by way of stale HTML. The other
-pages are still mirrored by hand — a change to `pages/home.py`, `projects.py`,
-`publications.py` or `contact.py` needs the matching edit in `docs/**/index.html`.
+No page's markup is maintained twice.
+
+The dashboard generates every panel client-side from the section config that
+travels in the payload (`docs/assets/demo/tidepool.js`), so it cannot drift from
+the Dash page by way of stale HTML.
+
+The four portfolio pages are rendered from the real Dash layout by
+`build_static.py`, which walks the component tree and writes the result into the
+`<main class="page-wrap">` block of each `docs/**/index.html`. Run it after
+editing any of `pages/home.py`, `projects.py`, `publications.py` or
+`contact.py`::
+
+```bash
+python3 -m build_static
+```
+
+Only `<main>` is generated. The document head, the site header and the closing
+scripts stay hand-maintained in `docs/**/index.html`, because they differ per
+page (meta descriptions, Open Graph tags, the active nav item, the shell's width
+modifier) and change rarely. A markup change *inside* a page needs no second
+edit; a change to the header or the head still needs one per file.
 
 ### Chart heights
 
@@ -147,6 +163,32 @@ The second one is not cosmetic. A responsive Plotly graph with no CSS height
 collapses its container to zero on a width change while the figure keeps its own
 height — the SVG then escapes the card and paints over whatever follows it. Never
 add a chart without giving its container a height from this registry.
+
+### One layout system, everywhere
+
+Every route centres on the same token and takes the same gutter, so the left
+edge of the page never moves between pages — and the header follows the page it
+sits above, because it is a sibling of the page container rather than an
+ancestor and cannot inherit the width (the shell carries a route modifier, see
+`SHELL_WIDTH` in `app.py`).
+
+| role | token | value |
+| --- | --- | --- |
+| standard page | `--page-max` | `1040px` |
+| dashboard | `--page-max-wide` | `1120px` |
+| contact | `--page-max-narrow` | `900px` |
+| reading column | `--reading-max` | `720px` |
+| paragraph measure | `--prose-max` | `min(58ch, --reading-max)` |
+| gutter | `--page-gutter` | `clamp(20px, 4vw, 32px)` |
+
+`--reading-max` is the column; `--prose-max` is the paragraph inside it. A
+paragraph filling all 720px runs 90+ characters and prose reads at 65-80, so the
+two are separate tokens. `--prose-max` is in `ch` so it tracks the font size,
+and clamped so it can never exceed the column.
+
+Sections are `64px` apart (`40px` below 900px), a heading sits `16px` from its
+content, a card title `8px` from its body, and card padding and grid gaps are
+both `24px`. Nothing picks its own spacing.
 
 ### One warm light system, everywhere
 

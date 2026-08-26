@@ -17,7 +17,7 @@ dash.register_page(__name__, order=4, name='Contact')
 
 
 layout = html.Div(
-    className='content-stack',
+    className='content-stack content-stack--narrow',
     children=[
         html.Section(
             className='reveal-up',

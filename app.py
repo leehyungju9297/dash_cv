@@ -93,6 +93,12 @@ app.index_string = """
 # so a Home item would be the same destination twice in one bar.
 VISIBLE_PATHS = {'/projects', '/dashboard', '/publications', '/contact'}
 
+# The header is a sibling of the page container, so it cannot inherit the page's
+# max-width. The shell carries the route's width as a modifier instead, which is
+# what keeps the brand mark on the same left edge as the H1 under it.
+SHELL_WIDTH = {'/dashboard': 'site-shell site-shell--wide',
+               '/contact': 'site-shell site-shell--narrow'}
+
 PERSON_JSON_LD = {
     '@context': 'https://schema.org',
     '@type': 'Person',
@@ -161,15 +167,12 @@ app.layout = html.Div(
                 html.Div(
                     className='header-inner',
                     children=[
-                        # dcc.Link takes no arbitrary attributes, so the
-                        # accessible name is carried by hidden text rather than
-                        # an aria-label: the visible mark reads "HJ", which on
-                        # its own does not tell a screen reader where it goes.
+                        # A wordmark rather than a monogram: the name is the
+                        # one thing a portfolio header has to say, and it also
+                        # gives the link an accessible name of its own without
+                        # the hidden-text workaround the "HJ" mark needed.
                         dcc.Link(
-                            [
-                                html.Span('HJ', **{'aria-hidden': 'true'}),
-                                html.Span('Home', className='visually-hidden'),
-                            ],
+                            'Hyungju Lee',
                             href='/',
                             className='brand-chip',
                             title='Home',
@@ -190,9 +193,14 @@ app.layout = html.Div(
 )
 
 
-@app.callback(Output('top-nav', 'children'), Input('app-location', 'pathname'))
+@app.callback(
+    Output('top-nav', 'children'),
+    Output('site-shell', 'className'),
+    Input('app-location', 'pathname'),
+)
 def _refresh_nav(pathname):
-    return _nav_links(pathname)
+    normalized = _normalize_path(pathname)
+    return _nav_links(pathname), SHELL_WIDTH.get(normalized, 'site-shell')
 
 
 if __name__ == '__main__':
