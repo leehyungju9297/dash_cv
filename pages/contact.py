@@ -23,7 +23,7 @@ layout = html.Div(
             className='reveal-up',
             children=[
                 html.Div('CONTACT', className='eyebrow'),
-                html.H2('Contact', className='section-hero-title'),
+                html.H1('Contact', className='section-hero-title'),
                 html.P(
                     'I work across product analytics, analytics engineering, data systems, and AI/ML-oriented '
                     'research engineering. Email is the fastest path for role discussions and technical opportunities.',

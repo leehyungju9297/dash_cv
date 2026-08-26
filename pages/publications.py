@@ -62,7 +62,7 @@ def _field_work_card(item):
                 className='field-work-body',
                 children=[
                     html.Div(item['meta'], className='paper-venue'),
-                    html.H4(item['title'], className='research-theme-title'),
+                    html.H3(item['title'], className='research-theme-title'),
                     html.P(item['copy'], className='research-theme-copy'),
                     html.Ul(
                         className='case-detail-list',
@@ -86,7 +86,7 @@ def _paper_block(venue: str, place: str, title: str, abstract: str, link: Option
         children=[
             html.Div(venue, className='paper-venue'),
             html.Div(place, className='paper-place'),
-            html.H5(title, className='paper-title'),
+            html.H2(title, className='paper-title'),
             html.P(abstract, className='paper-abstract'),
             link_node,
         ],
@@ -97,7 +97,7 @@ def _theme_card(title: str, copy: str, tags):
     return html.Article(
         className='glass-card research-theme-card reveal-up',
         children=[
-            html.H4(title, className='research-theme-title'),
+            html.H2(title, className='research-theme-title'),
             html.P(copy, className='research-theme-copy'),
             html.Div(
                 className='skill-cloud',
@@ -114,7 +114,7 @@ layout = html.Div(
             className='reveal-up',
             children=[
                 html.Div('RESEARCH', className='eyebrow'),
-                html.H2('Research and Publications', className='section-hero-title'),
+                html.H1('Research and Publications', className='section-hero-title'),
                 html.P(
                     'Selected work in LiDAR, computer vision, benchmark datasets, segmentation-oriented analysis, '
                     'and research engineering workflows.',
@@ -129,7 +129,7 @@ layout = html.Div(
         html.Section(
             className='reveal-up',
             children=[
-                html.H3('Field Work', className='section-title'),
+                html.H2('Field Work', className='section-title'),
                 html.P(
                     'Data collection and pipeline work done on site, not from a desk.',
                     className='section-note',
@@ -140,7 +140,7 @@ layout = html.Div(
         html.Section(
             className='reveal-up',
             children=[
-                html.H3('Selected Figures', className='section-title'),
+                html.H2('Selected Figures', className='section-title'),
                 html.P(
                     'From the thesis and the project report, with what each one is '
                     'actually showing.',

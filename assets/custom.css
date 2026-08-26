@@ -1,56 +1,102 @@
-@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400..700&display=swap');
 
-/* One warm, light, print-safe system for the whole site — the same palette the
-   demo dashboard uses, so the portfolio and the product it contains read as one
-   thing rather than two. Three rules:
+/* ==========================================================================
+   Hyungju Lee — portfolio visual system
 
-     1. One accent. Terracotta carries emphasis; everything else is paper, ink
-        and hairline. Nothing glows.
-     2. Contrast is checked rather than assumed: body text clears WCAG AA
-        against the page, and so does every muted label.
-     3. Space instead of chrome. Surfaces are separated by whitespace and a 1px
-        hairline rather than by shadow, and the radius is small enough that the
-        page reads as a document. */
+   The reference is a technical report, not a landing page. Four rules the
+   whole sheet follows:
+
+     1. Neutral carries the page. Roughly 85% of the ink is warm greyscale,
+        10% accent, 5% teal. Colour is semantic, never decorative: the accent
+        marks product and data work, teal marks research, and everything else
+        is paper, ink and hairline.
+     2. Hierarchy comes from type, space and 1px rules — not from shadow,
+        gradient, tint or radius. Cards are for the case studies, which are
+        genuinely discrete objects; every other block is set as text.
+     3. Contrast is measured, not assumed. Body text clears WCAG AA at its
+        own size against the surface actually painted behind it.
+     4. Motion is under 200ms and under 4px, and stops entirely under
+        prefers-reduced-motion.
+   ========================================================================== */
+
 :root {
-  --bg: #FAF9F7;
-  --bg-deep: #F4F2EE;
+  /* --- Colour ------------------------------------------------------------ */
+  --bg: #FAF9F6;
   --surface: #FFFFFF;
-  --surface-strong: #FFFFFF;
-  --ink: #1A1A18;
-  --muted: #6B6862;
-  --line: #E4E0D9;
-  --line-strong: #D6D1C7;
-  --accent: #C4633F;
-  --accent-deep: #8B462D;
-  /* Terracotta at full strength measures 3.8:1 on paper, which the small
-     uppercase labels that use it — eyebrows, scopes, venues — do not clear. They
-     take this instead, at 5.7:1. The accent itself stays for rules, fills and
-     large type, where 3:1 is the bar. */
-  --accent-text: #9E4B34;
-  --accent-soft: #F5E5DE;
-  --signal: #CA9038;
-  --positive: #4E6B4D;
-  --negative: #9E4B34;
-  --glow: rgba(196, 99, 63, 0.16);
 
-  /* The dark build put a hairline of light along the top edge of every surface
-     to lift it off the page. On paper there is nothing to lift off, so the
-     token stays (it is composed into shadow lists all over the sheet) but paints
-     nothing. */
-  --edge: 0 0 0 0 rgba(26, 26, 24, 0.0);
+  --text-primary: #1C1917;
+  --text-secondary: #57534E;
+  --text-muted: #78716C;
 
-  /* Shadows are for the few things that genuinely float — a dropdown, the
-     back-to-top button. Cards use a border. */
-  --shadow-sm: 0 1px 2px rgba(26, 26, 24, 0.04);
-  --shadow-md: 0 2px 6px rgba(26, 26, 24, 0.06);
-  --shadow-lg: 0 8px 24px rgba(26, 26, 24, 0.09);
+  --border: #E7E5E4;
+  /* One step down from --border, for the rules that have to read as structure
+     rather than as separation: the top of a metrics band, the axis a timeline
+     hangs from, the underline on a quiet link. */
+  --border-strong: #D6D3D1;
 
-  --radius-lg: 8px;
-  --radius-md: 6px;
-  --radius-sm: 4px;
+  --accent: #C2410C;
+  --accent-hover: #9A3412;
+  --accent-soft: #FFF7ED;
+  /* The accent clears AA for small text on both the page and a white surface
+     (5.4:1 and 5.6:1), so unlike a mid blue it can carry a label as well as a
+     rule. --accent-text exists so the two uses stay separable if either colour
+     moves. */
+  --accent-text: #C2410C;
 
+  /* Research work is marked in teal — far enough from the accent that the two
+     never read as the same category, and 5.2:1 on white. It appears on category
+     labels, research links and figure numbers, and nowhere else. */
+  --secondary-accent: #0F766E;
+  --secondary-accent-hover: #115E59;
+  --secondary-accent-soft: #F0FDFA;
+
+  /* Border tints for the two hover states, one per work family. */
+  --accent-border: #FDBA74;
+  --secondary-accent-border: #99F6E4;
+
+  /* --- Space (8px system) ------------------------------------------------ */
+  --space-1: 0.5rem;    /* 8  */
+  --space-2: 1rem;      /* 16 */
+  --space-3: 1.5rem;    /* 24 */
+  --space-4: 2rem;      /* 32 */
+  --space-5: 2.5rem;    /* 40 */
+  --space-6: 3rem;      /* 48 */
+  --space-8: 4rem;      /* 64 */
+  --space-10: 5rem;     /* 80 */
+  --space-12: 6rem;     /* 96  */
+  --space-14: 7rem;     /* 112 */
+
+  /* Section rhythm. The hairline above each section heading adds its own
+     24px, so the resolved gap lands in the 96–128px band. */
+  --section-gap: var(--space-12);
+  --subsection-gap: var(--space-8);
+
+  /* The reading measure, in ch — which is the width of "0", not of an average
+     character. In Inter a "0" is ~0.63em while running prose averages ~0.45em,
+     so a column set to 65ch actually resolves to about 90 characters. 48ch
+     measures out at 65-70, which is the number that matters. */
+  --measure: 48ch;
+  --page: 1200px;
+
+  --radius-lg: 12px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Reserved for the two things that genuinely float — the back-to-top button
+     and a hovered case study. Nothing else on the page casts a shadow. */
+  --shadow-hover: 0 8px 30px rgba(28, 25, 23, 0.07);
+  --shadow-float: 0 4px 16px rgba(28, 25, 23, 0.09);
+
+  --t-fast: 150ms;
+  --t-base: 180ms;
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
 
 * {
   box-sizing: border-box;
@@ -63,13 +109,44 @@ body {
 }
 
 html {
-  background-color: #FAF9F7;
+  background-color: var(--bg);
   color-scheme: light;
+  scroll-behavior: smooth;
+  /* Anchor targets clear the sticky header instead of landing under it. */
+  scroll-padding-top: 88px;
+}
+
+body {
+  font-family: var(--font);
+  font-size: 1.0625rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  background: var(--bg);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: var(--font);
+  color: var(--text-primary);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+a {
+  color: inherit;
 }
 
 /* Stop the browser leaving a single word on the last line. `pretty` is the
    widow/orphan pass for running text; `balance` evens the lines of a short
-   heading, which is why headings opt into it separately below. */
+   heading. */
 p,
 li,
 .hero-subtitle,
@@ -91,58 +168,22 @@ h3,
 h4,
 h5,
 .hero-title,
-.hero-role-descriptor,
-.affiliations-label,
 .impact-label,
 .case-study-title,
 .featured-case-title {
   text-wrap: balance;
 }
 
-/* The page ambience is painted on a viewport-fixed layer, not on <body>.
-   A background on <body> is sized to the *document*, so the same gradient
-   resolved completely differently per page: the 900px contact page showed the
-   whole light-to-dark ramp on one screen while the 8,200px case-study page
-   showed only its lightest sliver, and the two read as different colour schemes.
-   Anchoring it to the viewport makes every page identical. */
-html::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background: #FAF9F7;
-}
-
-body {
-  font-family: 'Public Sans', 'Helvetica Neue', sans-serif;
-  color: var(--ink);
-  background: transparent;
-  line-height: 1.62;
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5 {
-  font-family: 'Source Serif 4', 'Iowan Old Style', Georgia, serif;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-}
-
-a {
-  color: inherit;
+img {
+  max-width: 100%;
 }
 
 a:focus-visible,
 button:focus-visible,
 [tabindex]:focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: 8px;
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 /* Content for assistive tech only — removed from the visual flow without being
@@ -159,20 +200,28 @@ button:focus-visible,
   border: 0;
 }
 
+/* The dark build floated two blurred colour fields behind the page. A report
+   has no ambience; the elements stay in the markup (both builds emit them) and
+   paint nothing. */
+.bg-orb {
+  display: none;
+}
+
+/* ==========================================================================
+   Pre-hydration fallback
+   ========================================================================== */
+
 .fallback-shell {
-  max-width: 1120px;
-  margin: 1rem auto 0;
-  padding: 0 1rem;
+  max-width: var(--page);
+  margin: 0 auto;
+  padding: var(--space-2) var(--space-3) 0;
   position: relative;
   z-index: 4;
 }
 
 .fallback-card {
-  background: #FFFFFF;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 0.9rem 1rem;
-  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-2);
 }
 
 .fallback-card h1 {
@@ -181,28 +230,33 @@ button:focus-visible,
 }
 
 .fallback-card p {
-  margin: 0.32rem 0 0;
-  color: var(--muted);
+  margin: 0.25rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.9375rem;
 }
 
 .fallback-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.7rem;
+  gap: var(--space-2);
 }
 
 .fallback-links a {
-  color: var(--accent-deep);
+  color: var(--accent-text);
   text-decoration: none;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 #react-entry-point ._dash-loading {
-  color: var(--muted);
+  color: var(--text-muted);
   text-align: center;
-  margin-top: 1.2rem;
-  font-weight: 600;
+  margin-top: var(--space-3);
+  font-weight: 500;
 }
+
+/* ==========================================================================
+   Shell and header
+   ========================================================================== */
 
 .site-shell {
   position: relative;
@@ -217,93 +271,102 @@ button:focus-visible,
   isolation: isolate;
 }
 
-/* Ambient light, not decoration: blurred far enough that they read as a glow
-   behind the page rather than two coloured circles. */
-/* The dark build floated two coloured glows behind the page. A light warm
-   surface has nothing to glow against, and the palette rules out neon anyway —
-   the elements stay in the markup (both builds emit them) and paint nothing. */
-.bg-orb {
-  display: none;
-}
-
 .site-header {
   position: sticky;
   top: 0;
   z-index: 20;
-  /* saturate() keeps the colour behind the bar from going grey under the blur */
-  backdrop-filter: blur(18px) saturate(140%);
-  background: rgba(250, 249, 247, 0.92);
-  border-bottom: 1px solid var(--line);
+  background: rgba(250, 249, 246, 0.88);
+  backdrop-filter: blur(12px) saturate(140%);
+  border-bottom: 1px solid var(--border);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .site-header {
+    background: var(--bg);
+  }
 }
 
 .header-inner {
-  max-width: 1120px;
+  max-width: var(--page);
   margin: 0 auto;
-  padding: 0.62rem 1rem;
+  padding: 0 var(--space-3);
+  min-height: 64px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
+/* A wordmark, not a chip: a filled square in the corner is the one piece of
+   chrome a document does not need. */
 .brand-chip {
-  width: 40px;
-  height: 40px;
   flex: 0 0 auto;
-  border-radius: 11px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   text-decoration: none;
-  color: #FFFFFF;
-  font-family: 'Source Serif 4', 'Iowan Old Style', Georgia, serif;
-  font-size: 0.92rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  background: var(--ink);
-  transition: transform 200ms var(--ease), background 200ms var(--ease);
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  padding: var(--space-1) 0;
+  border-bottom: 2px solid transparent;
+  transition: color var(--t-fast) var(--ease),
+              border-color var(--t-fast) var(--ease);
 }
 
 .brand-chip:hover {
-  transform: translateY(-1px);
-  background: #33322E;
+  color: var(--accent-text);
 }
 
 .top-nav {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: flex-end;
-  gap: 0.58rem;
+  gap: var(--space-3);
 }
 
 .top-nav-link {
   position: relative;
   text-decoration: none;
-  color: var(--muted);
-  border-radius: 999px;
-  border: 1px solid transparent;
-  padding: 0.44rem 0.82rem;
-  font-size: 0.86rem;
-  font-weight: 600;
-  letter-spacing: 0.005em;
-  transition: color 200ms var(--ease), background 200ms var(--ease),
-              border-color 200ms var(--ease);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.375rem 0;
+  border-bottom: 2px solid transparent;
+  transition: color var(--t-fast) var(--ease),
+              border-color var(--t-fast) var(--ease);
 }
 
 .top-nav-link:hover {
-  color: var(--ink);
-  background: rgba(26, 26, 24, 0.072);
+  color: var(--text-primary);
+  border-bottom-color: var(--border-strong);
 }
 
-/* The active tab is the only one that gets a surface, so the bar reads as one
-   row of labels with a current position rather than a row of buttons. A tinted
-   chip rather than a filled one: white on terracotta measures 4.0:1, which a
-   13.8px label does not clear, while this pairing measures 6.6:1. */
+/* The current page is marked twice — colour and a rule — so the state does not
+   depend on colour alone. */
 .top-nav-link.active {
-  color: var(--accent-deep);
-  border-color: #E3C7BC;
-  background: var(--accent-soft);
-  box-shadow: none;
+  color: var(--accent-text);
+  font-weight: 600;
+  border-bottom-color: var(--accent);
+}
+
+/* The resume is a file, not a page, so it is set apart from the route links. */
+.top-nav-resume {
+  color: var(--text-primary);
+  font-weight: 600;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.375rem 0.75rem;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.top-nav-resume:hover {
+  color: var(--accent-text);
+  border-color: var(--accent);
+  border-bottom-color: var(--accent);
 }
 
 .page-wrap {
@@ -312,132 +375,210 @@ button:focus-visible,
   z-index: 3;
 }
 
-/* A flex column with a gap, not `section + section { margin-top }`: the old rule
-   keyed on the tag name, so a top-level <article> (the publication cards) got no
-   separation at all and sat flush against the block above it. */
+/* ==========================================================================
+   Page rhythm
+   ========================================================================== */
+
 .content-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 1.15rem;
-  max-width: 1120px;
+  max-width: var(--page);
   margin: 0 auto;
-  padding: 2.6rem 1rem 3.4rem;
+  padding: var(--space-8) var(--space-3) var(--space-14);
 }
+
+/* Explicit margins between top-level blocks rather than a flex gap, so a single
+   block can opt out — the metrics band belongs to the hero and sits closer to
+   it than the sections that follow. */
+.content-stack > * + * {
+  margin-top: var(--section-gap);
+}
+
+.content-stack > .impact-row + * {
+  margin-top: var(--space-10);
+}
+
+/* Section headings carry the rule that separates one section from the next. */
+.section-title {
+  margin: 0 0 var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+  font-size: clamp(1.75rem, 2.6vw, 2.125rem);
+  letter-spacing: -0.022em;
+}
+
+.section-note,
+.subsection-note {
+  margin: 0 0 var(--space-5);
+  max-width: var(--measure);
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.subsection-note {
+  margin-bottom: var(--space-4);
+}
+
+.section-subhead {
+  margin-top: var(--subsection-gap);
+}
+
+/* --- Eyebrows and category labels ----------------------------------------
+   Uppercase, letterspaced, small. The accent marks product and data work; teal
+   marks research. The words themselves say which, so the colour is
+   reinforcement rather than the only signal. */
+.eyebrow,
+.project-scope,
+.paper-venue,
+.contact-label,
+.case-detail-label,
+.impact-label,
+.affiliations-label,
+.skill-level-title {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.eyebrow {
+  color: var(--accent-text);
+  margin-bottom: var(--space-2);
+}
+
+.eyebrow--research,
+.paper-venue,
+.research-highlight-card .project-scope,
+.case-study-card--research .project-scope,
+.research-theme-card .research-theme-title::before {
+  color: var(--secondary-accent);
+}
+
+.project-scope {
+  color: var(--accent-text);
+  margin-bottom: var(--space-1);
+}
+
+.section-hero-title {
+  margin: 0 0 var(--space-2);
+  font-size: clamp(2.25rem, 4vw, 2.875rem);
+  font-weight: 650;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.section-hero-subtitle {
+  max-width: var(--measure);
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+/* The surface primitive. Named for the build it came from; it is a plain white
+   plate with a hairline now, and only the case studies use it. */
+.glass-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+/* ==========================================================================
+   Hero
+   ========================================================================== */
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(270px, 0.7fr);
-  gap: 1.3rem;
-  align-items: stretch;
+  grid-template-columns: minmax(0, 1fr) 296px;
+  grid-template-rows: auto auto;
+  column-gap: var(--space-8);
+  row-gap: var(--space-6);
+  align-items: start;
 }
 
 .hero-copy {
-  position: relative;
-  overflow: hidden;
-  background:
-    #FFFFFF;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: 2.3rem 2.1rem 2.1rem;
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
 }
 
-.hero-copy::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 2px;
-  background: var(--accent);
+/* The photo and the affiliation strip are siblings in the markup but belong in
+   different regions of the grid: `display: contents` lifts them out of their
+   wrapper so each can be placed directly. */
+.hero-photo-wrap {
+  display: contents;
 }
 
 .hero-name {
-  font-family: 'Source Serif 4', 'Iowan Old Style', Georgia, serif;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--accent-text);
-  letter-spacing: 0.22em;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  margin-bottom: 0.7rem;
+  margin-bottom: var(--space-3);
 }
 
 .hero-role {
   margin: 0;
-  font-size: clamp(2.05rem, 4.1vw, 3.05rem);
-  line-height: 1.04;
-  letter-spacing: -0.035em;
-  text-wrap: balance;
-  color: #1A1A18;
+  font-size: clamp(2.75rem, 5vw, 4rem);
+  font-weight: 650;
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
 }
-
-/* The dark build clipped a light-to-blue gradient into the hero type to lift it
-   off the charcoal. On paper it would be decoration, and gradient-clipped text
-   is the one heading that cannot be selected, searched or read by a screen
-   reader when the clip fails — so the type simply carries itself. */
 
 .hero-role-descriptor {
-  margin-top: 0.7rem;
-  color: var(--accent-deep);
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  margin-top: var(--space-2);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
+/* The lead sentence — one size up from the paragraph beneath it, and the only
+   thing between the heading and the body copy. */
 .hero-title {
-  margin: 1.15rem 0 0.65rem;
-  font-size: clamp(1.08rem, 1.9vw, 1.34rem);
-  font-weight: 700;
-  line-height: 1.42;
-}
-
-.hero-subtitle,
-.section-hero-subtitle,
-.lane-copy,
-.research-theme-copy,
-.paper-abstract {
-  color: var(--muted);
+  margin: var(--space-5) 0 var(--space-2);
+  max-width: 46ch;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--text-primary);
 }
 
 .hero-subtitle {
   margin: 0;
-  max-width: 65ch;
+  max-width: var(--measure);
+  color: var(--text-secondary);
 }
 
+/* Keyword list, not a pill rack: the terms are read as one line of metadata
+   separated by middots. */
 .hero-signal-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.52rem;
-}
-
-.hero-signal-row {
-  margin-top: 1rem;
-}
-
-.hero-signal-pill {
-  border-radius: 999px;
-  font-size: 0.81rem;
-  font-weight: 700;
-  padding: 0.32rem 0.72rem;
+  align-items: baseline;
+  gap: 0 var(--space-1);
+  margin-top: var(--space-3);
+  max-width: var(--measure);
 }
 
 .hero-signal-pill {
-  border: 1px solid rgba(196, 99, 63, 0.24);
-  background: rgba(196, 99, 63, 0.10);
-  color: var(--accent-deep);
-  transition: border-color 200ms var(--ease), background 200ms var(--ease);
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.005em;
 }
 
-.hero-signal-pill:hover {
-  border-color: rgba(196, 99, 63, 0.5);
-  background: rgba(196, 99, 63, 0.17);
+.hero-signal-pill + .hero-signal-pill::before {
+  content: '·';
+  margin-right: var(--space-1);
+  color: var(--border-strong);
 }
 
 .hero-cta {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.62rem;
-  margin: 1.35rem 0 0.98rem;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  margin: var(--space-5) 0 0;
 }
 
 .cta-primary,
@@ -447,302 +588,260 @@ button:focus-visible,
   justify-content: center;
   gap: 0.4rem;
   text-decoration: none;
-  border-radius: 10px;
-  font-size: 0.88rem;
-  font-weight: 700;
-  letter-spacing: 0.005em;
-  padding: 0.56rem 1rem;
-  min-height: 40px;
-  transition: transform 200ms var(--ease), box-shadow 200ms var(--ease),
-              border-color 200ms var(--ease), background 200ms var(--ease);
+  border-radius: var(--radius-sm);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  padding: 0.625rem 1.125rem;
+  min-height: 44px;
+  transition: background var(--t-fast) var(--ease),
+              border-color var(--t-fast) var(--ease),
+              color var(--t-fast) var(--ease);
 }
 
 .cta-primary {
   color: #FFFFFF;
-  border: 1px solid var(--accent-deep);
-  background: var(--accent-deep);
-  box-shadow: none;
-}
-
-.cta-secondary {
-  color: var(--ink);
-  border: 1px solid var(--line);
-  background: rgba(26, 26, 24, 0.054);
-}
-
-.cta-primary:hover,
-.cta-secondary:hover {
-  transform: translateY(-2px);
+  border: 1px solid var(--accent);
+  background: var(--accent);
 }
 
 .cta-primary:hover {
-  box-shadow: var(--edge), 0 14px 28px rgba(26, 26, 24, 0.12);
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.cta-secondary {
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
 }
 
 .cta-secondary:hover {
-  border-color: rgba(196, 99, 63, 0.45);
-  background: rgba(196, 99, 63, 0.10);
+  border-color: var(--accent);
+  color: var(--accent-text);
 }
 
-.cta-primary:active,
-.cta-secondary:active {
-  transform: translateY(0);
+/* The third and fourth destinations in the hero are profiles, not calls to
+   action; they are set as text links so the two real CTAs stay legible as the
+   only two buttons. */
+.hero-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-1);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 1px solid var(--border-strong);
+  transition: color var(--t-fast) var(--ease),
+              border-color var(--t-fast) var(--ease);
+}
+
+.hero-link:hover {
+  color: var(--accent-text);
+  border-bottom-color: var(--accent);
 }
 
 .hero-contact {
-  margin-top: 0.95rem;
-  color: var(--muted);
-  font-size: 0.9rem;
-  line-height: 1.5;
+  margin-top: var(--space-3);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  line-height: 1.6;
 }
 
-.hero-photo-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 1.15rem;
-  width: min(360px, 100%);
-  justify-self: center;
+.hero-contact a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--border-strong);
 }
 
-/* --- Affiliations --------------------------------------------------------
-   Employers, schools, partners and funders. The marks are single-colour so a
-   row of eight different brand palettes does not compete with the page; they
-   lift to full strength on hover, which is also where the name appears. */
+.hero-contact a:hover {
+  color: var(--accent-text);
+}
+
+.hero-photo {
+  grid-column: 2;
+  grid-row: 1;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: 50% 2%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: #F1EFEA;
+}
+
+/* --- Affiliations ---------------------------------------------------------
+   Employers, schools, partners and funders, as one quiet strip across the foot
+   of the hero. They are credibility, not content: knocked back by default, at
+   full strength on hover, where the name also appears. */
 .affiliations {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+  grid-column: 1 / -1;
+  grid-row: 2;
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-3);
 }
 
 .affiliations-label {
-  font-family: 'Source Serif 4', 'Iowan Old Style', Georgia, serif;
-  font-size: 0.63rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-align: center;
-  text-transform: uppercase;
-  color: var(--muted);
+  color: var(--text-muted);
+  margin-bottom: var(--space-3);
 }
 
 .affiliations-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem 1rem;
-}
-
-/* An odd count leaves the last mark beside an empty cell; centre it across both
-   instead. */
-.affiliations-grid > .affiliation-mark:last-child:nth-child(odd) {
-  grid-column: 1 / -1;
-  justify-self: center;
-  width: auto;
-  max-width: 60%;
+  gap: var(--space-3) var(--space-6);
 }
 
 .affiliation-mark {
   display: block;
-  width: 100%;
+  width: auto;
+  max-width: 140px;
   /* max-height is set per mark inline — see AFFILIATIONS in pages/home.py for
      why one shared value does not work. */
   object-fit: contain;
-  object-position: center;
-  /* The marks were knocked back to half strength when they were white on
-     charcoal, where full strength read as a row of glowing signs. As dark ink
-     on paper the same 0.5 reads as faded photocopying, so they sit closer to
-     full and still stay quieter than the type around them. */
-  opacity: 0.78;
-  transition: opacity 220ms var(--ease), transform 220ms var(--ease);
+  object-position: left center;
+  filter: grayscale(1);
+  opacity: 0.55;
+  transition: opacity var(--t-base) var(--ease), filter var(--t-base) var(--ease);
 }
 
 .affiliation-mark:hover {
   opacity: 1;
-  transform: translateY(-1px);
+  filter: grayscale(0);
 }
 
-.hero-photo {
-  width: 100%;
-  aspect-ratio: 0.88 / 1;
-  object-fit: cover;
-  object-position: 50% 2%;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--line-strong);
-  box-shadow: 0 20px 44px rgba(26, 26, 24, 0.048);
-  background: #EFEBE4;
-}
+/* ==========================================================================
+   Metrics band
+   ========================================================================== */
 
 .impact-row {
-  margin-top: 1.4rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(205px, 1fr));
-  gap: 0.82rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border);
+  padding: var(--space-4) 0;
 }
 
 .impact-chip {
-  position: relative;
-  overflow: hidden;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  padding: 0.96rem 1rem;
-  transition: border-color 220ms var(--ease), transform 220ms var(--ease);
+  padding: 0 var(--space-3);
+  border-left: 1px solid var(--border);
+  min-width: 0;
 }
 
-
-.impact-chip:hover {
-  transform: translateY(-2px);
-  border-color: rgba(196, 99, 63, 0.32);
+.impact-chip:first-child {
+  padding-left: 0;
+  border-left: 0;
 }
 
 .impact-value {
-  font-family: 'Source Serif 4', 'Iowan Old Style', Georgia, serif;
-  font-size: 1.5rem;
-  font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  /* Tabular figures so a column of stat chips lines up on the decimal. */
+  font-size: clamp(1.75rem, 2.6vw, 2.25rem);
+  font-weight: 650;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  /* Tabular figures so a row of numbers shares one rhythm. */
   font-variant-numeric: tabular-nums;
-  color: var(--accent-deep);
-  /* One chip carries venue names rather than a figure; let it shrink to fit
-     rather than forcing every chip down to its size. */
+  color: var(--text-primary);
   overflow-wrap: anywhere;
 }
 
+/* One entry carries venue names rather than a figure; it takes a smaller size
+   so it does not set the height of the whole band. */
 .impact-value--text {
-  font-size: 1.12rem;
-  letter-spacing: -0.005em;
+  font-size: clamp(1.125rem, 1.6vw, 1.375rem);
+  letter-spacing: -0.01em;
+  line-height: 1.25;
 }
 
 .impact-label {
-  margin-top: 0.25rem;
-  font-size: 0.9rem;
-  font-weight: 700;
+  margin-top: var(--space-1);
+  color: var(--text-secondary);
 }
 
 .impact-detail {
-  margin-top: 0.28rem;
-  color: var(--muted);
-  font-size: 0.83rem;
-  line-height: 1.45;
+  margin-top: var(--space-1);
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
 }
 
-.section-title {
-  margin: 2.35rem 0 0.86rem;
-  font-size: 1.52rem;
-}
+/* ==========================================================================
+   Capability lanes
+   ========================================================================== */
 
-.section-note {
-  margin: -0.3rem 0 1rem;
-  color: var(--muted);
-}
-
-.subsection-note {
-  margin: -0.1rem 0 1rem;
-  color: var(--muted);
-}
-
-.section-subhead {
-  margin-top: 1.4rem;
-}
-
-.eyebrow,
-.project-scope,
-.paper-venue,
-.contact-label {
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-weight: 700;
-}
-
-.eyebrow {
-  color: var(--accent-text);
-  font-family: 'Source Serif 4', 'Iowan Old Style', Georgia, serif;
-  font-size: 0.72rem;
-  letter-spacing: 0.2em;
-  margin-bottom: 0.5rem;
-}
-
-.section-hero-title {
-  margin: 0 0 0.5rem;
-  font-size: clamp(1.78rem, 3.2vw, 2.34rem);
-  letter-spacing: -0.03em;
-}
-
-.section-hero-subtitle {
-  max-width: 72ch;
-  margin: 0;
-}
-
-.glass-card {
-  background: #FFFFFF;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  box-shadow: var(--edge), var(--shadow-sm);
-}
-
-/* Two tracks, not three or four.
-   These cards are mostly tag rows, and a third of the reading column leaves only
-   ~325px for them — enough for two tags per line, so any odd-length list ends
-   with a single tag stranded on its own row. Half the column fits three or four
-   tags per line and the lists resolve evenly. */
-.lane-grid,
-.research-highlight-grid,
-.resume-track-grid,
-.research-theme-grid,
-.skill-level-grid {
+.lane-grid {
+  counter-reset: lane;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.8rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
 }
 
-/* A trailing card alone on the last row spans the leftover track rather than
-   leaving a hole beside it. */
-.lane-grid > *:last-child:nth-child(odd),
-.research-highlight-grid > *:last-child:nth-child(odd),
-.resume-track-grid > *:last-child:nth-child(odd),
-.research-theme-grid > *:last-child:nth-child(odd),
-.skill-level-grid > *:last-child:nth-child(odd) {
-  grid-column: span 2;
+.glass-card.lane-card {
+  counter-increment: lane;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--border-strong);
+  border-radius: 0;
+  padding: var(--space-3) 0 0;
 }
 
-.lane-card,
-.research-highlight-card,
-.resume-track-card,
-.research-theme-card {
-  padding: 1rem 0.85rem;
+.lane-card::before {
+  content: counter(lane, decimal-leading-zero);
+  display: block;
+  margin-bottom: var(--space-2);
+  color: var(--accent);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
 }
 
-.lane-title,
-.resume-track-title,
-.research-theme-title {
-  margin: 0 0 0.5rem;
-  font-size: 1.04rem;
+/* The third lane is the research lane; its index is marked in the research
+   accent so the two colour families stay consistent across the page. */
+.lane-card:nth-child(3)::before {
+  color: var(--secondary-accent);
 }
 
-.lane-copy,
-.resume-track-copy,
-.research-theme-copy {
-  margin: 0 0 0.8rem;
+.lane-title {
+  margin: 0 0 var(--space-1);
+  font-size: 1.1875rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
 }
+
+.lane-copy {
+  margin: 0 0 var(--space-2);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+/* ==========================================================================
+   Selected work
+   ========================================================================== */
 
 .featured-case-grid {
+  counter-reset: work;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  gap: var(--space-3);
 }
 
 .featured-case-card {
+  counter-increment: work;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: transform 240ms var(--ease), box-shadow 240ms var(--ease),
-              border-color 240ms var(--ease);
+  transition: border-color var(--t-base) var(--ease),
+              box-shadow var(--t-base) var(--ease),
+              transform var(--t-base) var(--ease);
 }
 
 .featured-case-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(196, 99, 63, 0.3);
-  box-shadow: var(--edge), var(--shadow-md);
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
 }
 
 /* The screenshots are shot to fill this frame, so they crop rather than
@@ -752,10 +851,9 @@ button:focus-visible,
   position: relative;
   display: block;
   overflow: hidden;
-  background: #F4F2EE;
-  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
 }
-
 
 .featured-case-image {
   display: block;
@@ -763,227 +861,683 @@ button:focus-visible,
   aspect-ratio: 16 / 9;
   object-fit: cover;
   object-position: 50% 0%;
-  transition: transform 480ms var(--ease);
+  transition: transform 400ms var(--ease);
 }
 
 .featured-case-card:hover .featured-case-image {
-  transform: scale(1.028);
+  transform: scale(1.02);
 }
 
 .featured-case-body {
-  padding: 1rem 1.06rem 1.08rem;
+  position: relative;
+  padding: var(--space-3);
+}
+
+/* The work index, set in the corner of the plate the way a figure number sits
+   on a plate in a report. */
+.featured-case-body::before {
+  content: counter(work, decimal-leading-zero);
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  color: var(--border-strong);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+.featured-case-body .project-scope {
+  padding-right: var(--space-5);
 }
 
 .featured-case-title,
 .research-highlight-title {
   margin: 0;
-  font-size: 1.14rem;
-  line-height: 1.3;
+  font-size: 1.3125rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.018em;
 }
 
 .featured-case-summary,
 .research-highlight-summary {
-  margin: 0.46rem 0 0.56rem;
-  color: var(--muted);
+  margin: var(--space-1) 0 var(--space-2);
+  max-width: 48ch;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
 }
 
 .featured-case-highlights,
 .research-highlight-list {
-  margin: 0.72rem 0 0;
-  padding-left: 1.1rem;
+  margin: var(--space-2) 0 0;
+  padding-left: 1.05rem;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
 }
 
 .featured-case-highlights li,
 .research-highlight-list li {
-  margin-bottom: 0.28rem;
+  margin-bottom: 0.25rem;
 }
 
+.featured-case-highlights li::marker,
+.research-highlight-list li::marker,
+.case-detail-list li::marker,
+.exp-bullets li::marker,
+.case-study-list li::marker {
+  color: var(--border-strong);
+}
+
+/* The outcome line — the one sentence a reader skimming the card should keep. */
 .featured-case-caption,
 .research-highlight-caption {
-  margin: 0.48rem 0 0.12rem;
-  color: var(--muted);
-  font-size: 0.84rem;
+  margin: var(--space-2) 0 0;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
 }
 
+/* A link with a moving arrow, not a third button. */
 .featured-case-cta {
-  margin-top: 0.34rem;
+  margin-top: var(--space-2);
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--accent-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color var(--t-fast) var(--ease);
+}
+
+.featured-case-cta::after {
+  content: '\2192';
+  transition: transform var(--t-fast) var(--ease);
+}
+
+.featured-case-cta:hover {
+  background: none;
+  border: 0;
+  color: var(--accent-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.featured-case-cta:hover::after {
+  transform: translateX(3px);
+}
+
+.research-highlight-card .featured-case-cta {
+  color: var(--secondary-accent);
+}
+
+.research-highlight-card .featured-case-cta:hover {
+  color: var(--secondary-accent-hover);
 }
 
 .featured-case-card-primary {
   grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: minmax(350px, 43%) minmax(0, 1fr);
+  grid-template-columns: minmax(320px, 46%) minmax(0, 1fr);
 }
 
+/* The image column is as tall as the copy beside it, which is taller than a
+   16:9 frame. Stretching the shot to fill it cropped a wide dashboard panel
+   into a near-square strip — the chart's own axis went off both sides. The
+   frame keeps its aspect and centres in the column instead, so the whole panel
+   survives and the divider still runs the full height. */
 .featured-case-card-primary .featured-case-image-link {
   border-bottom: 0;
-  border-right: 1px solid var(--line);
+  border-right: 1px solid var(--border);
+  display: flex;
+  align-items: center;
 }
 
 .featured-case-card-primary .featured-case-image {
-  height: 100%;
-  min-height: 268px;
-  aspect-ratio: auto;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 16 / 9;
 }
 
-
-
-.skill-level-card {
-  padding: 1rem 0.85rem;
+.featured-case-card-primary .featured-case-body {
+  padding: var(--space-4);
+  align-self: center;
 }
 
-.skill-level-title {
-  margin: 0 0 0.62rem;
-  font-size: 1.03rem;
+.featured-case-card-primary .featured-case-body::before {
+  top: var(--space-4);
+  right: var(--space-4);
 }
+
+/* A featured card with no screenshot still has to fill its grid row, or it
+   floats half-height beside the one that does. */
+.featured-case-card-textual .featured-case-body {
+  padding-top: var(--space-4);
+}
+
+/* --- Research previews ---------------------------------------------------- */
+.research-highlight-grid {
+  counter-reset: study;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.glass-card.research-highlight-card {
+  counter-increment: study;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-3);
+  transition: border-color var(--t-base) var(--ease),
+              box-shadow var(--t-base) var(--ease),
+              transform var(--t-base) var(--ease);
+}
+
+.research-highlight-card:hover {
+  border-color: var(--secondary-accent-border);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+.research-highlight-card::before {
+  content: 'R' counter(study, decimal-leading-zero);
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  color: var(--border-strong);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+.research-highlight-card .project-scope {
+  padding-right: var(--space-5);
+}
+
+.research-highlight-caption {
+  margin-top: auto;
+}
+
+/* ==========================================================================
+   Tags
+   ========================================================================== */
 
 .skill-cloud {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.36rem 0.38rem;
+  gap: 0.375rem;
 }
 
+/* A quiet chip: a hairline and a page-ground fill, so a row of them reads as
+   metadata rather than as a row of buttons. */
 .skill-pill {
-  border: 1px solid rgba(196, 99, 63, 0.2);
-  background: var(--accent-soft);
-  color: var(--accent-deep);
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-secondary);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
   letter-spacing: 0.005em;
   white-space: nowrap;
-  padding: 0.24rem 0.56rem;
-  transition: border-color 200ms var(--ease), background 200ms var(--ease);
+  padding: 0.1875rem 0.5rem;
+  transition: border-color var(--t-fast) var(--ease),
+              color var(--t-fast) var(--ease);
 }
 
 .skill-pill:hover {
-  border-color: rgba(196, 99, 63, 0.42);
-  background: rgba(196, 99, 63, 0.18);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
 }
 
 .case-tag-cloud {
-  margin-bottom: 0.8rem;
+  margin-bottom: var(--space-3);
 }
 
-.experience-card {
+/* ==========================================================================
+   Skills
+   ========================================================================== */
+
+.skill-level-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--space-8);
+  row-gap: 0;
+}
+
+.glass-card.skill-level-card {
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  padding: var(--space-3) 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-1);
+}
+
+.skill-level-title {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+/* Structured text, not a pill rack: the terms run as one line separated by
+   middots, so the section stays subordinate to the work above it. */
+.skill-level-card .skill-cloud {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.75;
+}
+
+.skill-level-card .skill-pill {
+  display: inline;
+  border: 0;
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+  font-weight: 400;
+  color: inherit;
+  white-space: normal;
+}
+
+.skill-level-card .skill-pill + .skill-pill::before {
+  content: '·';
+  margin: 0 0.5ch;
+  color: var(--border-strong);
+}
+
+.skill-level-card .skill-pill:hover {
+  color: inherit;
+}
+
+/* ==========================================================================
+   Experience
+   ========================================================================== */
+
+.glass-card.experience-card {
   position: relative;
-  padding: 1rem 1.08rem 0.84rem;
-  margin-bottom: 0.9rem;
+  background: none;
+  border: 0;
+  border-left: 1px solid var(--border-strong);
+  border-radius: 0;
+  padding: 0 0 var(--space-6) var(--space-4);
+  margin: 0;
 }
 
+.experience-card:last-child {
+  padding-bottom: 0;
+}
+
+/* The marker on the rule. A square rather than a dot: it reads as a tick on an
+   axis, which is what the rule is. */
+.experience-card::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 0.55rem;
+  width: 7px;
+  height: 7px;
+  background: var(--accent);
+  border-radius: 1px;
+}
+
+.experience-card:not(:first-child)::before {
+  background: var(--border-strong);
+}
 
 .exp-head {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: baseline;
   flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 0.55rem;
+  gap: var(--space-1) var(--space-4);
+  margin-bottom: var(--space-2);
 }
 
 .exp-title {
   margin: 0;
-  font-size: 1.04rem;
-}
-
-.exp-company,
-.exp-meta {
-  color: var(--muted);
+  font-size: 1.1875rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
 }
 
 .exp-company {
-  font-size: 0.95rem;
+  margin-top: 0.125rem;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  font-weight: 500;
 }
 
 .exp-meta {
   text-align: right;
-  font-size: 0.89rem;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .exp-bullets {
   margin: 0;
-  padding-left: 1.1rem;
+  padding-left: 1.05rem;
+  max-width: 56ch;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
 }
 
 .exp-bullets li {
-  margin-bottom: 0.34rem;
+  margin-bottom: 0.375rem;
 }
 
-.edu-card {
-  padding: 1rem;
+/* ==========================================================================
+   Resume tracks and education
+   ========================================================================== */
+
+.resume-track-grid {
+  counter-reset: track;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+.glass-card.resume-track-card {
+  counter-increment: track;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--border-strong);
+  border-radius: 0;
+  padding: var(--space-3) 0 0;
+}
+
+.resume-track-card::before {
+  content: counter(track, decimal-leading-zero);
+  display: block;
+  margin-bottom: var(--space-2);
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+.resume-track-title {
+  margin: 0 0 var(--space-1);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+}
+
+.resume-track-copy {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+.glass-card.edu-card {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  max-width: 54ch;
 }
 
 .edu-title {
-  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.012em;
 }
 
 .edu-meta,
 .edu-note {
-  color: var(--muted);
-  font-size: 0.93rem;
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+}
+
+.edu-note {
+  color: var(--accent-text);
+  font-weight: 500;
 }
 
 .edu-card hr {
-  margin: 0.82rem 0;
+  margin: var(--space-3) 0;
   border: 0;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--border);
 }
 
-.project-scope {
-  color: var(--accent-text);
-  font-size: 0.74rem;
-  margin-bottom: 0.4rem;
-}
+/* ==========================================================================
+   Case studies (Selected Work page)
+   ========================================================================== */
 
 .case-jump-nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
-  margin-top: 1rem;
+  gap: var(--space-1) var(--space-3);
+  margin-top: var(--space-5);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
 }
 
 .case-jump-link {
   text-decoration: none;
-  color: var(--accent-deep);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 0.36rem 0.72rem;
-  font-size: 0.79rem;
-  font-weight: 700;
-  background: rgba(26, 26, 24, 0.054);
-  transition: border-color 200ms var(--ease), background 200ms var(--ease),
-              transform 200ms var(--ease);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid transparent;
+  transition: color var(--t-fast) var(--ease),
+              border-color var(--t-fast) var(--ease);
 }
 
 .case-jump-link:hover {
-  transform: translateY(-1px);
-  border-color: rgba(196, 99, 63, 0.42);
-  background: rgba(196, 99, 63, 0.11);
+  color: var(--accent-text);
+  border-bottom-color: var(--accent);
 }
 
 /* An inline text link inside running copy — deliberately not a button, so it
    does not read as a second call to action next to the real ones. */
 .inline-link {
-  color: var(--accent-deep);
-  font-weight: 600;
+  color: var(--accent-text);
+  font-weight: 500;
   text-decoration: underline;
-  text-decoration-color: rgba(196, 99, 63, 0.4);
+  text-decoration-color: var(--accent-border);
   text-underline-offset: 3px;
-  transition: text-decoration-color 200ms var(--ease), color 200ms var(--ease);
+  transition: text-decoration-color var(--t-fast) var(--ease),
+              color var(--t-fast) var(--ease);
 }
 
 .inline-link:hover {
-  color: var(--ink);
-  text-decoration-color: var(--accent);
+  color: var(--accent-hover);
+  text-decoration-color: currentColor;
 }
 
-/* The live demo, shown as its own work item rather than as a footnote to the
-   case studies. Three shots side by side at desktop width, stacked below it. */
+.case-study-stack {
+  counter-reset: casestudy;
+  display: grid;
+  gap: var(--space-5);
+}
+
+.case-study-card {
+  counter-increment: casestudy;
+  position: relative;
+  padding: var(--space-5);
+  scroll-margin-top: 88px;
+}
+
+.case-study-card::before {
+  content: counter(casestudy, decimal-leading-zero);
+  position: absolute;
+  top: var(--space-5);
+  right: var(--space-5);
+  color: var(--border-strong);
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+.case-study-card .project-scope {
+  padding-right: var(--space-6);
+}
+
+.case-study-title {
+  margin: 0 0 var(--space-1);
+  font-size: clamp(1.375rem, 2.2vw, 1.625rem);
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.022em;
+}
+
+.case-study-problem {
+  margin: 0 0 var(--space-3);
+  max-width: 52ch;
+  color: var(--text-secondary);
+}
+
+.case-study-list {
+  margin: var(--space-3) 0 var(--space-3);
+  padding-left: 1.05rem;
+  max-width: 56ch;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+.case-study-list li {
+  margin-bottom: 0.375rem;
+}
+
+.case-study-figure {
+  margin: 0 0 var(--space-4);
+}
+
+.case-study-image-link {
+  position: relative;
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg);
+  transition: border-color var(--t-base) var(--ease);
+}
+
+.case-study-image-link:hover {
+  border-color: var(--border-strong);
+}
+
+.case-study-image {
+  width: 100%;
+  display: block;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: 50% 0%;
+  transition: transform 400ms var(--ease);
+}
+
+.case-study-image-link:hover .case-study-image {
+  transform: scale(1.012);
+}
+
+.case-study-caption {
+  margin-top: var(--space-1);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+/* --- The spec table -------------------------------------------------------
+   Six labelled blocks, set as a grid of hairline-topped columns. A report's
+   parameter table, not six tinted boxes. */
+.case-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: var(--space-5);
+  row-gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.case-detail-block {
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  padding: var(--space-2) 0 0;
+  min-width: 0;
+}
+
+.case-detail-label {
+  margin: 0 0 var(--space-1);
+  color: var(--text-muted);
+}
+
+.case-detail-list {
+  margin: 0;
+  padding-left: 1.05rem;
+  max-width: 56ch;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+.case-detail-list li {
+  margin-bottom: 0.25rem;
+}
+
+.case-detail-copy {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+.case-tools-wrap {
+  margin-top: var(--space-4);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border);
+}
+
+.case-tools-wrap .case-detail-label {
+  margin-bottom: var(--space-2);
+}
+
+/* --- Research case studies -----------------------------------------------
+   The same object in the same design language; only the semantic accent moves
+   from the accent to teal. */
+.case-study-card--research .case-detail-label,
+.case-study-card--research .case-tools-wrap .case-detail-label {
+  color: var(--text-muted);
+}
+
+.case-study-card,
+.demo-showcase {
+  transition: border-color var(--t-base) var(--ease);
+}
+
+.case-study-card:hover {
+  border-color: var(--accent-border);
+}
+
+/* After the rule above, not before it: the two selectors carry the same
+   specificity, so the research variant only wins on source order. */
+.case-study-card--research:hover {
+  border-color: var(--secondary-accent-border);
+}
+
+/* --- Live demo showcase ---------------------------------------------------
+   One shot per row, at the full width of the plate. Three across fits, but a
+   dashboard panel rendered 340px wide is a thumbnail of a screenshot rather
+   than a screenshot: the axis labels, the anomaly callouts and the retention
+   triangle's own numbers are the evidence, and none of them survive that. */
 .demo-shot-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1rem;
-  margin: 1.05rem 0 0.2rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  margin: var(--space-4) 0 var(--space-3);
 }
 
 .demo-shot {
@@ -995,144 +1549,79 @@ button:focus-visible,
   width: 100%;
   height: auto;
   display: block;
-  border-radius: var(--radius-sm);
-  /* The screenshots are of a light product on a light page, so a hairline in
-     --line disappears and the shot bleeds into the card. The stronger rule and
-     the paper mat are what give the image an edge to end at. */
-  border: 1px solid var(--line-strong);
+  aspect-ratio: auto;
+  border-radius: 0;
 }
 
 .demo-shot .case-study-image-link {
   display: block;
-  padding: 0.4rem;
-  border-radius: var(--radius-md);
-  background: var(--bg-deep);
+  padding: 0;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
 }
 
 .demo-shot .case-study-caption {
-  margin-top: 0.5rem;
-  font-size: 0.79rem;
-  line-height: 1.5;
-  text-wrap: pretty;
+  margin-top: var(--space-2);
+  max-width: var(--measure);
+  font-size: 0.875rem;
+  line-height: 1.55;
 }
 
 .demo-showcase .cta-secondary {
   align-self: flex-start;
-  margin-top: 0.35rem;
+  margin-top: var(--space-2);
 }
 
-/* A featured card with no screenshot still has to fill its grid row, or it
-   floats half-height beside the one that does. */
-.featured-case-card-textual .featured-case-body {
-  padding-top: 1.15rem;
-}
+/* ==========================================================================
+   Research page
+   ========================================================================== */
 
-.case-study-stack {
-  margin-top: 0.92rem;
+.research-theme-grid {
+  counter-reset: theme;
   display: grid;
-  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
 }
 
-.case-study-card {
-  padding: 1.15rem;
+.glass-card.research-theme-card {
+  counter-increment: theme;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--border-strong);
+  border-radius: 0;
+  padding: var(--space-3) 0 0;
 }
 
-.case-study-title {
-  margin: 0 0 0.4rem;
-  font-size: 1.45rem;
-  line-height: 1.23;
-}
-
-.case-study-problem {
-  margin: 0 0 0.84rem;
-  color: var(--muted);
-}
-
-.case-study-figure {
-  margin: 0 0 0.95rem;
-}
-
-.case-study-image-link {
-  position: relative;
+.research-theme-card::before {
+  content: counter(theme, decimal-leading-zero);
   display: block;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background: #F4F2EE;
-  box-shadow: var(--edge), var(--shadow-sm);
-  transition: border-color 240ms var(--ease), box-shadow 240ms var(--ease);
+  margin-bottom: var(--space-2);
+  color: var(--secondary-accent);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
 }
 
-.case-study-image-link:hover {
-  border-color: rgba(196, 99, 63, 0.34);
-  box-shadow: var(--edge), var(--shadow-md);
+.research-theme-title {
+  margin: 0 0 var(--space-1);
+  font-size: 1.1875rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
 }
 
-.case-study-image {
-  width: 100%;
-  display: block;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  object-position: 50% 0%;
-  transition: transform 480ms var(--ease);
+.research-theme-copy {
+  margin: 0 0 var(--space-2);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
 }
 
-.case-study-image-link:hover .case-study-image {
-  transform: scale(1.015);
-}
+/* --- Figures --------------------------------------------------------------
+   Paper figures are diagrams drawn for white, not photographs. They sit on a
+   white plate and are contained rather than cropped: a crop would cut off the
+   panel a caption refers to.
 
-.case-study-caption {
-  margin-top: 0.54rem;
-  color: var(--muted);
-  font-size: 0.89rem;
-}
-
-.case-detail-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.85rem;
-}
-
-.case-detail-block {
-  background: rgba(26, 26, 24, 0.041);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: 0.85rem 0.9rem;
-}
-
-.case-detail-label {
-  margin: 0 0 0.4rem;
-  color: var(--accent-text);
-  font-family: 'Source Serif 4', 'Iowan Old Style', Georgia, serif;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 0.7rem;
-  font-weight: 700;
-}
-
-.case-detail-list {
-  margin: 0;
-  padding-left: 1.08rem;
-}
-
-.case-detail-list li {
-  margin-bottom: 0.26rem;
-}
-
-.case-detail-copy {
-  margin: 0;
-}
-
-.case-tools-wrap {
-  margin-top: 0.84rem;
-}
-
-/* --- Research figures ------------------------------------------------------
-   Paper figures are diagrams on white, not photographs. They sit on a light
-   plate and are contained rather than cropped: a crop would cut off the panel a
-   caption refers to. The plate is what makes a white figure read as a reproduced
-   figure on a dark page instead of a rendering mistake. */
-/* These figures range from a 3.7:1 strip to a nine-panel portrait, so neither
+   These range from a 3.7:1 strip to a nine-panel portrait, so neither
    equal-height cells (which cropped the tall one) nor balanced columns (which
    left a quarter of the section empty) work. Each keeps its own aspect and the
    two outliers are placed explicitly. */
@@ -1140,12 +1629,15 @@ button:focus-visible,
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-auto-rows: min-content;
-  gap: 0.9rem;
+  gap: var(--space-4);
   align-items: start;
 }
 
-.research-figure-card {
-  padding: 1.05rem 1.1rem;
+.glass-card.research-figure-card {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
 }
 
 .research-figure {
@@ -1164,12 +1656,10 @@ button:focus-visible,
 }
 
 .research-figure-plate {
-  padding: 0.8rem;
-  border: 1px solid var(--line);
+  padding: var(--space-2);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  /* Paper figures are drawn for white. The plate is what makes one read as a
-     reproduced figure rather than as a rendering fault on a dark page. */
-  background: #FFFFFF;
+  background: var(--surface);
 }
 
 .research-figure-image {
@@ -1179,18 +1669,22 @@ button:focus-visible,
 }
 
 .research-figure-caption {
-  margin-top: 0.55rem;
-  color: var(--muted);
-  font-size: 0.83rem;
+  margin-top: var(--space-1);
+  color: var(--text-muted);
+  font-size: 0.8125rem;
   line-height: 1.55;
 }
 
 /* --- Field work ----------------------------------------------------------- */
-.field-work-card {
+.glass-card.field-work-card {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  gap: 1.1rem;
-  padding: 1.05rem 1.1rem;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: var(--space-5);
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  padding: var(--space-4) 0 0;
   /* Stretch, not start: the photo grows to the height of the copy beside it
      instead of leaving the left column half empty. */
   align-items: stretch;
@@ -1209,108 +1703,152 @@ button:focus-visible,
   flex: 1 1 auto;
   min-height: 260px;
   object-fit: cover;
-  border: 1px solid var(--line);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
 }
 
 .field-work-body .research-theme-title {
-  margin: 0.3rem 0 0.5rem;
+  margin: var(--space-1) 0 var(--space-1);
 }
 
 .field-work-body .case-detail-list {
-  margin: 0 0 0.8rem;
+  margin: 0 0 var(--space-3);
 }
 
-.field-work-body .case-detail-list li {
-  color: var(--muted);
-}
-
-@media (max-width: 860px) {
-  .research-figure-grid,
-  .field-work-card {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  /* One column: the placement hints would otherwise fabricate a second track. */
-  .research-figure--tall,
-  .research-figure--wide {
-    grid-row: auto;
-    grid-column: auto;
-  }
-
-  .field-work-image {
-    min-height: 220px;
-  }
-}
-
-.paper-card {
-  padding: 1rem 1.1rem;
-}
-
-/* Publications read as one list, so they sit closer to each other than to the
-   section above them. */
+/* --- Publications ---------------------------------------------------------
+   One list of records, separated by rules. */
 .paper-stack {
   display: grid;
-  gap: 0.75rem;
+  gap: 0;
+  border-top: 1px solid var(--border-strong);
+}
+
+.glass-card.paper-card {
+  display: grid;
+  grid-template-columns: minmax(0, 200px) minmax(0, 1fr);
+  column-gap: var(--space-5);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  padding: var(--space-4) 0;
 }
 
 .paper-venue {
-  color: var(--accent-text);
-  font-size: 0.77rem;
+  grid-column: 1;
+  grid-row: 1;
 }
 
 .paper-place {
-  color: var(--muted);
-  margin-bottom: 0.36rem;
-  font-size: 0.9rem;
+  grid-column: 1;
+  grid-row: 2;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  margin-top: 0.125rem;
 }
 
 .paper-title {
-  margin: 0 0 0.48rem;
-  font-size: 1.08rem;
+  grid-column: 2;
+  grid-row: 1 / 2;
+  margin: -0.25rem 0 var(--space-1);
+  font-size: 1.1875rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+  max-width: 48ch;
 }
 
 .paper-abstract {
-  margin: 0 0 0.55rem;
+  grid-column: 2;
+  grid-row: 2;
+  margin: 0;
+  max-width: 50ch;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
 }
 
 .paper-link {
+  grid-column: 2;
+  grid-row: 3;
+  justify-self: start;
+  margin-top: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 44px;
   text-decoration: none;
-  color: var(--accent-deep);
-  font-weight: 700;
+  color: var(--secondary-accent);
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: color var(--t-fast) var(--ease);
+}
+
+.paper-link::after {
+  content: '\2197';
+  transition: transform var(--t-fast) var(--ease);
 }
 
 .paper-link:hover {
+  color: var(--secondary-accent-hover);
   text-decoration: underline;
+  text-underline-offset: 3px;
 }
+
+.paper-link:hover::after {
+  transform: translate(2px, -2px);
+}
+
+/* ==========================================================================
+   Contact
+   ========================================================================== */
 
 .contact-grid {
-  margin-top: 0.62rem;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.85rem;
+  column-gap: var(--space-8);
+  row-gap: 0;
+  border-top: 1px solid var(--border-strong);
 }
 
-.contact-card {
-  padding: 1rem;
+.glass-card.contact-card {
+  display: grid;
+  grid-template-columns: minmax(0, 120px) minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: var(--space-3);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  padding: var(--space-3) 0;
 }
 
 .contact-label {
-  color: var(--muted);
-  font-size: 0.77rem;
-  margin-bottom: 0.36rem;
+  color: var(--text-muted);
+  margin: 0;
 }
 
 .contact-value {
-  color: var(--ink);
+  color: var(--text-primary);
   text-decoration: none;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 500;
   word-break: break-word;
 }
 
-.contact-value:hover {
-  color: var(--accent-deep);
+a.contact-value {
+  border-bottom: 1px solid var(--border-strong);
+  transition: color var(--t-fast) var(--ease),
+              border-color var(--t-fast) var(--ease);
 }
+
+a.contact-value:hover {
+  color: var(--accent-text);
+  border-bottom-color: var(--accent);
+}
+
+/* ==========================================================================
+   Chrome
+   ========================================================================== */
 
 #scroll-progress {
   position: fixed;
@@ -1324,28 +1862,28 @@ button:focus-visible,
 
 .back-to-top {
   position: fixed;
-  right: 1rem;
-  bottom: 1rem;
+  right: var(--space-3);
+  bottom: var(--space-3);
   z-index: 50;
-  width: 40px;
-  height: 40px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  backdrop-filter: blur(10px);
-  background: #FFFFFF;
-  color: var(--ink);
-  font-size: 1.05rem;
-  font-weight: 700;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 600;
   line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 20px rgba(26, 26, 24, 0.077);
+  box-shadow: var(--shadow-float);
   cursor: pointer;
   opacity: 0;
-  transform: translateY(8px);
+  transform: translateY(6px);
   pointer-events: none;
-  transition: opacity 180ms ease, transform 180ms ease, border-color 180ms ease, background 180ms ease;
+  transition: opacity var(--t-base) ease, transform var(--t-base) ease,
+              border-color var(--t-fast) ease, color var(--t-fast) ease;
 }
 
 .back-to-top.visible {
@@ -1355,143 +1893,336 @@ button:focus-visible,
 }
 
 .back-to-top:hover {
-  border-color: rgba(196, 99, 63, 0.55);
-  background: #FFFFFF;
+  border-color: var(--accent);
+  color: var(--accent-text);
 }
 
-.mb-0 {
-  margin-bottom: 0;
-}
+
+/* ==========================================================================
+   Motion
+   ========================================================================== */
 
 /* Reveal is CSS-only on purpose: the Dash build swaps page content client-side,
-   so a one-shot IntersectionObserver would miss every route after the first. */
+   so a one-shot IntersectionObserver would miss every route after the first.
+   6px and 320ms — enough to register as a settle, not as an entrance. */
 .reveal-up {
-  animation: revealUp 620ms var(--ease) both;
+  animation: revealUp 320ms var(--ease) both;
 }
 
-/* Stagger siblings inside the grids and stacks that hold several cards, so a
-   section resolves in sequence instead of snapping in as one block. */
-.featured-case-grid > .reveal-up:nth-child(2),
 .case-study-stack > .reveal-up:nth-child(2),
 .contact-grid > .reveal-up:nth-child(2),
 .lane-grid > .reveal-up:nth-child(2),
-.research-highlight-grid > .reveal-up:nth-child(2) { animation-delay: 80ms; }
+.research-highlight-grid > .reveal-up:nth-child(2) { animation-delay: 50ms; }
 
-.featured-case-grid > .reveal-up:nth-child(3),
-.case-study-stack > .reveal-up:nth-child(3),
-.contact-grid > .reveal-up:nth-child(3),
-.lane-grid > .reveal-up:nth-child(3),
-.research-highlight-grid > .reveal-up:nth-child(3) { animation-delay: 160ms; }
-
-.featured-case-grid > .reveal-up:nth-child(n + 4),
-.case-study-stack > .reveal-up:nth-child(n + 4),
-.contact-grid > .reveal-up:nth-child(n + 4),
-.lane-grid > .reveal-up:nth-child(n + 4),
-.research-highlight-grid > .reveal-up:nth-child(n + 4) { animation-delay: 240ms; }
+.case-study-stack > .reveal-up:nth-child(n + 3),
+.contact-grid > .reveal-up:nth-child(n + 3),
+.lane-grid > .reveal-up:nth-child(n + 3),
+.research-highlight-grid > .reveal-up:nth-child(n + 3) { animation-delay: 100ms; }
 
 @keyframes revealUp {
   from {
     opacity: 0;
-    transform: translate3d(0, 18px, 0);
+    transform: translate3d(0, 6px, 0);
   }
 
   to {
     opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes drift {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-
-  to {
-    transform: translate3d(40px, -28px, 0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {
     animation: none !important;
     transition: none !important;
+    scroll-behavior: auto !important;
   }
 
   .reveal-up {
     opacity: 1 !important;
     transform: none !important;
   }
+}
 
-  * {
-    scroll-behavior: auto !important;
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+/* --- 1024px --------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  :root {
+    --section-gap: var(--space-8);
+    --subsection-gap: var(--space-6);
+  }
+
+  .hero {
+    grid-template-columns: minmax(0, 1fr) 240px;
+    column-gap: var(--space-5);
+  }
+
+  .case-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .research-highlight-grid,
+  .research-theme-grid,
+  .resume-track-grid,
+  .lane-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* A trailing item alone on the last row spans the leftover track rather than
+     leaving a hole beside it. */
+  .research-theme-grid > *:last-child:nth-child(odd),
+  .resume-track-grid > *:last-child:nth-child(odd),
+  .lane-grid > *:last-child:nth-child(odd) {
+    grid-column: span 2;
+  }
+
+  .impact-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: var(--space-4);
+  }
+
+  .impact-chip:nth-child(3n + 1) {
+    padding-left: 0;
+    border-left: 0;
   }
 }
 
-
-@media (max-width: 980px) {
+/* --- 900px ---------------------------------------------------------------- */
+@media (max-width: 900px) {
   .hero {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .hero-photo-wrap {
-    width: min(320px, 100%);
+  .hero-copy,
+  .hero-photo {
+    grid-column: 1;
+  }
+
+  .hero-photo {
+    grid-row: auto;
+    width: min(240px, 60%);
+    aspect-ratio: 1 / 1;
+  }
+
+  .affiliations {
+    grid-column: 1;
+    grid-row: auto;
   }
 
   .featured-case-grid,
   .featured-case-card-primary,
-  .case-detail-grid,
+  .research-figure-grid,
+  .field-work-card,
   .contact-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .featured-case-card-primary .featured-case-image-link {
     border-right: 0;
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .featured-case-card-primary .featured-case-image-link {
+    display: block;
+  }
+
+  .featured-case-card-primary .featured-case-body {
+    padding: var(--space-3);
+  }
+
+  .featured-case-card-primary .featured-case-body::before {
+    top: var(--space-3);
+    right: var(--space-3);
+  }
+
+  /* One column: the placement hints would otherwise fabricate a second track. */
+  .research-figure--tall,
+  .research-figure--wide {
+    grid-row: auto;
+    grid-column: auto;
+  }
+
+  .glass-card.field-work-card {
+    gap: var(--space-3);
+  }
+
+  .field-work-image {
+    min-height: 220px;
+  }
+
+  .glass-card.paper-card {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0;
+  }
+
+  .paper-venue,
+  .paper-place,
+  .paper-title,
+  .paper-abstract,
+  .paper-link {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .paper-place {
+    margin-bottom: var(--space-1);
+  }
+
+  .paper-title {
+    margin-top: 0;
+  }
+
+  .glass-card.contact-card:last-child {
+    border-bottom: 1px solid var(--border);
   }
 }
 
-@media (max-width: 720px) {
-  .content-stack {
-    padding: 2rem 0.9rem 3rem;
+/* --- 768px ---------------------------------------------------------------- */
+@media (max-width: 768px) {
+  body {
+    font-size: 1rem;
   }
 
-  .hero-copy {
-    padding: 1.55rem 1.15rem;
+  :root {
+    --section-gap: var(--space-6);
+    --subsection-gap: var(--space-5);
+  }
+
+  .content-stack {
+    padding: var(--space-5) var(--space-3) var(--space-10);
   }
 
   .header-inner {
-    align-items: flex-start;
+    padding: var(--space-1) var(--space-3);
+    min-height: 56px;
+    align-items: center;
+    gap: var(--space-2);
   }
 
   .top-nav {
-    justify-content: flex-start;
+    gap: var(--space-2);
   }
 
-  .case-jump-nav,
-  .hero-cta {
-    gap: 0.5rem;
+  .top-nav-link {
+    font-size: 0.8125rem;
   }
 
-  .impact-row,
+  .impact-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .impact-chip:nth-child(3n + 1) {
+    padding-left: var(--space-3);
+    border-left: 1px solid var(--border);
+  }
+
+  .impact-chip:nth-child(2n + 1) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
   .lane-grid,
   .research-highlight-grid,
-  .resume-track-grid,
-  .lane-grid,
-  .research-highlight-grid,
-  .resume-track-grid,
   .research-theme-grid,
-  .skill-level-grid {
-    grid-template-columns: 1fr;
+  .resume-track-grid,
+  .skill-level-grid,
+  .case-detail-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   /* The span rule above would otherwise create a phantom second track here. */
   .lane-grid > *:last-child:nth-child(odd),
-  .research-highlight-grid > *:last-child:nth-child(odd),
-  .resume-track-grid > *:last-child:nth-child(odd),
   .research-theme-grid > *:last-child:nth-child(odd),
-  .skill-level-grid > *:last-child:nth-child(odd) {
+  .resume-track-grid > *:last-child:nth-child(odd) {
     grid-column: auto;
   }
+
+  .lane-grid,
+  .resume-track-grid,
+  .research-theme-grid {
+    gap: var(--space-4);
+  }
+
+  .case-study-card {
+    padding: var(--space-3);
+  }
+
+  .case-study-card::before {
+    top: var(--space-3);
+    right: var(--space-3);
+  }
+
+  .exp-meta {
+    text-align: left;
+  }
+
+  /* Every jump link becomes a real touch target rather than a line of text. */
+  .case-jump-nav {
+    gap: 0;
+    margin-top: var(--space-4);
+  }
+
+  .case-jump-link {
+    flex: 1 1 100%;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .case-jump-link:hover {
+    border-bottom-color: var(--accent);
+  }
+}
+
+/* --- 480px ---------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .header-inner {
+    flex-wrap: wrap;
+    padding-bottom: var(--space-1);
+  }
+
+  .top-nav {
+    justify-content: flex-start;
+    row-gap: var(--space-1);
+  }
+
+  .hero-cta {
+    gap: var(--space-1);
+  }
+
+  .cta-primary,
+  .cta-secondary {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .impact-row {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-3);
+  }
+
+  .impact-chip {
+    padding: 0;
+    border-left: 0;
+  }
+
+  .impact-chip + .impact-chip {
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--border);
+  }
+
+  .affiliations-grid {
+    gap: var(--space-3) var(--space-4);
+  }
+
 }

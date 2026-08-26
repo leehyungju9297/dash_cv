@@ -150,24 +150,47 @@ add a chart without giving its container a height from this registry.
 
 ### One warm light system, everywhere
 
-The site and the demo share a palette: a warm off-white ground, white surfaces
-with a 1px hairline, near-black warm ink, a single terracotta accent, and muted
-sage/rust for positive and negative. Headings are a serif; body is a humanist
-sans. Radii are small and there are no gradients, glows, coloured accent bars or
-drop shadows on cards — surfaces are separated by whitespace and a border.
+The reference is a technical report, not a landing page. The site and the demo
+share one set of tokens, declared once in `assets/custom.css` (`:root`) and
+mirrored into the demo's scope in `assets/dashboard.css` (`.tp-page`) and into
+`demo_dashboard/config.py` for the charts:
 
-Two rules the palette is built on, both measurable:
+| role | token | value |
+| --- | --- | --- |
+| page ground | `--bg` | `#FAF9F6` |
+| surface | `--surface` | `#FFFFFF` |
+| ink | `--text-primary` / `--text-secondary` / `--text-muted` | `#1C1917` / `#57534E` / `#78716C` |
+| hairline | `--border` / `--border-strong` | `#E7E5E4` / `#D6D3D1` |
+| accent | `--accent` / `--accent-hover` / `--accent-soft` | `#C2410C` / `#9A3412` / `#FFF7ED` |
+| research | `--secondary-accent` | `#0F766E` |
 
+Inter is the only typeface, on the whole site and inside the charts. Radii are
+small, and there are no gradients, glows, coloured accent bars or drop shadows
+on cards — surfaces are separated by whitespace and a 1px rule. The only two
+things that cast a shadow are the back-to-top button and a hovered case study.
+
+Four rules the system is built on, all measurable:
+
+* **Colour is semantic, never decorative.** Roughly 85% of the ink is warm
+  greyscale, 10% accent, 5% teal. The accent marks product and data work; teal
+  marks research. Both are reinforcement — the label always says which — so
+  nothing is carried by colour alone.
 * **Categorical colours are separated by lightness, not only hue.** The members
   of `PALETTE` sit 9-11 CIE L* apart, so a chart that is legible in colour is
   still legible photocopied or dropped into a greyscale deck. Ordered dimensions
   (acquisition source, value tier, return reason) use a single-hue sequential
   ramp instead, because their categories have an order a rainbow would hide.
+  `PALETTE` is *not* derived from `--accent`: it is an encoding held to its own
+  spacing, which is why retinting the UI accent leaves it alone.
 * **Contrast is checked rather than assumed.** Every visible text node on every
   page is measured against the background actually painted behind it, and clears
-  WCAG AA at its own size. Terracotta at full strength is 3.8:1 on paper, so the
-  small uppercase labels that use it take `--accent-text` (5.7:1) instead; the
-  accent itself is for rules, fills and large type.
+  WCAG AA at its own size. The accent clears AA for small text on both the page
+  and a white surface (5.4:1 and 5.6:1), so unlike a mid blue it can carry a
+  label as well as a rule.
+* **The reading measure is set in real characters, not in `ch`.** A `ch` is the
+  width of "0", which in Inter is ~0.63em while running prose averages ~0.45em —
+  so a column set to `65ch` actually runs about 90 characters. `--measure` is
+  `48ch`, which measures out at 65-70.
 
 The affiliation marks in `assets/logos/` are dark-on-transparent. They were
 white when the site was dark; recolouring is a matter of replacing RGB and
@@ -202,13 +225,20 @@ nine-panel segmentation figure is Mask R-CNN *erring*, not results.
 Re-shoot them after a visual change to the dashboard; they are 16:9 because the
 cards render them with `object-fit: cover`.
 
-Capture them at the final size — set the viewport to the frame, scroll, shoot.
-Do **not** use Playwright's `fullPage`, and do not restyle the page after it has
-loaded: both resize the graphs after they have rendered, and a graph that
-re-lays-out mid-capture produces a screenshot with the charts drawn on top of
-each other. Scroll only once the section's charts exist, and assert the scroll
-landed where it was asked to — a panel still rendering leaves the document too
-short to scroll to, and the capture then silently frames the wrong view.
+Shoot the `.tp-card` as an *element*, not as a scrolled viewport: an element
+screenshot frames exactly the panel and cannot silently capture the wrong
+region. A scrolled viewport shot can, and does — while a panel is still
+rendering the document is too short to scroll to the requested offset, the
+scroll clamps at the bottom, and every shot in the run frames the same view.
+
+Wait for the plot SVG *inside that card* to exist before shooting. Do **not**
+use Playwright's `fullPage`, and do not restyle the page after it has loaded:
+both resize the graphs after they have rendered, and a graph that re-lays-out
+mid-capture produces a screenshot with the charts drawn on top of each other.
+
+Crop the result to 16:9 afterwards. The cards render these with `object-fit:
+cover` and `object-position: 50% 0%`, so the crop comes off the bottom and the
+panel title and chart survive it.
 
 ## GitHub Pages (Free Static Option)
 

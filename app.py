@@ -129,6 +129,20 @@ def _nav_links(current_path='/'):
     for page in pages:
         class_name = 'top-nav-link active' if normalized_path == page['path'] else 'top-nav-link'
         links.append(dcc.Link(page['name'], href=page['path'], className=class_name))
+    # The resume is a file rather than a route, so it closes the bar and is
+    # marked as the one item that is not a page.
+    links.append(
+        html.A(
+            'Resume',
+            href='/assets/Hyungju_Lee_Resume.pdf',
+            download='Hyungju_Lee_Resume.pdf',
+            className='top-nav-link top-nav-resume',
+            **{
+                'data-track': 'nav_resume_click',
+                'data-track-location': 'site_header',
+            },
+        )
+    )
     return links
 
 

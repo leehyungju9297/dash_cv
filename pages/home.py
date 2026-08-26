@@ -139,7 +139,7 @@ def _skill_group(title: str, skills: List[str]):
     return html.Div(
         className='glass-card skill-level-card',
         children=[
-            html.H4(title, className='skill-level-title'),
+            html.H3(title, className='skill-level-title'),
             _tag_cloud(skills),
         ],
     )
@@ -149,7 +149,7 @@ def _lane_card(title: str, copy: str, tags: List[str]):
     return html.Article(
         className='glass-card lane-card reveal-up',
         children=[
-            html.H4(title, className='lane-title'),
+            html.H3(title, className='lane-title'),
             html.P(copy, className='lane-copy'),
             _tag_cloud(tags),
         ],
@@ -165,7 +165,7 @@ def _experience_block(title: str, company: str, period: str, location: str, bull
                 children=[
                     html.Div(
                         [
-                            html.H4(title, className='exp-title'),
+                            html.H3(title, className='exp-title'),
                             html.Div(company, className='exp-company'),
                         ]
                     ),
@@ -215,7 +215,7 @@ def _case_preview_card(case, primary: bool = False):
                 className='featured-case-body',
                 children=[
                     html.Div(case['scope'], className='project-scope'),
-                    html.H4(case['title'], className='featured-case-title'),
+                    html.H3(case['title'], className='featured-case-title'),
                     html.P(case['problem_line'], className='featured-case-summary'),
                     _tag_cloud(case['tags']),
                     html.Ul(
@@ -269,7 +269,7 @@ def _demo_preview_card():
                 className='featured-case-body',
                 children=[
                     html.Div(LIVE_DEMO['scope'], className='project-scope'),
-                    html.H4(LIVE_DEMO['title'], className='featured-case-title'),
+                    html.H3(LIVE_DEMO['title'], className='featured-case-title'),
                     html.P(LIVE_DEMO['problem_line'], className='featured-case-summary'),
                     _tag_cloud(LIVE_DEMO['tags']),
                     html.Ul(
@@ -299,7 +299,7 @@ def _research_preview_card(item):
         className='glass-card research-highlight-card reveal-up',
         children=[
             html.Div(item['scope'], className='project-scope'),
-            html.H4(item['title'], className='research-highlight-title'),
+            html.H3(item['title'], className='research-highlight-title'),
             html.P(item['problem_line'], className='research-highlight-summary'),
             _tag_cloud(item['tags']),
             html.Ul(
@@ -320,7 +320,7 @@ def _resume_track_card(title: str, copy: str):
     return html.Div(
         className='glass-card resume-track-card reveal-up',
         children=[
-            html.H4(title, className='resume-track-title'),
+            html.H3(title, className='resume-track-title'),
             html.P(copy, className='resume-track-copy'),
         ],
     )
@@ -361,14 +361,26 @@ layout = html.Div(
                         html.Div(
                             className='hero-cta',
                             children=[
-                                # Selected Work and Live Demo sit in the nav
-                                # directly above this row; the hero offers what
-                                # navigation cannot reach instead of repeating it.
+                                # Two buttons, then two text links. The work and
+                                # the resume are what a reader is here for; the
+                                # profiles are destinations, not calls to action,
+                                # and are set as links so the two real CTAs stay
+                                # legible as the only two buttons.
+                                html.A(
+                                    'View selected work',
+                                    href='/projects',
+                                    className='cta-primary',
+                                    **{
+                                        'data-track': 'hero_cta_click',
+                                        'data-track-location': 'home_hero',
+                                        'data-track-label': 'selected_work',
+                                    },
+                                ),
                                 html.A(
                                     'Resume (PDF)',
                                     href='/assets/Hyungju_Lee_Resume.pdf',
                                     download='Hyungju_Lee_Resume.pdf',
-                                    className='cta-primary',
+                                    className='cta-secondary',
                                     **{
                                         'data-track': 'hero_cta_click',
                                         'data-track-location': 'home_hero',
@@ -378,7 +390,7 @@ layout = html.Div(
                                 html.A(
                                     'LinkedIn',
                                     href=LINKEDIN_URL,
-                                    className='cta-secondary',
+                                    className='hero-link',
                                     target='_blank',
                                     rel='noreferrer',
                                     **{
@@ -390,7 +402,7 @@ layout = html.Div(
                                 html.A(
                                     'GitHub',
                                     href=GITHUB_URL,
-                                    className='cta-secondary',
+                                    className='hero-link',
                                     target='_blank',
                                     rel='noreferrer',
                                     **{
@@ -446,7 +458,7 @@ layout = html.Div(
         html.Section(
             className='reveal-up',
             children=[
-                html.H3('Capability Lanes', className='section-title'),
+                html.H2('Capability Lanes', className='section-title'),
                 html.P(
                     'The profile is intentionally multi-lane: production analytics, data systems, and AI/ML research work.',
                     className='section-note',
@@ -460,7 +472,7 @@ layout = html.Div(
         html.Section(
             className='reveal-up',
             children=[
-                html.H3('Selected Work', className='section-title'),
+                html.H2('Selected Work', className='section-title'),
                 html.P(
                     'Representative work across product analytics, technical decision systems, and AI/ML-oriented research.',
                     className='section-note',
@@ -484,7 +496,7 @@ layout = html.Div(
                         _case_preview_card(case) for case in CASE_STUDIES
                     ],
                 ),
-                html.Div('AI / ML / RESEARCH WORK', className='eyebrow section-subhead'),
+                html.Div('AI / ML / RESEARCH WORK', className='eyebrow eyebrow--research section-subhead'),
                 html.P(
                     'Compact research and technical summaries from AUSM Lab work in LiDAR, 3D vision, benchmarking, and evaluation methodology.',
                     className='subsection-note',
@@ -498,7 +510,7 @@ layout = html.Div(
         html.Section(
             className='reveal-up',
             children=[
-                html.H3('Core Skills', className='section-title'),
+                html.H2('Core Skills', className='section-title'),
                 html.P(
                     'Five capability clusters covering product measurement, data systems, and research-oriented technical work.',
                     className='section-note',
@@ -512,7 +524,7 @@ layout = html.Div(
         html.Section(
             className='reveal-up',
             children=[
-                html.H3('Experience', className='section-title'),
+                html.H2('Experience', className='section-title'),
                 _experience_block(
                     'Data Scientist / Analytics Engineer',
                     'MySeat Media',
@@ -556,7 +568,7 @@ layout = html.Div(
         html.Section(
             className='reveal-up',
             children=[
-                html.H3('Resume Track', className='section-title'),
+                html.H2('Resume Track', className='section-title'),
                 html.P(
                     'The current downloadable PDF is positioned as a broader hybrid technical profile and can credibly support multiple read paths.',
                     className='section-note',
@@ -570,7 +582,7 @@ layout = html.Div(
         html.Section(
             className='reveal-up',
             children=[
-                html.H3('Education', className='section-title'),
+                html.H2('Education', className='section-title'),
                 html.Div(
                     className='glass-card edu-card',
                     children=[

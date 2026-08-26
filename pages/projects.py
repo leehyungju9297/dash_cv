@@ -11,7 +11,7 @@ def _list_section(title: str, items):
     return html.Div(
         className='case-detail-block',
         children=[
-            html.H4(title, className='case-detail-label'),
+            html.H3(title, className='case-detail-label'),
             html.Ul(className='case-detail-list', children=[html.Li(item) for item in items]),
         ],
     )
@@ -21,7 +21,7 @@ def _text_section(title: str, text: str):
     return html.Div(
         className='case-detail-block',
         children=[
-            html.H4(title, className='case-detail-label'),
+            html.H3(title, className='case-detail-label'),
             html.P(text, className='case-detail-copy'),
         ],
     )
@@ -39,7 +39,7 @@ def _demo_showcase():
         className='glass-card case-study-card demo-showcase reveal-up',
         children=[
             html.Div(LIVE_DEMO['scope'], className='project-scope'),
-            html.H3(LIVE_DEMO['title'], className='case-study-title'),
+            html.H2(LIVE_DEMO['title'], className='case-study-title'),
             html.P(LIVE_DEMO['problem_line'], className='case-study-problem'),
             html.Div(
                 className='skill-cloud case-tag-cloud',
@@ -92,10 +92,10 @@ def _demo_showcase():
     )
 
 
-def _work_card(item):
+def _work_card(item, research: bool = False):
     children = [
         html.Div(item['scope'], className='project-scope'),
-        html.H3(item['title'], className='case-study-title'),
+        html.H2(item['title'], className='case-study-title'),
         html.P(item['problem_line'], className='case-study-problem'),
         html.Div(
             className='skill-cloud case-tag-cloud',
@@ -145,7 +145,7 @@ def _work_card(item):
             html.Div(
                 className='case-tools-wrap',
                 children=[
-                    html.H4('Tools used', className='case-detail-label'),
+                    html.H3('Tools used', className='case-detail-label'),
                     html.Div(
                         className='skill-cloud',
                         children=[html.Span(tool, className='skill-pill') for tool in item['tools']],
@@ -155,9 +155,15 @@ def _work_card(item):
         ]
     )
 
+    # Research work is the same object in the same design language; the
+    # modifier only moves the semantic accent from the primary accent to teal.
+    card_class = 'glass-card case-study-card reveal-up'
+    if research:
+        card_class += ' case-study-card--research'
+
     return html.Article(
         id=item['slug'],
-        className='glass-card case-study-card reveal-up',
+        className=card_class,
         children=children,
     )
 
@@ -169,7 +175,7 @@ layout = html.Div(
             className='reveal-up',
             children=[
                 html.Div('SELECTED WORK', className='eyebrow'),
-                html.H2('Product Systems, Analytics, and Research Work', className='section-hero-title'),
+                html.H1('Product Systems, Analytics, and Research Work', className='section-hero-title'),
                 html.P(
                     'Selected examples spanning KPI operating systems, analytics engineering, behavioral diagnostics, '
                     'LiDAR research infrastructure, 3D vision experimentation, and evaluation methodology.',
@@ -206,12 +212,12 @@ layout = html.Div(
                     className='subsection-note',
                 ),
                 *[_work_card(case) for case in CASE_STUDIES],
-                html.Div('AI / ML / RESEARCH WORK', className='eyebrow section-subhead'),
+                html.Div('AI / ML / RESEARCH WORK', className='eyebrow eyebrow--research section-subhead'),
                 html.P(
                     'Research-oriented technical work in LiDAR, point clouds, deep learning experimentation, and benchmark design.',
                     className='subsection-note',
                 ),
-                *[_work_card(item) for item in RESEARCH_HIGHLIGHTS],
+                *[_work_card(item, research=True) for item in RESEARCH_HIGHLIGHTS],
             ],
         ),
     ],
