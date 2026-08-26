@@ -64,6 +64,26 @@ def _work_card(item):
             )
         )
 
+    if item.get('has_demo'):
+        children.append(
+            html.Div(
+                className='case-tools-wrap',
+                children=[
+                    html.H4('Live demo', className='case-detail-label'),
+                    html.A(
+                        'Open the interactive dashboard \u2192',
+                        href='/dashboard',
+                        className='cta-secondary featured-case-cta',
+                        **{
+                            'data-track': 'case_study_demo_click',
+                            'data-track-location': 'case_studies_page',
+                            'data-track-label': item['slug'],
+                        },
+                    ),
+                ],
+            )
+        )
+
     children.extend(
         [
             html.Div(

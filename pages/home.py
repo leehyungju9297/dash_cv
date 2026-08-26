@@ -36,7 +36,7 @@ CAPABILITY_LANES = [
     {
         'title': 'Data Systems / Automation',
         'copy': 'SQL and Python workflows for analytics engineering, multi-tenant data models, recurring reporting, automation, and decision-ready reporting surfaces.',
-        'tags': ['Analytics Engineering', 'Data Modeling', 'ETL Workflows', 'Automation', 'Dash / Flask', 'Data Quality'],
+        'tags': ['Analytics Engineering', 'Data Modeling', 'ETL Workflows', 'Automation', 'Dash / FastAPI', 'Data Quality'],
     },
     {
         'title': 'AI / ML / Research Work',
@@ -48,7 +48,8 @@ CAPABILITY_LANES = [
 SKILL_GROUPS = [
     (
         'Languages & Data',
-        ['Python', 'SQL', 'R', 'Pandas', 'Polars', 'NumPy', 'Dash/Plotly', 'Flask'],
+        ['Python', 'SQL', 'R', 'TypeScript', 'Pandas', 'Polars', 'NumPy',
+         'Dash/Plotly', 'React', 'Flask / FastAPI'],
     ),
     (
         'Product Analytics & Decision Systems',
@@ -269,6 +270,16 @@ layout = html.Div(
                                     },
                                 ),
                                 html.A(
+                                    'Try the Live Demo',
+                                    href='/dashboard',
+                                    className='cta-secondary',
+                                    **{
+                                        'data-track': 'hero_cta_click',
+                                        'data-track-location': 'home_hero',
+                                        'data-track-label': 'live_demo',
+                                    },
+                                ),
+                                html.A(
                                     'Resume (PDF)',
                                     href='/assets/Hyungju_Lee_Resume.pdf',
                                     download='Hyungju_Lee_Resume.pdf',
@@ -434,15 +445,6 @@ layout = html.Div(
                 html.Div(
                     className='resume-track-grid',
                     children=[_resume_track_card(track['title'], track['copy']) for track in RESUME_TRACKS],
-                ),
-                html.Div(
-                    className='resume-cta-wrap',
-                    children=html.A(
-                        'Resume (PDF)',
-                        href='/assets/Hyungju_Lee_Resume.pdf',
-                        download='Hyungju_Lee_Resume.pdf',
-                        className='cta-primary',
-                    ),
                 ),
             ],
         ),

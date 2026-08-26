@@ -13,7 +13,7 @@ from profile_data import (
 )
 
 
-dash.register_page(__name__, order=3, name='Contact')
+dash.register_page(__name__, order=4, name='Contact')
 
 
 layout = html.Div(

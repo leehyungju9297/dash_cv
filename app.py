@@ -28,6 +28,7 @@ app.index_string = """
     <head>
         {%metas%}
         <title>{%title%}</title>
+        <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
         {%favicon%}
         {%css%}
     </head>
@@ -88,7 +89,7 @@ app.index_string = """
 </html>
 """
 
-VISIBLE_PATHS = {'/', '/projects', '/publications', '/contact'}
+VISIBLE_PATHS = {'/', '/projects', '/dashboard', '/publications', '/contact'}
 
 PERSON_JSON_LD = {
     '@context': 'https://schema.org',
@@ -134,6 +135,7 @@ app.layout = html.Div(
     children=[
         dcc.Location(id='app-location', refresh=False),
         html.Script(json.dumps(PERSON_JSON_LD), type='application/ld+json'),
+        html.Div(id='scroll-progress'),
         html.Div(className='bg-orb orb-1'),
         html.Div(className='bg-orb orb-2'),
         html.Header(
@@ -149,6 +151,12 @@ app.layout = html.Div(
             ],
         ),
         html.Main(className='page-wrap', children=[dash.page_container]),
+        html.Button(
+            '\u2191',
+            id='back-to-top',
+            className='back-to-top',
+            **{'aria-label': 'Back to top'},
+        ),
     ],
 )
 

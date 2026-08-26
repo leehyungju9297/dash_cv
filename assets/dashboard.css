@@ -1,0 +1,995 @@
+/* =============================================================================
+   Frontrow Analytics — demo dashboard visual system
+   -----------------------------------------------------------------------------
+   Everything here is scoped under `.fr-*` classes that only exist on the
+   /dashboard page, so loading this stylesheet site-wide is inert everywhere
+   else. The palette is a charcoal analytics surface that sits inside the
+   portfolio's own dark theme rather than fighting it.
+
+   The same file is served to the static GitHub Pages twin of this dashboard
+   (docs/dashboard/), so the live Dash page and the static build stay identical.
+   ============================================================================= */
+
+.fr-page {
+  --fr-surface: #10151d;
+  --fr-surface-raised: #141a24;
+  --fr-surface-sunken: #0b0f17;
+  --fr-border: #263244;
+  --fr-border-soft: rgba(148, 163, 184, 0.14);
+  --fr-text: #f1f5f9;
+  --fr-text-secondary: #aab4c3;
+  --fr-text-muted: #7e8a9a;
+  --fr-accent: #6bafe8;
+  --fr-accent-soft: rgba(107, 175, 232, 0.14);
+  --fr-green: #79d29b;
+  --fr-gold: #e6b450;
+  --fr-coral: #f08c7e;
+  --fr-violet: #ac9be8;
+  --fr-amber: #f0c05a;
+  --fr-radius: 14px;
+  --fr-radius-sm: 9px;
+
+  /* Same construction as the site shell: a hairline of light on the top edge
+     plus a two-part shadow, so a card reads as a raised panel and not a box. */
+  --fr-edge: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --fr-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 28px rgba(0, 0, 0, 0.26);
+  --fr-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* --- Page intro ----------------------------------------------------------- */
+/* The description alone left the right half of a 1120px column empty, which read
+   as the paragraph being shoved to one side. A spec panel fills the measure and
+   answers the first question a reviewer has about a demo. */
+.fr-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.62fr) minmax(240px, 0.88fr);
+  gap: 1rem 2.4rem;
+  align-items: start;
+}
+
+.fr-spec {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.5rem 0.9rem;
+  margin: 0.4rem 0 0;
+  padding: 0.95rem 1.05rem;
+  border: 1px solid var(--fr-border);
+  border-left: 2px solid var(--fr-accent);
+  border-radius: var(--fr-radius-sm);
+  background: rgba(148, 163, 184, 0.05);
+}
+
+.fr-spec-label {
+  font-family: 'Sora', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--fr-text-muted);
+  white-space: nowrap;
+}
+
+.fr-spec-value {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--fr-text);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 860px) {
+  .fr-intro {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* --- Demo provenance banner ---------------------------------------------- */
+.fr-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.55rem 0.8rem;
+  margin: 1.1rem 0 0.4rem;
+  padding: 0.75rem 0.95rem;
+  border: 1px solid rgba(230, 180, 80, 0.26);
+  border-left: 2px solid var(--fr-gold);
+  border-radius: var(--fr-radius-sm);
+  background: rgba(230, 180, 80, 0.06);
+}
+
+.fr-banner-tag {
+  flex: none;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fr-gold);
+}
+
+.fr-banner-copy {
+  flex: 1 1 22rem;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--fr-text-secondary);
+}
+
+/* --- App shell ------------------------------------------------------------ */
+/* One framed surface holding a navigation rail and the content, so the demo
+   reads as a product embedded in the page rather than a floating sidebar beside
+   a stack of cards. The rail column is painted by the shell itself, which is why
+   the tall empty gutter under a short sidebar disappears.
+
+   `clip`, not `hidden`: hidden would make this a scroll container and break the
+   sticky rail and filter bar inside it. */
+.fr-shell {
+  --fr-rail: 236px;
+
+  display: grid;
+  grid-template-columns: var(--fr-rail) minmax(0, 1fr);
+  align-items: start;
+  margin-top: 1.7rem;
+  border: 1px solid var(--fr-border);
+  border-radius: 16px;
+  overflow: clip;
+  background:
+    linear-gradient(90deg,
+      var(--fr-surface-sunken) 0 var(--fr-rail),
+      rgba(11, 15, 23, 0.45) var(--fr-rail));
+  box-shadow: var(--fr-edge), 0 2px 4px rgba(0, 0, 0, 0.3),
+              0 26px 60px rgba(0, 0, 0, 0.42);
+}
+
+/* The rail is pinned to the viewport rather than stretched to the content, so
+   it behaves like an application sidebar at any page length. */
+.fr-sidebar {
+  position: sticky;
+  top: 4.5rem;
+  height: calc(100vh - 5.4rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding: 1.05rem 0.9rem;
+  overflow-y: auto;
+  border-right: 1px solid var(--fr-border);
+  background:
+    radial-gradient(420px 220px at 50% -10%, rgba(107, 175, 232, 0.10), transparent 70%),
+    transparent;
+}
+
+.fr-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0 0.3rem 0.9rem;
+  border-bottom: 1px solid var(--fr-border-soft);
+}
+
+.fr-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 10px;
+  background: linear-gradient(140deg, var(--fr-accent), #4a7fb5);
+  color: #08111b;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.fr-brand-name {
+  font-family: 'Sora', sans-serif;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--fr-text);
+  line-height: 1.25;
+}
+
+.fr-brand-tagline {
+  font-size: 0.67rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--fr-text-muted);
+}
+
+/* --- Section navigation (styled RadioItems) ------------------------------- */
+.fr-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.fr-nav-input,
+.fr-segmented-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fr-nav-link {
+  display: block;
+  padding: 0.55rem 0.6rem;
+  border-radius: var(--fr-radius-sm);
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+
+.fr-nav-link:hover {
+  background: rgba(148, 163, 184, 0.07);
+}
+
+.fr-nav-link:has(.fr-nav-input:checked) {
+  background: var(--fr-accent-soft);
+  border-left-color: var(--fr-accent);
+}
+
+.fr-nav-link:has(.fr-nav-input:focus-visible) {
+  outline: 2px solid var(--fr-accent);
+  outline-offset: 1px;
+}
+
+.fr-nav-title {
+  display: block;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--fr-text-secondary);
+}
+
+.fr-nav-link:has(.fr-nav-input:checked) .fr-nav-title {
+  color: var(--fr-text);
+}
+
+.fr-nav-blurb {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: var(--fr-text-muted);
+}
+
+.fr-sidebar-footer {
+  margin-top: auto;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--fr-border-soft);
+}
+
+.fr-sidebar-tag {
+  margin-top: 0.6rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  color: var(--fr-text-muted);
+}
+
+.fr-sidebar-tag:first-child {
+  margin-top: 0;
+}
+
+.fr-sidebar-value {
+  font-size: 0.74rem;
+  color: var(--fr-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Main column ---------------------------------------------------------- */
+.fr-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-width: 0;
+  padding: 0.9rem;
+}
+
+.fr-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.fr-panel--hidden {
+  display: none;
+}
+
+/* --- Controls ------------------------------------------------------------- */
+.fr-control-bar,
+.fr-inline-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.7rem 0.9rem;
+}
+
+/* The client and date window drive every panel, so the bar follows the reader
+   down the page instead of scrolling away above a 5,000px section. */
+.fr-control-bar {
+  position: sticky;
+  top: 4.5rem;
+  z-index: 12;
+  padding: 0.8rem 0.95rem;
+  border: 1px solid var(--fr-border);
+  border-radius: var(--fr-radius);
+  backdrop-filter: blur(14px) saturate(140%);
+  background: rgba(16, 21, 29, 0.92);
+  box-shadow: var(--fr-edge), var(--fr-shadow);
+}
+
+/* The account selector does not need half the bar; capping it and pushing the
+   date window to the far edge makes the gap between them read as deliberate
+   rather than as a stretched control. */
+.fr-control-bar .fr-control--grow {
+  flex: 0 1 24rem;
+}
+
+.fr-control-bar .fr-control:last-child {
+  margin-left: auto;
+}
+
+.fr-inline-controls {
+  margin-bottom: 0.85rem;
+}
+
+.fr-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  min-width: 9.5rem;
+}
+
+.fr-control--grow {
+  flex: 1 1 14rem;
+}
+
+.fr-control-label {
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fr-text-muted);
+}
+
+/* Segmented date-window control */
+.fr-segmented {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--fr-border);
+  border-radius: var(--fr-radius-sm);
+  background: var(--fr-surface-sunken);
+}
+
+.fr-segmented-label {
+  padding: 0.32rem 0.66rem;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--fr-text-secondary);
+  cursor: pointer;
+  transition: background 0.14s ease, color 0.14s ease;
+  font-variant-numeric: tabular-nums;
+}
+
+.fr-segmented-label:hover {
+  color: var(--fr-text);
+}
+
+.fr-segmented-label:has(.fr-segmented-input:checked) {
+  background: var(--fr-accent);
+  color: #08111b;
+}
+
+/* Checklists */
+.fr-checklist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.9rem;
+  padding-bottom: 0.32rem;
+}
+
+.fr-checklist-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.34rem;
+  font-size: 0.79rem;
+  color: var(--fr-text-secondary);
+  cursor: pointer;
+}
+
+.fr-checklist-label:hover {
+  color: var(--fr-text);
+}
+
+.fr-checkbox {
+  accent-color: var(--fr-accent);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+/* --- Cards ---------------------------------------------------------------- */
+.fr-card {
+  padding: 1.05rem 1.15rem 1.15rem;
+  border: 1px solid var(--fr-border);
+  border-radius: var(--fr-radius);
+  background: var(--fr-surface);
+  box-shadow: var(--fr-edge), var(--fr-shadow);
+  min-width: 0;
+  transition: border-color 240ms var(--fr-ease);
+}
+
+.fr-card:hover {
+  border-color: rgba(148, 163, 184, 0.24);
+}
+
+.fr-card-header {
+  margin-bottom: 0.9rem;
+}
+
+.fr-card-title {
+  margin: 0;
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--fr-text);
+}
+
+.fr-card-subtitle {
+  margin: 0.24rem 0 0;
+  font-size: 0.81rem;
+  line-height: 1.55;
+  color: var(--fr-text-muted);
+  max-width: 68ch;
+}
+
+.fr-split {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.fr-note {
+  margin: 0.7rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--fr-text-muted);
+}
+
+.fr-readout {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-left: 2px solid var(--fr-gold);
+  border-radius: 0 var(--fr-radius-sm) var(--fr-radius-sm) 0;
+  background: rgba(230, 180, 80, 0.06);
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--fr-text-secondary);
+}
+
+/* --- KPI hero ------------------------------------------------------------- */
+.fr-hero {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.85fr) minmax(0, 2fr);
+  gap: 1rem;
+}
+
+.fr-hero-primary {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 1.15rem 1.2rem;
+  border: 1px solid var(--fr-border);
+  border-radius: var(--fr-radius);
+  background:
+    radial-gradient(560px 260px at 108% -12%, rgba(107, 175, 232, 0.2), transparent 62%),
+    var(--fr-surface-raised);
+  box-shadow: var(--fr-edge), var(--fr-shadow);
+}
+
+.fr-hero-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--fr-accent), rgba(107, 175, 232, 0) 68%);
+}
+
+.fr-hero-client {
+  font-family: 'Sora', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--fr-text);
+}
+
+.fr-hero-period {
+  margin-top: 0.1rem;
+  font-size: 0.71rem;
+  color: var(--fr-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.fr-hero-value {
+  margin-top: auto;
+  padding-top: 1.1rem;
+  font-family: 'Sora', sans-serif;
+  font-size: clamp(2.1rem, 4.4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--fr-text);
+}
+
+/* `color: transparent` is only safe once we know the gradient will actually be
+   clipped to the glyphs — without the guard, a browser that ignores
+   background-clip renders invisible text instead of a gradient. */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .fr-hero-value {
+    background: linear-gradient(168deg, #ffffff 10%, #cfe6f4 58%, #8fc3dc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+.fr-hero-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--fr-text-muted);
+}
+
+.fr-hero-insight {
+  margin-top: 0.85rem;
+  align-self: flex-start;
+  padding: 0.28rem 0.6rem;
+  border: 1px solid var(--fr-border-soft);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  color: var(--fr-text-secondary);
+}
+
+/* Every KPI strip on this page holds exactly four tiles, so the tracks are
+   stated rather than fitted. `auto-fit` resolved to three at the width beside
+   the hero panel, which left the fourth tile alone with an empty cell next to
+   it. */
+.fr-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+/* The full-width strips have room for a single row. */
+.fr-tile-grid--wide {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* Belt and braces: if a strip ever holds an odd number of tiles, the last one
+   fills the leftover track instead of leaving a gap. */
+.fr-tile-grid > .fr-tile:last-child:nth-child(odd) {
+  grid-column: span 2;
+}
+
+.fr-tile-grid--wide > .fr-tile:last-child:nth-child(3n + 1) {
+  grid-column: auto;
+}
+
+.fr-tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.3rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--fr-border);
+  border-left: 2px solid var(--fr-accent);
+  border-radius: var(--fr-radius-sm);
+  background: var(--fr-surface);
+  box-shadow: var(--fr-edge);
+  transition: transform 220ms var(--fr-ease), border-color 220ms var(--fr-ease);
+}
+
+.fr-tile:hover {
+  transform: translateY(-2px);
+}
+
+.fr-tile--blue { border-left-color: var(--fr-accent); }
+.fr-tile--green { border-left-color: var(--fr-green); }
+.fr-tile--gold { border-left-color: var(--fr-gold); }
+.fr-tile--amber { border-left-color: var(--fr-amber); }
+.fr-tile--violet { border-left-color: var(--fr-violet); }
+.fr-tile--coral { border-left-color: var(--fr-coral); }
+
+.fr-tile-label {
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  line-height: 1.35;
+  /* Two lines reserved: one label wrapping while its neighbours do not is what
+     made the KPI row look ragged. */
+  min-height: 2.7em;
+  text-transform: uppercase;
+  color: var(--fr-text-muted);
+}
+
+.fr-tile-value {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--fr-text);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+
+.fr-tile-delta {
+  font-size: 0.71rem;
+  line-height: 1.4;
+  min-height: 2.8em;
+  color: var(--fr-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.fr-tile-delta--up { color: var(--fr-green); }
+.fr-tile-delta--down { color: var(--fr-coral); }
+
+/* --- Dash Dropdown (react-select) ---------------------------------------- */
+.fr-page .fr-dropdown .Select-control,
+.fr-page .fr-dropdown .Select-multi-value-wrapper {
+  background: var(--fr-surface-sunken);
+  border-color: var(--fr-border);
+  border-radius: var(--fr-radius-sm);
+  color: var(--fr-text);
+}
+
+.fr-page .fr-dropdown .Select-control {
+  min-height: 36px;
+  box-shadow: none;
+}
+
+.fr-page .fr-dropdown.is-focused:not(.is-open) > .Select-control {
+  border-color: var(--fr-accent);
+  box-shadow: 0 0 0 2px var(--fr-accent-soft);
+}
+
+.fr-page .fr-dropdown .Select-value-label,
+.fr-page .fr-dropdown .Select-placeholder,
+.fr-page .fr-dropdown .Select-input > input {
+  color: var(--fr-text) !important;
+  font-size: 0.85rem;
+  line-height: 34px;
+}
+
+.fr-page .fr-dropdown .Select-placeholder {
+  color: var(--fr-text-muted) !important;
+}
+
+.fr-page .fr-dropdown .Select-arrow {
+  border-top-color: var(--fr-text-muted);
+}
+
+.fr-page .fr-dropdown .Select-menu-outer {
+  background: var(--fr-surface-raised);
+  border-color: var(--fr-border);
+  border-radius: 0 0 var(--fr-radius-sm) var(--fr-radius-sm);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+  z-index: 40;
+}
+
+.fr-page .fr-dropdown .VirtualizedSelectOption,
+.fr-page .fr-dropdown .Select-option {
+  background: transparent;
+  color: var(--fr-text-secondary);
+  font-size: 0.85rem;
+}
+
+.fr-page .fr-dropdown .VirtualizedSelectFocusedOption,
+.fr-page .fr-dropdown .Select-option.is-focused {
+  background: var(--fr-accent-soft);
+  color: var(--fr-text);
+}
+
+/* Multi-select chips (churn comparison) */
+.fr-page .fr-dropdown .Select--multi .Select-value {
+  background: var(--fr-accent-soft);
+  border-color: rgba(107, 175, 232, 0.4);
+  color: var(--fr-text);
+  border-radius: 6px;
+  margin: 4px 4px 0 0;
+}
+
+.fr-page .fr-dropdown .Select--multi .Select-value-icon {
+  border-right-color: rgba(107, 175, 232, 0.4);
+}
+
+.fr-page .fr-dropdown .Select--multi .Select-value-icon:hover {
+  background: rgba(240, 140, 126, 0.28);
+  color: var(--fr-text);
+}
+
+/* --- DataTable ------------------------------------------------------------ */
+.fr-page .dash-table-container,
+.fr-page .dash-spreadsheet-container,
+.fr-page .dash-spreadsheet-inner table {
+  background: transparent;
+}
+
+.fr-page .dash-spreadsheet-inner td,
+.fr-page .dash-spreadsheet-inner th {
+  font-family: 'Public Sans', sans-serif !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.fr-page .dash-spreadsheet-container .dash-spreadsheet-inner td.focused,
+.fr-page .dash-spreadsheet-container .dash-spreadsheet-inner td.cell--selected {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* --- Plotly surface ------------------------------------------------------- */
+.fr-page .js-plotly-plot .plotly .modebar {
+  display: none;
+}
+
+.fr-page .dash-graph {
+  min-width: 0;
+}
+
+/* --- Responsive ----------------------------------------------------------- */
+@media (max-width: 900px) {
+  .fr-shell {
+    grid-template-columns: minmax(0, 1fr);
+    background: rgba(11, 15, 23, 0.45);
+  }
+
+  .fr-sidebar {
+    position: static;
+    height: auto;
+    overflow: visible;
+    flex-direction: column;
+    border-right: 0;
+    border-bottom: 1px solid var(--fr-border);
+  }
+
+  .fr-control-bar {
+    top: 4.2rem;
+  }
+
+  .fr-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 0.4rem;
+    padding-bottom: 0.2rem;
+  }
+
+  .fr-nav-link {
+    flex: none;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    border-radius: var(--fr-radius-sm) var(--fr-radius-sm) 0 0;
+  }
+
+  .fr-nav-link:has(.fr-nav-input:checked) {
+    border-left-color: transparent;
+    border-bottom-color: var(--fr-accent);
+  }
+
+  .fr-nav-blurb {
+    display: none;
+  }
+
+  .fr-sidebar-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem 1.2rem;
+    align-items: baseline;
+  }
+
+  .fr-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fr-tile-grid--wide {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .fr-tile-grid,
+  .fr-tile-grid--wide {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fr-tile-grid > .fr-tile:last-child:nth-child(odd) {
+    grid-column: auto;
+  }
+}
+
+/* --- Heatmap drilldown ---------------------------------------------------- */
+.fr-note--tight {
+  margin: 0 0 0.7rem;
+}
+
+.fr-detail {
+  margin-top: 0.85rem;
+}
+
+.fr-detail-empty {
+  padding: 0.7rem 0.85rem;
+  border: 1px dashed var(--fr-border);
+  border-radius: var(--fr-radius-sm);
+  color: var(--fr-text-muted);
+  font-size: 0.8rem;
+}
+
+.fr-detail-body {
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--fr-border);
+  border-left: 2px solid var(--fr-accent);
+  border-radius: var(--fr-radius-sm);
+  background: var(--fr-surface-raised);
+}
+
+.fr-detail-title {
+  margin-bottom: 0.6rem;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--fr-text);
+}
+
+.fr-detail-rows {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.05rem 1.4rem;
+}
+
+.fr-detail-rows + .fr-detail-rows {
+  margin-top: 0.55rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--fr-border-soft);
+}
+
+.fr-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.8rem;
+  padding: 0.18rem 0;
+  font-size: 0.8rem;
+}
+
+.fr-detail-label {
+  color: var(--fr-text-muted);
+}
+
+.fr-detail-value {
+  color: var(--fr-text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A control a display mode does not use stays visible but reads as inert. */
+.fr-page .fr-dropdown.is-disabled .Select-control,
+.fr-select:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.fr-checklist-label input:disabled,
+.fr-checklist-label:has(input:disabled) {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+/* The basemap tiles are raster; keep them from bleeding past the card. */
+.fr-page .js-plotly-plot .maplibregl-map,
+.fr-page .js-plotly-plot .mapboxgl-map {
+  border-radius: var(--fr-radius-sm);
+}
+
+/* =============================================================================
+   Static-twin controls
+   -----------------------------------------------------------------------------
+   The GitHub Pages build of this dashboard (docs/dashboard/) has no Dash
+   runtime, so its dropdowns are native <select> elements and its tables are
+   plain markup. These rules give them the same surface as the Dash components
+   above; they are inert on the Dash page, which never emits these classes.
+   ============================================================================= */
+
+.fr-select {
+  appearance: none;
+  width: 100%;
+  min-height: 36px;
+  padding: 0.42rem 1.9rem 0.42rem 0.65rem;
+  border: 1px solid var(--fr-border);
+  border-radius: var(--fr-radius-sm);
+  background-color: var(--fr-surface-sunken);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--fr-text-muted) 50%),
+    linear-gradient(135deg, var(--fr-text-muted) 50%, transparent 50%);
+  background-position: right 0.95rem center, right 0.65rem center;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  color: var(--fr-text);
+  font-family: 'Public Sans', sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.fr-select:focus-visible {
+  outline: none;
+  border-color: var(--fr-accent);
+  box-shadow: 0 0 0 2px var(--fr-accent-soft);
+}
+
+.fr-select option {
+  background: var(--fr-surface-raised);
+  color: var(--fr-text);
+}
+
+.fr-table-wrap {
+  overflow-x: auto;
+}
+
+.fr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.79rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.fr-table th {
+  padding: 0.62rem 0.75rem;
+  background: var(--fr-surface-raised);
+  border-bottom: 1px solid var(--fr-border);
+  color: var(--fr-text-secondary);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  text-align: right;
+}
+
+.fr-table td {
+  padding: 0.56rem 0.75rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  color: var(--fr-text);
+  text-align: right;
+}
+
+.fr-table tbody tr:nth-child(odd) td {
+  background: rgba(148, 163, 184, 0.035);
+}
+
+.fr-table th:first-child,
+.fr-table td:first-child,
+.fr-table .fr-cell-text {
+  text-align: left;
+}
+
+.fr-table td:first-child {
+  font-weight: 600;
+}
+
+/* Chart mount points: the figure's own layout height drives the box, but a
+   min-height keeps the card from collapsing before plotly.js paints. */
+.fr-chart {
+  min-height: 120px;
+}
+
+.fr-loading {
+  padding: 2.6rem 0;
+  text-align: center;
+  color: var(--fr-text-muted);
+  font-size: 0.86rem;
+}

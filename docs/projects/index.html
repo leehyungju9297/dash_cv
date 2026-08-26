@@ -15,6 +15,7 @@
     />
     <meta property="og:type" content="website" />
     <noscript><style>.reveal-up { opacity: 1 !important; transform: none !important; }</style></noscript>
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
     <link rel="stylesheet" href="../assets/custom.css" />
   </head>
   <body>
@@ -28,6 +29,7 @@
           <nav class="top-nav">
             <a class="top-nav-link" href="../">Home</a>
             <a class="top-nav-link active" href="../projects/">Selected Work</a>
+            <a class="top-nav-link" href="../dashboard/">Live Demo</a>
             <a class="top-nav-link" href="../publications/">Research</a>
             <a class="top-nav-link" href="../contact/">Contact</a>
           </nav>
@@ -77,14 +79,17 @@
                   <img
                     class="case-study-image"
                     src="../assets/case_studies/executive-kpi-monitoring.jpg"
-                    alt="Dashboard showing DAU and memberships with event overlays and summary statistics"
+                    alt="Dashboard overview: a downloads headline, supporting KPI tiles, and a dual-axis activity chart with release-calendar markers"
                   />
                 </a>
                 <figcaption class="case-study-caption">
-                  A dual-axis KPI monitor linking user activity, memberships, and event timelines for weekly product and
-                  leadership reviews.
+                  The KPI overview — one headline metric, supporting tiles, and a dual-axis trend with the release calendar overlaid, so a spike can be read against what shipped that week.
                 </figcaption>
               </figure>
+              <div class="case-tools-wrap">
+                <h4 class="case-detail-label">Live demo</h4>
+                <a class="cta-secondary featured-case-cta" href="../dashboard/" data-track="case_study_demo_click" data-track-location="case_studies_page" data-track-label="executive-kpi-monitoring">Open the interactive dashboard →</a>
+              </div>
               <div class="case-detail-grid">
                 <div class="case-detail-block">
                   <h4 class="case-detail-label">Overview</h4>
@@ -116,6 +121,11 @@
                     <li>Implemented multi-axis charting with event overlays to contextualize spikes and declines.</li>
                     <li>Added summary tables for quick mean/min/max/total diagnostics.</li>
                     <li>Shipped date-range and client selectors for leadership and PM review workflows.</li>
+                    <li>
+                      Rebuilt the surface as a React/TypeScript SPA on a FastAPI service, with the API client
+                      generated from the OpenAPI schema so a contract change breaks the build rather than a
+                      chart. The migration was complete but not released.
+                    </li>
                   </ul>
                 </div>
                 <div class="case-detail-block">
@@ -144,6 +154,10 @@
                   <span class="skill-pill">Pandas/Polars</span>
                   <span class="skill-pill">Flask</span>
                   <span class="skill-pill">Celery</span>
+                  <span class="skill-pill">React</span>
+                  <span class="skill-pill">TypeScript</span>
+                  <span class="skill-pill">FastAPI</span>
+                  <span class="skill-pill">ECharts</span>
                 </div>
               </div>
             </article>
@@ -166,14 +180,17 @@
                   <img
                     class="case-study-image"
                     src="../assets/case_studies/behavior-geography-correlation.jpg"
-                    alt="Dashboard with user location bars, DAU versus memberships scatter plot, and correlation matrix"
+                    alt="Relationship scatter with a least-squares fit, above a correlation matrix across product event families"
                   />
                 </a>
                 <figcaption class="case-study-caption">
-                  Diagnostics panel combining top user locations, DAU-membership relationships, and correlation
-                  structure across product events.
+                  Relationship diagnostics — a least-squares fit over daily observations above the correlation structure across event families, where weak signals separate from repeatable ones.
                 </figcaption>
               </figure>
+              <div class="case-tools-wrap">
+                <h4 class="case-detail-label">Live demo</h4>
+                <a class="cta-secondary featured-case-cta" href="../dashboard/" data-track="case_study_demo_click" data-track-location="case_studies_page" data-track-label="behavior-geography-correlation">Open the interactive dashboard →</a>
+              </div>
               <div class="case-detail-grid">
                 <div class="case-detail-block">
                   <h4 class="case-detail-label">Overview</h4>
@@ -230,6 +247,9 @@
                   <span class="skill-pill">Dash/Plotly</span>
                   <span class="skill-pill">Statistical Diagnostics</span>
                   <span class="skill-pill">Pandas</span>
+                  <span class="skill-pill">React</span>
+                  <span class="skill-pill">TypeScript</span>
+                  <span class="skill-pill">ECharts</span>
                 </div>
               </div>
             </article>
@@ -252,13 +272,17 @@
                   <img
                     class="case-study-image"
                     src="../assets/case_studies/geo-segmented-user-intelligence.jpg"
-                    alt="Dark map of the United States showing geo-distributed user points by account type"
+                    alt="Dark map with market bubbles sized by audience and coloured by member share, above a reach and member-density KPI strip"
                   />
                 </a>
                 <figcaption class="case-study-caption">
-                  Geo-segmented user map used to compare concentration, spread, and segment mix across regions.
+                  The audience heatmap — markets sized by audience and coloured by member share, with reach, spread, and member density read off the strip above it.
                 </figcaption>
               </figure>
+              <div class="case-tools-wrap">
+                <h4 class="case-detail-label">Live demo</h4>
+                <a class="cta-secondary featured-case-cta" href="../dashboard/" data-track="case_study_demo_click" data-track-location="case_studies_page" data-track-label="geo-segmented-user-intelligence">Open the interactive dashboard →</a>
+              </div>
               <div class="case-detail-grid">
                 <div class="case-detail-block">
                   <h4 class="case-detail-label">Overview</h4>
@@ -288,6 +312,10 @@
                     <li>Shipped a map-based user intelligence dashboard with segment color coding and layer controls.</li>
                     <li>Standardized location and segment logic so counts were comparable across clients.</li>
                     <li>Added interfaces to inspect regional density and identify concentration corridors.</li>
+                    <li>
+                      Ported the map to a WebGL deck.gl / MapLibre layer in the React rebuild, moving point
+                      payloads over Apache Arrow so individual-user views stayed interactive at scale.
+                    </li>
                   </ul>
                 </div>
                 <div class="case-detail-block">
@@ -315,6 +343,10 @@
                   <span class="skill-pill">Dash/Plotly Map Layers</span>
                   <span class="skill-pill">Geo Analytics</span>
                   <span class="skill-pill">Data Modeling</span>
+                  <span class="skill-pill">React</span>
+                  <span class="skill-pill">deck.gl</span>
+                  <span class="skill-pill">MapLibre</span>
+                  <span class="skill-pill">Apache Arrow</span>
                 </div>
               </div>
             </article>

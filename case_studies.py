@@ -7,6 +7,8 @@ WorkItem = Dict[str, object]
 CASE_STUDIES: List[WorkItem] = [
     {
         'slug': 'executive-kpi-monitoring',
+        # Rendered as a link to /dashboard, the interactive rebuild of this work.
+        'has_demo': True,
         'scope': 'PRODUCT ANALYTICS / DECISION SYSTEMS',
         'title': 'Executive KPI Monitoring Across Client App Ecosystems',
         'problem_line': 'Built a multi-tenant KPI operating system spanning engagement, retention, memberships, monetization, notifications, auctions, livestreams, and timeline activity.',
@@ -18,8 +20,8 @@ CASE_STUDIES: List[WorkItem] = [
         'tags': ['KPI Architecture', 'Decision Systems', 'Monetization', 'Release Diagnostics'],
         'homepage_caption': 'Decision-ready analytics operating layer for a 138-client app ecosystem.',
         'thumbnail_src': '/assets/case_studies/executive-kpi-monitoring.jpg',
-        'thumbnail_alt': 'Dashboard showing DAU and memberships with event overlays and summary statistics.',
-        'image_caption': 'A dual-axis KPI monitor linking user activity, memberships, and event timelines for weekly product and leadership reviews.',
+        'thumbnail_alt': 'Dashboard overview: a downloads headline, supporting KPI tiles, and a dual-axis activity chart with release-calendar markers.',
+        'image_caption': 'The KPI overview — one headline metric, supporting tiles, and a dual-axis trend with the release calendar overlaid, so a spike can be read against what shipped that week.',
         'overview': (
             'Built a production KPI monitoring surface for a white-label app ecosystem where leadership needed '
             'daily visibility into product health, operational movement, and revenue signals.'
@@ -39,6 +41,9 @@ CASE_STUDIES: List[WorkItem] = [
             'Implemented multi-axis charting with event overlays to contextualize spikes and declines.',
             'Added summary tables for quick mean/min/max/total diagnostics.',
             'Shipped date-range and client selectors for leadership and PM review workflows.',
+            'Rebuilt the surface as a React/TypeScript SPA on a FastAPI service, with the '
+            'API client generated from the OpenAPI schema so a contract change breaks the '
+            'build rather than a chart. The migration was complete but not released.',
         ],
         'methods': [
             'Metric normalization and daily aggregation pipelines.',
@@ -50,10 +55,14 @@ CASE_STUDIES: List[WorkItem] = [
             'Enabled faster root-cause conversations around membership and usage swings.',
             'Turned fragmented reporting into a repeatable decision system rather than one-off dashboards.',
         ],
-        'tools': ['Python', 'SQL', 'Dash/Plotly', 'Pandas/Polars', 'Flask', 'Celery'],
+        'tools': [
+            'Python', 'SQL', 'Dash/Plotly', 'Pandas/Polars', 'Flask', 'Celery', 'React', 'TypeScript', 'FastAPI', 'ECharts',
+        ],
     },
     {
         'slug': 'behavior-geography-correlation',
+        # Rendered as a link to /dashboard, the interactive rebuild of this work.
+        'has_demo': True,
         'scope': 'PRODUCT ANALYTICS / DECISION SYSTEMS',
         'title': 'Behavior, Geography, and Correlation Diagnostics',
         'problem_line': 'Built exploratory diagnostics to connect user behavior, memberships, geography, and engagement relationships into decision-ready analysis.',
@@ -65,8 +74,8 @@ CASE_STUDIES: List[WorkItem] = [
         'tags': ['Behavioral Analytics', 'Correlation Diagnostics', 'Segmentation', 'Geo Analysis'],
         'homepage_caption': 'Integrated diagnostic layer for product triage, hypothesis generation, and follow-up analysis.',
         'thumbnail_src': '/assets/case_studies/behavior-geography-correlation.jpg',
-        'thumbnail_alt': 'Dashboard with user location bars, DAU versus memberships scatter plot, and correlation matrix.',
-        'image_caption': 'Diagnostics panel combining top user locations, DAU-membership relationships, and correlation structure across product events.',
+        'thumbnail_alt': 'Relationship scatter with a least-squares fit, above a correlation matrix across product event families.',
+        'image_caption': 'Relationship diagnostics — a least-squares fit over daily observations above the correlation structure across event families, where weak signals separate from repeatable ones.',
         'overview': (
             'Designed an exploratory diagnostics dashboard to move from isolated KPI checks to relationship-level '
             'analysis across behavior, engagement, and monetization signals.'
@@ -95,10 +104,14 @@ CASE_STUDIES: List[WorkItem] = [
             'Improved product discussions by grounding hypotheses in comparative diagnostics.',
             'Surfaced non-obvious relationships to guide follow-up analysis and rollout thinking.',
         ],
-        'tools': ['Python', 'SQL', 'Dash/Plotly', 'Statistical Diagnostics', 'Pandas'],
+        'tools': [
+            'Python', 'SQL', 'Dash/Plotly', 'Statistical Diagnostics', 'Pandas', 'React', 'TypeScript', 'ECharts',
+        ],
     },
     {
         'slug': 'geo-segmented-user-intelligence',
+        # Rendered as a link to /dashboard, the interactive rebuild of this work.
+        'has_demo': True,
         'scope': 'PRODUCT ANALYTICS / DECISION SYSTEMS',
         'title': 'Geo-Segmented User Intelligence',
         'problem_line': 'Built geo-distribution and segment analysis views to understand where users are concentrated and how membership and account mixes differ geographically.',
@@ -110,8 +123,8 @@ CASE_STUDIES: List[WorkItem] = [
         'tags': ['Geo Analytics', 'Audience Intelligence', 'Segmentation', 'Data Visualization'],
         'homepage_caption': 'Geographic intelligence layer for segment-aware audience analysis across regions.',
         'thumbnail_src': '/assets/case_studies/geo-segmented-user-intelligence.jpg',
-        'thumbnail_alt': 'Dark map of the United States showing geo-distributed user points by account type.',
-        'image_caption': 'Geo-segmented user map used to compare concentration, spread, and segment mix across regions.',
+        'thumbnail_alt': 'Dark map with market bubbles sized by audience and coloured by member share, above a reach and member-density KPI strip.',
+        'image_caption': 'The audience heatmap — markets sized by audience and coloured by member share, with reach, spread, and member density read off the strip above it.',
         'overview': (
             'Built a geo-intelligence layer so product stakeholders could quickly understand audience distribution '
             'and segment density across the U.S. footprint.'
@@ -129,6 +142,9 @@ CASE_STUDIES: List[WorkItem] = [
             'Shipped a map-based user intelligence dashboard with segment color coding and layer controls.',
             'Standardized location and segment logic so counts were comparable across clients.',
             'Added interfaces to inspect regional density and identify concentration corridors.',
+            'Ported the map to a WebGL deck.gl / MapLibre layer in the React rebuild, moving '
+            'point payloads over Apache Arrow so individual-user views stayed interactive at '
+            'scale.',
         ],
         'methods': [
             'Geo-segmentation and density inspection.',
@@ -140,7 +156,9 @@ CASE_STUDIES: List[WorkItem] = [
             'Improved confidence in regional targeting decisions with segment-aware map evidence.',
             'Provided a reusable geo lens for ongoing growth and product strategy reviews.',
         ],
-        'tools': ['Python', 'SQL', 'Dash/Plotly Map Layers', 'Geo Analytics', 'Data Modeling'],
+        'tools': [
+            'Python', 'SQL', 'Dash/Plotly Map Layers', 'Geo Analytics', 'Data Modeling', 'React', 'deck.gl', 'MapLibre', 'Apache Arrow',
+        ],
     },
 ]
 

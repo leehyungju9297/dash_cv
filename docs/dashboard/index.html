@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Live Demo | Frontrow Analytics Dashboard</title>
+    <meta
+      name="description"
+      content="An interactive product analytics dashboard demo by Hyungju Lee: multi-tenant KPI monitoring with a release overlay, audience geography, behavioral diagnostics, and revenue and retention analysis."
+    />
+    <meta property="og:title" content="Live Demo | Frontrow Analytics Dashboard" />
+    <meta
+      property="og:description"
+      content="A working rebuild of a multi-tenant product analytics system: client-scoped KPI monitoring, audience geography, correlation diagnostics, revenue and churn — running on synthetic data."
+    />
+    <meta property="og:type" content="website" />
+    <noscript><style>.reveal-up { opacity: 1 !important; transform: none !important; }</style></noscript>
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+    <link rel="stylesheet" href="../assets/custom.css" />
+    <link rel="stylesheet" href="../assets/dashboard.css" />
+  </head>
+  <body>
+    <div id="scroll-progress"></div>
+    <div class="site-shell">
+      <div class="bg-orb orb-1"></div>
+      <div class="bg-orb orb-2"></div>
+      <header class="site-header">
+        <div class="header-inner">
+          <a class="brand-chip" href="../">HJ</a>
+          <nav class="top-nav">
+            <a class="top-nav-link" href="../">Home</a>
+            <a class="top-nav-link" href="../projects/">Selected Work</a>
+            <a class="top-nav-link active" href="../dashboard/">Live Demo</a>
+            <a class="top-nav-link" href="../publications/">Research</a>
+            <a class="top-nav-link" href="../contact/">Contact</a>
+          </nav>
+        </div>
+      </header>
+
+      <main class="page-wrap">
+        <div class="content-stack fr-page">
+          <section class="reveal-up">
+            <div class="fr-intro">
+              <div>
+                <div class="eyebrow">LIVE DEMO</div>
+                <h2 class="section-hero-title">Frontrow Analytics — Product Dashboard</h2>
+                <p class="section-hero-subtitle">
+                  A working rebuild of the multi-tenant product analytics system described in the
+                  case studies below: client-scoped KPI monitoring with a release overlay, audience
+                  geography, behavioral diagnostics, and revenue/retention analysis. Every control
+                  is live.
+                </p>
+              </div>
+              <dl class="fr-spec">
+                <dt class="fr-spec-label">This build</dt>
+                <dd class="fr-spec-value">JavaScript · plotly.js</dd>
+                <dt class="fr-spec-label">Also ships as</dt>
+                <dd class="fr-spec-value">Dash app (Python), same dataset</dd>
+                <dt class="fr-spec-label">Original system</dt>
+                <dd class="fr-spec-value">React · TypeScript · FastAPI · deck.gl</dd>
+                <dt class="fr-spec-label">Dataset</dt>
+                <dd class="fr-spec-value" id="fr-spec-dataset">—</dd>
+                <dt class="fr-spec-label">Surfaces</dt>
+                <dd class="fr-spec-value">Overview · Audience Heatmap · Behavior · Revenue &amp; Retention</dd>
+              </dl>
+            </div>
+            <div class="fr-banner">
+              <span class="fr-banner-tag">Synthetic data</span>
+              <span class="fr-banner-copy">
+                Frontrow and every account, fan, and figure on this page are invented for this
+                portfolio. The structure mirrors production work, and the distributions behind it
+                — stickiness, churn, store mix, market concentration, content cadence — are
+                calibrated against a real client base. No real name, record, or value appears
+                anywhere.
+              </span>
+            </div>
+          </section>
+
+          <noscript>
+            <div class="fr-banner">
+              <span class="fr-banner-tag">JavaScript off</span>
+              <span class="fr-banner-copy">
+                This dashboard renders its charts in the browser, so it needs JavaScript enabled.
+                The written case studies on the Selected Work page cover the same material.
+              </span>
+            </div>
+          </noscript>
+
+          <div class="fr-shell">
+            <aside class="fr-sidebar">
+              <div class="fr-brand">
+                <div class="fr-brand-mark">FR</div>
+                <div>
+                  <div class="fr-brand-name">Frontrow Analytics</div>
+                  <div class="fr-brand-tagline">Fan Platform Intelligence</div>
+                </div>
+              </div>
+
+              <div class="fr-nav" id="fr-section" role="radiogroup" aria-label="Dashboard section">
+                <label class="fr-nav-link">
+                  <input class="fr-nav-input" type="radio" name="fr-section" value="overview" checked />
+                  <span class="fr-nav-title">Overview</span>
+                  <span class="fr-nav-blurb">Portfolio KPIs and the release calendar</span>
+                </label>
+                <label class="fr-nav-link">
+                  <input class="fr-nav-input" type="radio" name="fr-section" value="audience" />
+                  <span class="fr-nav-title">Audience Heatmap</span>
+                  <span class="fr-nav-blurb">Where the fanbase is and how it converts</span>
+                </label>
+                <label class="fr-nav-link">
+                  <input class="fr-nav-input" type="radio" name="fr-section" value="behavior" />
+                  <span class="fr-nav-title">Behavior</span>
+                  <span class="fr-nav-blurb">Relationships between product signals</span>
+                </label>
+                <label class="fr-nav-link">
+                  <input class="fr-nav-input" type="radio" name="fr-section" value="revenue" />
+                  <span class="fr-nav-title">Revenue &amp; Retention</span>
+                  <span class="fr-nav-blurb">Monetization, churn, and tenure</span>
+                </label>
+              </div>
+
+              <div class="fr-sidebar-footer">
+                <div class="fr-sidebar-tag">DATA WINDOW</div>
+                <div class="fr-sidebar-value" id="fr-data-window">—</div>
+                <div class="fr-sidebar-tag">SOURCE</div>
+                <div class="fr-sidebar-value">Synthetic · seeded</div>
+              </div>
+            </aside>
+
+            <div class="fr-main">
+              <div class="fr-control-bar">
+                <div class="fr-control fr-control--grow">
+                  <label class="fr-control-label" for="fr-client">Client account</label>
+                  <select class="fr-select" id="fr-client"></select>
+                </div>
+                <div class="fr-control">
+                  <span class="fr-control-label">Date window</span>
+                  <div class="fr-segmented" id="fr-preset" role="radiogroup" aria-label="Date window"></div>
+                </div>
+              </div>
+
+              <!-- ============================ Overview ============================ -->
+              <div class="fr-panel" id="fr-panel-overview">
+                <div class="fr-hero">
+                  <div class="fr-hero-primary">
+                    <div class="fr-hero-client" id="fr-hero-client">—</div>
+                    <div class="fr-hero-period" id="fr-hero-period">—</div>
+                    <div class="fr-hero-value" id="fr-hero-value">—</div>
+                    <div class="fr-hero-label">Downloads</div>
+                    <div class="fr-hero-insight" id="fr-hero-insight">—</div>
+                  </div>
+                  <div class="fr-tile-grid" id="fr-overview-tiles"></div>
+                </div>
+
+                <div class="fr-card">
+                  <div class="fr-card-header">
+                    <h3 class="fr-card-title">Activity Trends</h3>
+                    <p class="fr-card-subtitle">
+                      Two metrics on independent axes with the release calendar overlaid, so a spike
+                      can be read against what shipped that week.
+                    </p>
+                  </div>
+                  <div class="fr-inline-controls">
+                    <div class="fr-control">
+                      <label class="fr-control-label" for="fr-left-metric">Left axis</label>
+                      <select class="fr-select" id="fr-left-metric"></select>
+                    </div>
+                    <div class="fr-control">
+                      <label class="fr-control-label" for="fr-right-metric">Right axis</label>
+                      <select class="fr-select" id="fr-right-metric"></select>
+                    </div>
+                    <div class="fr-control">
+                      <label class="fr-control-label" for="fr-grain">Interval</label>
+                      <select class="fr-select" id="fr-grain">
+                        <option>Daily</option>
+                        <option>Weekly</option>
+                        <option>Monthly</option>
+                      </select>
+                    </div>
+                    <div class="fr-control">
+                      <span class="fr-control-label">Overlay</span>
+                      <div class="fr-checklist">
+                        <label class="fr-checklist-label">
+                          <input class="fr-checkbox" type="checkbox" id="fr-show-events" checked />
+                          Release calendar
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="fr-chart" id="fr-trend"><p class="fr-loading">Loading…</p></div>
+                </div>
+
+                <div class="fr-card">
+                  <div class="fr-card-header">
+                    <h3 class="fr-card-title">Period Summary</h3>
+                    <p class="fr-card-subtitle">Mean, range, and totals for the selected window.</p>
+                  </div>
+                  <div class="fr-table-wrap"><table class="fr-table" id="fr-summary-table"></table></div>
+                </div>
+              </div>
+
+              <!-- ======================== Audience Heatmap ======================== -->
+              <div class="fr-panel fr-panel--hidden" id="fr-panel-audience">
+                <div class="fr-tile-grid fr-tile-grid--wide" id="fr-geo-tiles"></div>
+
+                <div class="fr-card">
+                  <div class="fr-card-header">
+                    <h3 class="fr-card-title">Audience Heatmap</h3>
+                    <p class="fr-card-subtitle">
+                      Market bubbles size each location by the selected metric and color it by
+                      member share; the density view drops the boundaries to show where activity
+                      actually concentrates. Click a market to drill into it.
+                    </p>
+                  </div>
+                  <div class="fr-inline-controls">
+                    <div class="fr-control">
+                      <label class="fr-control-label" for="fr-map-display">Display</label>
+                      <select class="fr-select" id="fr-map-display">
+                        <option value="market">Market bubbles</option>
+                        <option value="density">Density heatmap</option>
+                        <option value="individual">Individual users</option>
+                      </select>
+                    </div>
+                    <div class="fr-control">
+                      <label class="fr-control-label" for="fr-map-metric">Size by</label>
+                      <select class="fr-select" id="fr-map-metric"></select>
+                    </div>
+                    <div class="fr-control">
+                      <label class="fr-control-label" for="fr-loc-level">Location level</label>
+                      <select class="fr-select" id="fr-loc-level">
+                        <option value="city">City</option>
+                        <option value="region">Region</option>
+                        <option value="country">Country</option>
+                      </select>
+                    </div>
+                    <div class="fr-control">
+                      <label class="fr-control-label" for="fr-marker-limit">Marker limit</label>
+                      <select class="fr-select" id="fr-marker-limit"></select>
+                    </div>
+                    <div class="fr-control fr-control--grow">
+                      <span class="fr-control-label">Lifecycle segments</span>
+                      <div class="fr-checklist fr-checklist--inline" id="fr-segments"></div>
+                    </div>
+                  </div>
+                  <div class="fr-note fr-note--tight" id="fr-map-hint"></div>
+                  <div class="fr-chart" id="fr-map"><p class="fr-loading">Loading…</p></div>
+                  <div class="fr-detail" id="fr-map-detail"></div>
+                </div>
+
+                <div class="fr-card">
+                  <div class="fr-card-header">
+                    <h3 class="fr-card-title">How the Audience Spread</h3>
+                    <p class="fr-card-subtitle">Cumulative arrival by market, replayed month by month.</p>
+                  </div>
+                  <div class="fr-chart" id="fr-growth"></div>
+                  <p class="fr-note">
+                    Each frame adds one month of cumulative arrivals. Bubble sizes are pinned to
+                    the final month, so growth reads as growth rather than every frame rescaling
+                    to its own peak.
+                  </p>
+                </div>
+
+                <div class="fr-card">
+                  <div class="fr-card-header">
+                    <h3 class="fr-card-title">Top Markets</h3>
+                    <p class="fr-card-subtitle">The largest markets at the selected location level.</p>
+                  </div>
+                  <div class="fr-table-wrap"><table class="fr-table" id="fr-top-markets"></table></div>
+                </div>
+
+                <div class="fr-card">
+                  <div class="fr-card-header">
+                    <h3 class="fr-card-title">Lifecycle Mix</h3>
+                    <p class="fr-card-subtitle">Share of the audience at each stage, from install to super user.</p>
+                  </div>
+                  <div class="fr-chart" id="fr-segment-mix"></div>
+                  <div class="fr-note" id="fr-segment-note"></div>
+                </div>
+
+                <div class="fr-card">
+                  <div class="fr-card-header">
+                    <h3 class="fr-card-title">Market Ranking by Segment</h3>
+                    <p class="fr-card-subtitle">The same geography filtered to one stage of the lifecycle.</p>
+                  </div>
+                  <div class="fr-inline-controls">
+                    <div class="fr-control">
+                      <label class="fr-control-label" for="fr-loc-segment">Segment</label>
+                      <select class="fr-select" id="fr-loc-segment"></select>
+                    </div>
+                  </div>
+                  <div class="fr-chart" id="fr-location-bar"></div>
+                </div>
+              </div>
+
+              <!-- ============================ Behavior ============================ -->
+              <div class="fr-panel fr-panel--hidden" id="fr-panel-behavior">
+                <div class="fr-card">
+                  <div class="fr-card-header">
+                    <h3 class="fr-card-title">Relationship Diagnostics</h3>
+                    <p class="fr-card-subtitle">
+                      Daily observations with a least-squares fit. Co-movement is not causation —
+                      this is a triage tool for what to test next.
+                    </p>
+                  </div>
+                  <div class="fr-inline-controls">
+                    <div class="fr-control">
+                      <label class="fr-control-label" for="fr-x-metric">X metric</label>
+                      <select class="fr-select" id="fr-x-metric"></select>
+                    </div>
+                    <div class="fr-control">
+                      <label class="fr-control-label" for="fr-y-metric">Y metric</label>
+                      <select class="fr-select" id="fr-y-metric"></select>
+                    </div>
+                  </div>
+                  <div class="fr-chart" id="fr-scatter"></div>
+                  <div class="fr-readout" id="fr-scatter-readout"></div>
+                </div>
+
+                <div class="fr-card">
+                  <div class="fr-card-header">
+                    <h3 class="fr-card-title">Correlation Structure</h3>
+                    <p class="fr-card-subtitle">Pearson correlation across the product event families in the window.</p>
+                  </div>
+                  <div class="fr-chart" id="fr-correlation"></div>
+                </div>
+
+                <div class="fr-card">
+                  <div class="fr-card-header">
+                    <h3 class="fr-card-title">Depth vs. Reach</h3>
+                    <p class="fr-card-subtitle">
+                      Average session length against DAU/MAU stickiness — whether the audience is
+                      growing wider or getting more engaged.
+                    </p>
+                  </div>
+                  <div class="fr-chart" id="fr-engagement"></div>
+                </div>
+              </div>
+
+              <!-- ======================= Revenue & Retention ======================= -->
+              <div class="fr-panel fr-panel--hidden" id="fr-panel-revenue">
+                <div class="fr-tile-grid fr-tile-grid--wide" id="fr-revenue-tiles"></div>
+
+                <div class="fr-card">
+                  <div class="fr-card-header">
+                    <h3 class="fr-card-title">Revenue Trend</h3>
+                    <p class="fr-card-subtitle">Gross in-app revenue for the selected account and window.</p>
+                  </div>
+                  <div class="fr-inline-controls">
+                    <div class="fr-control">
+                      <label class="fr-control-label" for="fr-rev-grain">Interval</label>
+                      <select class="fr-select" id="fr-rev-grain">
+                        <option>Weekly</option>
+                        <option selected>Monthly</option>
+                        <option>Quarterly</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="fr-chart" id="fr-revenue"></div>
+                </div>
+
+                <div class="fr-split">
+                  <div class="fr-card">
+                    <div class="fr-card-header">
+                      <h3 class="fr-card-title">Revenue by Type</h3>
+                      <p class="fr-card-subtitle">Product mix across the full history.</p>
+                    </div>
+                    <div class="fr-chart" id="fr-mix-type"></div>
+                  </div>
+                  <div class="fr-card">
+                    <div class="fr-card-header">
+                      <h3 class="fr-card-title">Revenue by Platform</h3>
+                      <p class="fr-card-subtitle">Store split across the full history.</p>
+                    </div>
+                    <div class="fr-chart" id="fr-mix-platform"></div>
+                  </div>
+                </div>
+
+                <div class="fr-card">
+                  <div class="fr-card-header">
+                    <h3 class="fr-card-title">Monthly Membership Churn</h3>
+                    <p class="fr-card-subtitle">Share of the starting membership base lost each month.</p>
+                  </div>
+                  <div class="fr-inline-controls">
+                    <div class="fr-control fr-control--grow">
+                      <span class="fr-control-label">Compare accounts</span>
+                      <div class="fr-checklist fr-checklist--inline" id="fr-churn-clients"></div>
+                    </div>
+                  </div>
+                  <div class="fr-chart" id="fr-churn"></div>
+                  <p class="fr-note">
+                    Lost members are the residual of the membership stock (start + joins − end), so
+                    churn can never disagree with the membership line on the Overview tab.
+                  </p>
+                </div>
+
+                <div class="fr-card">
+                  <div class="fr-card-header">
+                    <h3 class="fr-card-title">Membership Tenure</h3>
+                    <p class="fr-card-subtitle">How long current members have been subscribed.</p>
+                  </div>
+                  <div class="fr-chart" id="fr-lifetime"></div>
+                </div>
+
+                <div class="fr-card">
+                  <div class="fr-card-header">
+                    <h3 class="fr-card-title">Most Engaged Fans</h3>
+                    <p class="fr-card-subtitle">Leaderboard by time in app for the selected account.</p>
+                  </div>
+                  <div class="fr-table-wrap"><table class="fr-table" id="fr-top-users"></table></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <button class="back-to-top" id="back-to-top" aria-label="Back to top">↑</button>
+
+    <script defer src="../assets/tracking.js"></script>
+    <script defer src="../assets/enhancements.js"></script>
+    <!-- Pinned to the plotly.js version Dash serves from the installed plotly
+         package, so the static twin renders the same traces (the MapLibre
+         scattermap/densitymap the heatmap needs landed in plotly.js 2.35). -->
+    <script src="https://cdn.plot.ly/plotly-3.4.0.min.js" charset="utf-8"></script>
+    <script defer src="../assets/demo/frontrow.js"></script>
+  </body>
+</html>

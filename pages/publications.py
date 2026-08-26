@@ -4,7 +4,7 @@ import dash
 from dash import html
 
 
-dash.register_page(__name__, order=2, name='Research')
+dash.register_page(__name__, order=3, name='Research')
 
 
 RESEARCH_THEMES = [
@@ -73,28 +73,33 @@ layout = html.Div(
             className='research-theme-grid',
             children=[_theme_card(theme['title'], theme['copy'], theme['tags']) for theme in RESEARCH_THEMES],
         ),
-        _paper_block(
-            'ISPRS 2023',
-            'Cairo, Egypt',
-            'YUTO: A Large Scale Aerial LiDAR Data Set for Semantic Segmentation',
-            'Introduced a large-scale aerial LiDAR benchmark dataset for semantic segmentation of urban forest scenes, '
-            'supporting more standardized evaluation across deep learning methods.',
-        ),
-        _paper_block(
-            'ICPR 2022',
-            'Montreal, Canada',
-            'YUTO Tree-5000: A Large-scale Airborne LiDAR Data for Single Tree Detection',
-            'Presented a large-scale annotated airborne LiDAR dataset of 5,000+ individually labeled tree instances, '
-            'designed to establish a reproducible benchmark for single-tree detection algorithms.',
-            'https://doi.org/10.1007/978-3-031-37731-0_28',
-        ),
-        _paper_block(
-            'Master Thesis',
-            'York University, Toronto',
-            'Deep convolutional neural network based single tree detection using volumetric module from airborne LiDAR data',
-            'Developed a volumetric deep CNN workflow for detecting individual trees from airborne LiDAR point clouds, '
-            'with strong benchmark performance and a Best Master\'s Thesis award at York University.',
-            'https://yorkspace.library.yorku.ca/items/8c15e8bb-8672-4615-be4a-6b66ca6bdfdf',
+        html.Section(
+            className='paper-stack',
+            children=[
+                _paper_block(
+                    'ISPRS 2023',
+                    'Cairo, Egypt',
+                    'YUTO: A Large Scale Aerial LiDAR Data Set for Semantic Segmentation',
+                    'Introduced a large-scale aerial LiDAR benchmark dataset for semantic segmentation of urban forest scenes, '
+                    'supporting more standardized evaluation across deep learning methods.',
+                ),
+                _paper_block(
+                    'ICPR 2022',
+                    'Montreal, Canada',
+                    'YUTO Tree-5000: A Large-scale Airborne LiDAR Data for Single Tree Detection',
+                    'Presented a large-scale annotated airborne LiDAR dataset of 5,000+ individually labeled tree instances, '
+                    'designed to establish a reproducible benchmark for single-tree detection algorithms.',
+                    'https://doi.org/10.1007/978-3-031-37731-0_28',
+                ),
+                _paper_block(
+                    'Master Thesis',
+                    'York University, Toronto',
+                    'Deep convolutional neural network based single tree detection using volumetric module from airborne LiDAR data',
+                    'Developed a volumetric deep CNN workflow for detecting individual trees from airborne LiDAR point clouds, '
+                    'with strong benchmark performance and a Best Master\'s Thesis award at York University.',
+                    'https://yorkspace.library.yorku.ca/items/8c15e8bb-8672-4615-be4a-6b66ca6bdfdf',
+                ),
+            ],
         ),
     ],
 )
