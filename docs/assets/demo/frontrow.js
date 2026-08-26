@@ -36,7 +36,6 @@
     events: true,
     display: 'market',
     mapMetric: 'users',
-    markerLimit: 2000,
     mapSelection: null,
     segments: [],
     locLevel: 'city',
@@ -264,8 +263,16 @@
     return h >>> 0;
   }
 
+  // Three decimals is about 100 m, far below the jitter spread; the extra digit
+  // only inflated the payload. Must match geo._COORD_DECIMALS.
+  var COORD_DECIMALS = 3;
+
   function round4(value) {
     return roundHalfUp(value, 4);
+  }
+
+  function roundCoord(value) {
+    return roundHalfUp(value, COORD_DECIMALS);
   }
 
   function placeLabel(level, entry) {
@@ -338,13 +345,15 @@
   var SPREAD_DEGREES = 0.42;
   var SPREAD_INTERNATIONAL = 0.62;
 
-  function spreadWithinCity(rows, limit, salt) {
-    var total = rows.reduce(function (a, r) { return a + r.users; }, 0) || 1;
+  /* One marker per mapped user, not a sample: MapLibre draws the full ~270k
+     cloud in about the time it draws 5,000, and the density is the point of the
+     view. No per-point label — at this scale a single fan cannot be hovered. */
+  function spreadWithinCity(rows, salt) {
     var points = [];
 
     rows.forEach(function (row) {
-      var allocation = Math.max(1, Math.trunc(limit * row.users / total));
-      var rng = new Lcg((row.seed ^ stringSeed(salt + String(limit))) >>> 0);
+      var allocation = row.users;
+      var rng = new Lcg((row.seed ^ stringSeed(salt)) >>> 0);
       var spread = row.country === 'United States' ? SPREAD_DEGREES : SPREAD_INTERNATIONAL;
       var weights = SEGMENT_NAMES.map(function (s) { return Math.max(row.segments[s], 0) + 0.5; });
       var pool = weights.reduce(function (a, b) { return a + b; }, 0);
@@ -358,10 +367,8 @@
           if (draw < running) { segment = SEGMENT_NAMES[j]; break; }
         }
         points.push({
-          lat: round4(row.lat + rng.jitter(spread)),
-          lon: round4(row.lon + rng.jitter(spread * 1.3)),
-          city: row.city,
-          label: row.city + ', ' + row.country,
+          lat: roundCoord(row.lat + rng.jitter(spread)),
+          lon: roundCoord(row.lon + rng.jitter(spread * 1.3)),
           segment: segment
         });
       }
@@ -591,9 +598,11 @@
             'member share. Click a bubble to drill into that market.',
     density: 'A continuous surface weighted by the selected metric — no market ' +
              'boundaries implied. Click a hotspot to drill into it.',
-    individual: 'One marker per user, colored by lifecycle segment. Markers are ' +
-                'generated deterministically from the market aggregates, so the ' +
-                'same seed always draws the same map.'
+    individual: 'Every mapped user, colored by lifecycle segment — not a sample. ' +
+                'Markers are generated deterministically from the market aggregates, ' +
+                'so the same seed always draws the same cloud. At this density a ' +
+                'single fan cannot be hovered; use the market or density view to ' +
+                'drill in.'
   };
 
   /* Square-root sizing so a market ten times larger reads as ~3x the radius —
@@ -722,7 +731,7 @@
   function renderIndividualMap(markets) {
     var active = SEGMENT_NAMES.filter(function (s) { return state.segments.indexOf(s) >= 0; });
     if (!active.length) active = SEGMENT_NAMES.slice();
-    var points = spreadWithinCity(bundle(state.client).locations, state.markerLimit, state.client);
+    var points = spreadWithinCity(bundle(state.client).locations, state.client);
 
     var traces = [];
     active.forEach(function (segment) {
@@ -733,9 +742,8 @@
         lat: subset.map(function (p) { return p.lat; }),
         lon: subset.map(function (p) { return p.lon; }),
         name: segment + ' (' + group(subset.length) + ')',
-        marker: { size: 6, color: SEGMENT_COLORS[segment], opacity: 0.7 },
-        text: subset.map(function (p) { return p.label; }),
-        hovertemplate: '<b>%{text}</b><br>' + segment + '<extra></extra>'
+        marker: { size: 4, color: SEGMENT_COLORS[segment], opacity: 0.55 },
+        hovertemplate: segment + '<extra></extra>'
       });
     });
 
@@ -1396,20 +1404,12 @@
     fillSelect('fr-map-metric', Object.keys(CFG.heatmap.metrics).map(function (key) {
       return { value: key, label: CFG.heatmap.metrics[key].label };
     }), state.mapMetric);
-    fillSelect('fr-marker-limit', CFG.heatmap.markerLimits.map(function (limit) {
-      return { value: String(limit), label: group(limit) + ' markers' };
-    }), String(state.markerLimit));
-
     document.getElementById('fr-map-display').addEventListener('change', function (e) {
       state.display = e.target.value;
       syncMapControls();
       invalidate(['audience']);
     });
     onSelect('fr-map-metric', 'mapMetric', ['audience']);
-    document.getElementById('fr-marker-limit').addEventListener('change', function (e) {
-      state.markerLimit = parseInt(e.target.value, 10);
-      invalidate(['audience']);
-    });
     syncMapControls();
 
     document.getElementById('fr-segments').innerHTML = SEGMENT_NAMES.map(function (name) {
@@ -1473,7 +1473,6 @@
   function syncMapControls() {
     var individual = state.display === 'individual';
     document.getElementById('fr-map-metric').disabled = individual;
-    document.getElementById('fr-marker-limit').disabled = !individual;
     document.getElementById('fr-segments')
       .querySelectorAll('input').forEach(function (input) { input.disabled = !individual; });
   }

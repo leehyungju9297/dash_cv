@@ -594,8 +594,6 @@ HEATMAP_METRICS = {
 # strip and the top-markets table still read the full aggregation.
 MAX_BUBBLES = 600
 
-MARKER_LIMITS = [500, 2000, 5000]
-
 # Member-share color ramp: teal (few members) through to coral (member-dense).
 MEMBER_SHARE_SCALE = [
     [0.0, '#1b6f7a'], [0.3, '#3fa39b'], [0.55, '#9fc9a5'],
@@ -656,7 +654,7 @@ def _market_hover(market: Dict) -> str:
 
 
 def heatmap_map(dataset, client: str, display: str = 'market', metric: str = 'users',
-                level: str = 'city', marker_limit: int = 2000,
+                level: str = 'city',
                 segments: Sequence[str] = SEGMENT_NAMES) -> go.Figure:
     """The audience map in one of three readings of the same geography.
 
@@ -664,7 +662,7 @@ def heatmap_map(dataset, client: str, display: str = 'market', metric: str = 'us
                     colored by member share.
     ``density``     a continuous heat surface — where activity concentrates,
                     with no market boundaries implied.
-    ``individual``  one marker per user, colored by lifecycle segment.
+    ``individual``  one marker per mapped user, colored by lifecycle segment.
     """
     locations = dataset['clients'][client]['locations']
     markets = aggregate_by_level(locations, level)
@@ -672,7 +670,7 @@ def heatmap_map(dataset, client: str, display: str = 'market', metric: str = 'us
         return empty_figure('No location data for this selection.', CHART_HEIGHTS['map'])
 
     if display == 'individual':
-        return _individual_map(locations, markets, segments, marker_limit, client)
+        return _individual_map(locations, markets, segments, client)
     if display == 'density':
         return _density_map(markets, metric, client)
     return _market_map(markets, metric, client)
@@ -748,9 +746,9 @@ def _density_map(markets, metric, client) -> go.Figure:
     return fig
 
 
-def _individual_map(locations, markets, segments, marker_limit, client) -> go.Figure:
+def _individual_map(locations, markets, segments, client) -> go.Figure:
     active = [s for s in SEGMENT_NAMES if s in set(segments)] or list(SEGMENT_NAMES)
-    points = spread_within_city(locations, marker_limit, salt=client)
+    points = spread_within_city(locations, salt=client)
 
     fig = go.Figure()
     for segment in active:
@@ -762,9 +760,8 @@ def _individual_map(locations, markets, segments, marker_limit, client) -> go.Fi
             lon=[p['lon'] for p in subset],
             mode='markers',
             name=f'{segment} ({group(len(subset))})',
-            marker={'size': 6, 'color': SEGMENT_COLORS[segment], 'opacity': 0.7},
-            text=[p['label'] for p in subset],
-            hovertemplate=f'<b>%{{text}}</b><br>{segment}<extra></extra>',
+            marker={'size': 4, 'color': SEGMENT_COLORS[segment], 'opacity': 0.55},
+            hovertemplate=f'{segment}<extra></extra>',
         ))
 
     if not fig.data:

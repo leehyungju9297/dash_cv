@@ -3,6 +3,8 @@ from typing import Optional
 import dash
 from dash import html
 
+from research_content import FIELD_WORK, RESEARCH_FIGURES
+
 
 dash.register_page(__name__, order=3, name='Research')
 
@@ -24,6 +26,57 @@ RESEARCH_THEMES = [
         'tags': ['Experimentation', 'Pipelines', 'Research Synthesis', 'Technical Writing'],
     },
 ]
+
+
+def _figure_card(figure):
+    span = figure.get('span')
+    className = 'research-figure' + (f' research-figure--{span}' if span else '')
+    return html.Figure(
+        className=className,
+        children=[
+            html.Div(
+                className='research-figure-plate',
+                # No loading="lazy" here: dash.html.Img rejects the attribute.
+                # The static build, which is the one that ships, sets it.
+                children=html.Img(src=figure['src'], alt=figure['alt'],
+                                  className='research-figure-image'),
+            ),
+            html.Figcaption(figure['caption'], className='research-figure-caption'),
+        ],
+    )
+
+
+def _field_work_card(item):
+    return html.Article(
+        className='glass-card field-work-card reveal-up',
+        children=[
+            html.Figure(
+                className='field-work-figure',
+                children=[
+                    html.Img(src=item['image'], alt=item['alt'],
+                             className='field-work-image'),
+                    html.Figcaption(item['caption'], className='research-figure-caption'),
+                ],
+            ),
+            html.Div(
+                className='field-work-body',
+                children=[
+                    html.Div(item['meta'], className='paper-venue'),
+                    html.H4(item['title'], className='research-theme-title'),
+                    html.P(item['copy'], className='research-theme-copy'),
+                    html.Ul(
+                        className='case-detail-list',
+                        children=[html.Li(point) for point in item['points']],
+                    ),
+                    html.Div(
+                        className='skill-cloud',
+                        children=[html.Span(tag, className='skill-pill')
+                                  for tag in item['tags']],
+                    ),
+                ],
+            ),
+        ],
+    )
 
 
 def _paper_block(venue: str, place: str, title: str, abstract: str, link: Optional[str] = None):
@@ -72,6 +125,32 @@ layout = html.Div(
         html.Section(
             className='research-theme-grid',
             children=[_theme_card(theme['title'], theme['copy'], theme['tags']) for theme in RESEARCH_THEMES],
+        ),
+        html.Section(
+            className='reveal-up',
+            children=[
+                html.H3('Field Work', className='section-title'),
+                html.P(
+                    'Data collection and pipeline work done on site, not from a desk.',
+                    className='section-note',
+                ),
+                _field_work_card(FIELD_WORK),
+            ],
+        ),
+        html.Section(
+            className='reveal-up',
+            children=[
+                html.H3('Selected Figures', className='section-title'),
+                html.P(
+                    'From the thesis and the project report, with what each one is '
+                    'actually showing.',
+                    className='section-note',
+                ),
+                html.Div(
+                    className='research-figure-grid',
+                    children=[_figure_card(figure) for figure in RESEARCH_FIGURES],
+                ),
+            ],
         ),
         html.Section(
             className='paper-stack',

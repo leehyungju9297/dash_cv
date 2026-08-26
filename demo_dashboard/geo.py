@@ -146,25 +146,30 @@ _SPREAD_DEGREES = 0.42
 _SPREAD_INTERNATIONAL = 0.62
 
 
-def spread_within_city(rows: Sequence[Dict], limit: int, salt: str = '') -> List[Dict]:
-    """Deterministic individual-user markers scattered around their city.
+# Three decimals is about 100 m, two orders of magnitude finer than the jitter
+# spread below — the extra digit only inflated the payload.
+_COORD_DECIMALS = 3
 
-    Markers are allocated proportionally to each market's user count (every
-    market with any users keeps at least one, so a small market never vanishes
-    from the map), then jittered with the shared LCG.
+
+def spread_within_city(rows: Sequence[Dict], salt: str = '') -> List[Dict]:
+    """One deterministic marker per mapped user, scattered around their city.
+
+    Every user gets a marker rather than a sampled subset: MapLibre draws the
+    full ~270k cloud in about the same time it draws 5,000, and the density is
+    the point of the view. The markers carry no per-point label — at this scale
+    an individual fan cannot be hovered anyway, and the strings were more than
+    half the payload. Drill-down lives in the market and density views.
     """
-    total = sum(row['users'] for row in rows) or 1
     points: List[Dict] = []
 
     for row in rows:
-        allocation = max(1, int(limit * row['users'] / total))
-        rng = Lcg(row['seed'] ^ string_seed(salt + str(limit)))
+        rng = Lcg(row['seed'] ^ string_seed(salt))
         spread = (_SPREAD_DEGREES if row['country'] == 'United States'
                   else _SPREAD_INTERNATIONAL)
         weights = [max(row['segments'][seg], 0) + 0.5 for seg in SEGMENT_NAMES]
         pool = sum(weights)
 
-        for _ in range(allocation):
+        for _ in range(row['users']):
             draw = rng.next_float() * pool
             segment = SEGMENT_NAMES[-1]
             running = 0.0
@@ -174,10 +179,8 @@ def spread_within_city(rows: Sequence[Dict], limit: int, salt: str = '') -> List
                     segment = name
                     break
             points.append({
-                'lat': round(row['lat'] + rng.jitter(spread), 4),
-                'lon': round(row['lon'] + rng.jitter(spread * 1.3), 4),
-                'city': row['city'],
-                'label': f"{row['city']}, {row['country']}",
+                'lat': round(row['lat'] + rng.jitter(spread), _COORD_DECIMALS),
+                'lon': round(row['lon'] + rng.jitter(spread * 1.3), _COORD_DECIMALS),
                 'segment': segment,
             })
 

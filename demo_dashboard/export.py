@@ -39,7 +39,6 @@ from demo_dashboard.figures import (
     CHART_HEIGHTS,
     HEATMAP_METRICS,
     MAP_STYLE,
-    MARKER_LIMITS,
     MAX_BUBBLES,
     MEMBER_SHARE_SCALE,
 )
@@ -52,7 +51,8 @@ DATA_FILE = DOCS_DEMO / 'frontrow_data.json'
 # export is what keeps the two from drifting: before this, a change to
 # custom.css had to be remembered twice and silently wasn't.
 SHARED_ASSETS = ('dashboard.css', 'custom.css', 'enhancements.js', 'tracking.js',
-                 'favicon.svg')
+                 'favicon.svg', 'Hyungju_Lee_Resume.pdf')
+SHARED_ASSET_DIRS = ('research', 'case_studies')
 ASSETS_DIR = REPO_ROOT / 'assets'
 DOCS_ASSETS = REPO_ROOT / 'docs' / 'assets'
 
@@ -94,7 +94,6 @@ def build_payload() -> dict:
             'heatmap': {
                 'mapStyle': MAP_STYLE,
                 'maxBubbles': MAX_BUBBLES,
-                'markerLimits': MARKER_LIMITS,
                 'memberShareScale': MEMBER_SHARE_SCALE,
                 'metrics': {key: {'label': label, 'column': column}
                             for key, (label, column) in HEATMAP_METRICS.items()},
@@ -123,6 +122,25 @@ def main() -> None:
             continue
         shutil.copyfile(source, DOCS_ASSETS / name)
         print(f'synced docs/assets/{name}')
+
+    # Whole image directories, mirrored wholesale so a new figure only has to be
+    # dropped into assets/ once.
+    for folder in SHARED_ASSET_DIRS:
+        source = ASSETS_DIR / folder
+        if not source.is_dir():
+            continue
+        target = DOCS_ASSETS / folder
+        target.mkdir(parents=True, exist_ok=True)
+        # Underscore-prefixed files are working scratch (crop previews, review
+        # captures) and must not be published.
+        published = [item for item in sorted(source.iterdir())
+                     if item.is_file() and not item.name.startswith(('.', '_'))]
+        for item in published:
+            shutil.copyfile(item, target / item.name)
+        for stale in target.iterdir():
+            if stale.is_file() and stale.name not in {i.name for i in published}:
+                stale.unlink()
+        print(f'synced docs/assets/{folder}/ ({len(published)} files)')
 
 
 if __name__ == '__main__':

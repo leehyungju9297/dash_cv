@@ -281,7 +281,7 @@ panel_overview = html.Div(
                         dcc.Dropdown(
                             id='fr-grain',
                             options=[{'label': g, 'value': g}
-                                     for g in ('Daily', 'Weekly', 'Monthly')],
+                                     for g in ('Daily', 'Weekly', 'Monthly', 'Quarterly')],
                             value='Daily', clearable=False, className='fr-dropdown',
                         ),
                     ),
@@ -332,12 +332,6 @@ METRIC_VIEW_OPTIONS = [
     for key, (label, _) in fig_builders.HEATMAP_METRICS.items()
 ]
 
-MARKER_LIMIT_OPTIONS = [
-    {'label': f'{limit:,} markers', 'value': limit}
-    for limit in fig_builders.MARKER_LIMITS
-]
-
-
 panel_audience = html.Div(
     id='fr-panel-audience',
     className='fr-panel',
@@ -371,12 +365,6 @@ panel_audience = html.Div(
                         'Location level',
                         dcc.Dropdown(id='fr-loc-level', options=LEVEL_OPTIONS,
                                      value='city', clearable=False,
-                                     className='fr-dropdown'),
-                    ),
-                    _control(
-                        'Marker limit',
-                        dcc.Dropdown(id='fr-marker-limit', options=MARKER_LIMIT_OPTIONS,
-                                     value=2000, clearable=False,
                                      className='fr-dropdown'),
                     ),
                     _control(
@@ -517,7 +505,7 @@ panel_revenue = html.Div(
                         dcc.Dropdown(
                             id='fr-rev-grain',
                             options=[{'label': g, 'value': g}
-                                     for g in ('Weekly', 'Monthly', 'Quarterly')],
+                                     for g in ('Daily', 'Weekly', 'Monthly', 'Quarterly')],
                             value='Monthly', clearable=False, className='fr-dropdown',
                         ),
                     ),
@@ -817,9 +805,11 @@ _DISPLAY_HINTS = {
               'member share. Click a bubble to drill into that market.',
     'density': 'A continuous surface weighted by the selected metric — no market '
                'boundaries implied. Click a hotspot to drill into it.',
-    'individual': 'One marker per user, colored by lifecycle segment. Markers are '
-                  'generated deterministically from the market aggregates, so the '
-                  'same seed always draws the same map.',
+    'individual': 'Every mapped user, colored by lifecycle segment — not a sample. '
+                  'Markers are generated deterministically from the market '
+                  'aggregates, so the same seed always draws the same cloud. At '
+                  'this density a single fan cannot be hovered; use the market or '
+                  'density view to drill in.',
 }
 
 
@@ -854,20 +844,17 @@ def update_geo_kpis(client, level):
     Input('fr-map-display', 'value'),
     Input('fr-map-metric', 'value'),
     Input('fr-loc-level', 'value'),
-    Input('fr-marker-limit', 'value'),
     Input('fr-segments', 'value'),
 )
-def update_map(client, display, metric, level, marker_limit, segments):
+def update_map(client, display, metric, level, segments):
     figure = fig_builders.heatmap_map(
-        DATASET, client, display, metric, level, marker_limit,
-        segments or SEGMENT_NAMES,
+        DATASET, client, display, metric, level, segments or SEGMENT_NAMES,
     )
     return figure, _DISPLAY_HINTS.get(display, '')
 
 
 @callback(
     Output('fr-map-metric', 'disabled'),
-    Output('fr-marker-limit', 'disabled'),
     Output('fr-segments', 'options'),
     Input('fr-map-display', 'value'),
 )
@@ -875,13 +862,13 @@ def sync_map_controls(display):
     """Grey out the controls a display mode does not use.
 
     The individual view has no metric to size by, and the aggregate views have no
-    per-user markers to cap or filter — leaving those controls live would let the
-    viewer change something the map ignores.
+    per-user markers to filter — leaving those live would let the viewer change
+    something the map ignores.
     """
     individual = display == 'individual'
     options = [{'label': name, 'value': name, 'disabled': not individual}
                for name in SEGMENT_NAMES]
-    return individual, not individual, options
+    return individual, options
 
 
 @callback(

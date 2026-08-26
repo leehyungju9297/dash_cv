@@ -112,6 +112,17 @@ collapses its container to zero on a width change while the figure keeps its own
 height — the SVG then escapes the card and paints over whatever follows it. Never
 add a chart without giving its container a height from this registry.
 
+### Research figures
+
+`assets/research/` holds the figures on the Research page. `research_content.py`
+is the single source for what each one is and how it sits in the grid — the Dash
+page and the static mirror both read it, so the two cannot caption the same
+figure differently.
+
+Two rules the captions follow, because getting them wrong is worse than having no
+figure: say what the figure shows, and say when it shows a failure. The
+nine-panel segmentation figure is Mask R-CNN *erring*, not results.
+
 ### Case study screenshots
 
 `assets/case_studies/*.jpg` are captured from the live demo at `/dashboard`, not
