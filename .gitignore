@@ -2,3 +2,6 @@ __pycache__/
 *.py[cod]
 .DS_Store
 .venv/
+
+# Scratch captures and crop previews kept beside the assets they produce.
+assets/**/_*
