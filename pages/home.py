@@ -212,9 +212,9 @@ def _featured_card():
 layout = html.Div(
     className='content-stack',
     children=[
-        # One proposition, then the evidence for it, in one column. The formal
-        # role is in the eyebrow, so it is not repeated above the figure, and
-        # the portrait now lives on the Contact page, where a face belongs.
+        # The proposition on the left, a real work sample on the right. The
+        # formal role is in the eyebrow, so it is not repeated above the figure,
+        # and the portrait lives on the Contact page, where a face belongs.
         html.Section(
             className='hero reveal-up',
             children=[
@@ -320,6 +320,31 @@ layout = html.Div(
                 html.Div(
                     f'{LOCATION} | {PHONE_DISPLAY} | {EMAIL}',
                     className='hero-contact',
+                ),
+                # Proof of real work beside the claim about it. The crop is the
+                # dashboard's KPI row and trading chart together — the part that
+                # shows what the thing actually is — and it links to the case
+                # study rather than sitting there as decoration.
+                html.A(
+                    href='/projects/tidepool-commerce-analytics',
+                    className='hero-visual',
+                    **{
+                        'data-track': 'hero_visual_click',
+                        'data-track-location': 'home_hero',
+                        'data-track-label': 'tidepool-commerce-analytics',
+                    },
+                    children=[
+                        html.Img(
+                            src='/assets/demo_shots/hero-dashboard.jpg',
+                            className='hero-visual-image',
+                            alt='Tidepool Commerce Analytics: a KPI row above a dual-axis '
+                                'revenue and orders chart with the promotion calendar overlaid.',
+                            width=1032,
+                            height=860,
+                        ),
+                        html.Span('Tidepool Commerce Analytics · Live retail dashboard',
+                                  className='hero-visual-caption'),
+                    ],
                 ),
             ],
         ),

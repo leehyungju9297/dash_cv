@@ -295,8 +295,14 @@ nine-panel segmentation figure is Mask R-CNN *erring*, not results.
 ### Demo screenshots
 
 `assets/demo_shots/*.jpg` are captured from the live demo at `/dashboard`.
-Re-shoot them after a visual change to the dashboard; they are 16:9 because the
-cards render them with `object-fit: cover`.
+Re-shoot them after a visual change to the dashboard. The three case-study shots
+are 16:9 because the cards render them with `object-fit: cover`.
+
+`hero-dashboard.jpg` is the home page's work sample and is framed differently:
+1.2:1, cropped to the KPI row and the trading chart together, because that pair
+is what shows the analytical character of the thing at a glance. It is placed
+with `object-fit: cover` in a frame sized by the copy beside it, so the ratio is
+a starting point rather than a contract.
 
 Shoot the `.tp-card` as an *element*, not as a scrolled viewport: an element
 screenshot frames exactly the panel and cannot silently capture the wrong

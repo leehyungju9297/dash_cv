@@ -16,13 +16,28 @@ from profile_data import (
 dash.register_page(__name__, order=4, name='Contact')
 
 
+def _row(label: str, value, muted: bool = False):
+    """One record in the contact list.
+
+    Not a grid of equal cards: the four are not equally useful, and a reader
+    looking for the way in should not have to weigh email against phone.
+    """
+    class_name = 'contact-row contact-row--muted' if muted else 'contact-row'
+    return html.Div(
+        className=class_name,
+        children=[
+            html.Div(label, className='contact-label'),
+            html.Div(value, className='contact-value'),
+        ],
+    )
+
+
 layout = html.Div(
     className='content-stack content-stack--narrow',
     children=[
-        # The portrait belongs on the page where someone is deciding whether to
-        # get in touch, not above the proposition on the home page. It sits
-        # beside the introduction on desktop and under it on a phone, and stays
-        # secondary to the links either way.
+        # The opening: what I do, what I am open to, and one obvious action.
+        # The portrait sits beside it — this is the page where a face is
+        # useful — and stays secondary to the button.
         html.Section(
             className='contact-intro reveal-up',
             children=[
@@ -32,9 +47,53 @@ layout = html.Div(
                         html.Div('CONTACT', className='eyebrow'),
                         html.H1('Contact', className='section-hero-title'),
                         html.P(
-                            'I work across product analytics, analytics engineering, data systems, and AI/ML-oriented '
-                            'research engineering. Email is the fastest path for role discussions and technical opportunities.',
+                            'I work across product analytics, analytics engineering, data systems, '
+                            'and AI/ML-oriented research engineering.',
                             className='section-hero-subtitle',
+                        ),
+                        html.P(
+                            'Open to Product Data Scientist and Analytics Engineer opportunities '
+                            'in Toronto, hybrid, or remote settings.',
+                            className='contact-availability',
+                        ),
+                        html.Div(
+                            className='contact-actions',
+                            children=[
+                                html.A(
+                                    'Email Hyungju',
+                                    href=EMAIL_HREF,
+                                    className='cta-primary',
+                                    **{
+                                        'data-track': 'contact_cta_click',
+                                        'data-track-location': 'contact_intro',
+                                        'data-track-label': 'email',
+                                    },
+                                ),
+                                html.A(
+                                    'LinkedIn',
+                                    href=LINKEDIN_URL,
+                                    className='hero-link',
+                                    target='_blank',
+                                    rel='noreferrer',
+                                    **{
+                                        'data-track': 'contact_cta_click',
+                                        'data-track-location': 'contact_intro',
+                                        'data-track-label': 'linkedin',
+                                    },
+                                ),
+                                html.A(
+                                    'GitHub',
+                                    href=GITHUB_URL,
+                                    className='hero-link',
+                                    target='_blank',
+                                    rel='noreferrer',
+                                    **{
+                                        'data-track': 'contact_cta_click',
+                                        'data-track-location': 'contact_intro',
+                                        'data-track-label': 'github',
+                                    },
+                                ),
+                            ],
                         ),
                     ],
                 ),
@@ -42,62 +101,46 @@ layout = html.Div(
                     src='/assets/my_pic_web.jpg',
                     className='contact-portrait',
                     alt='Portrait of Hyungju Lee',
-                    width=136,
-                    height=136,
+                    width=168,
+                    height=168,
                 ),
             ],
         ),
         html.Section(
-            className='contact-grid',
+            className='contact-details reveal-up',
             children=[
-                html.Div(
-                    className='glass-card contact-card reveal-up',
-                    children=[
-                        html.Div('Email', className='contact-label'),
-                        html.A(EMAIL, href=EMAIL_HREF, className='contact-value'),
-                    ],
-                ),
-                html.Div(
-                    className='glass-card contact-card reveal-up',
-                    children=[
-                        html.Div('LinkedIn', className='contact-label'),
-                        html.A(
-                            LINKEDIN_LABEL,
-                            href=LINKEDIN_URL,
-                            target='_blank',
-                            rel='noreferrer',
-                            className='contact-value',
-                        ),
-                    ],
-                ),
-                html.Div(
-                    className='glass-card contact-card reveal-up',
-                    children=[
-                        html.Div('GitHub', className='contact-label'),
-                        html.A(
-                            GITHUB_LABEL,
-                            href=GITHUB_URL,
-                            target='_blank',
-                            rel='noreferrer',
-                            className='contact-value',
-                        ),
-                    ],
-                ),
-                html.Div(
-                    className='glass-card contact-card reveal-up',
-                    children=[
-                        html.Div('Phone', className='contact-label'),
-                        html.Div(PHONE_DISPLAY, className='contact-value'),
-                    ],
-                ),
-                html.Div(
-                    className='glass-card contact-card reveal-up',
-                    children=[
-                        html.Div('Location', className='contact-label'),
-                        html.Div(LOCATION, className='contact-value'),
-                    ],
-                ),
+                _row('Primary contact',
+                     html.A(EMAIL, href=EMAIL_HREF, className='contact-link')),
+                _row('Professional links', [
+                    html.A(LINKEDIN_LABEL, href=LINKEDIN_URL, target='_blank',
+                           rel='noreferrer', className='contact-link'),
+                    html.Span('·', className='contact-sep'),
+                    html.A(GITHUB_LABEL, href=GITHUB_URL, target='_blank',
+                           rel='noreferrer', className='contact-link'),
+                ]),
+                _row('Location', LOCATION),
+                _row('Phone', PHONE_DISPLAY, muted=True),
             ],
+        ),
+        # A deliberate endpoint rather than a page that simply stops.
+        html.Section(
+            className='contact-close',
+            children=html.P(
+                [
+                    'Prefer the short version? ',
+                    html.A('Download the resume (PDF)',
+                           href='/assets/Hyungju_Lee_Resume.pdf',
+                           download='Hyungju_Lee_Resume.pdf',
+                           className='contact-link',
+                           **{
+                               'data-track': 'contact_cta_click',
+                               'data-track-location': 'contact_close',
+                               'data-track-label': 'download_resume',
+                           }),
+                    '.',
+                ],
+                className='contact-close-note',
+            ),
         ),
     ],
 )
