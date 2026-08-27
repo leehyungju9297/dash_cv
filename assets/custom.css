@@ -662,6 +662,14 @@ button:focus-visible,
   margin-top: clamp(88px, 9vw, 128px);
 }
 
+/* Except the first one. The proof strip is the foot of the hero's argument and
+   Selected Systems is what answers it, so the two belong in one run; a
+   full-width chapter break here read as the page stopping rather than as it
+   turning a corner. The rule and the 36px heading still open the chapter. */
+.content-stack--home > .proof + .chapter--major {
+  margin-top: 72px;
+}
+
 /* --- Chapter headings -----------------------------------------------------
    Two weights, so the page has a hierarchy of headings rather than five
    identical ones. A major chapter is announced by scale and by the space
@@ -763,33 +771,41 @@ button:focus-visible,
   align-items: start;
 }
 
-/* The eyebrow and the headline take the whole measure; only the third row
-   splits into copy and work sample. */
-.hero-eyebrow,
+/* The headline takes the whole measure; the row under it splits into copy and
+   work sample. */
 .hero-headline {
   grid-column: 1 / -1;
 }
 
 .hero-lede {
   grid-column: 1;
-  grid-row: 3;
+  grid-row: 2;
   margin-top: var(--space-6);
   min-width: 0;
 }
 
-.hero-eyebrow {
+/* The scope line: how long, and across what. Set in ink rather than in the
+   muted grey the rest of the page's labels take, because it is the second
+   thing on the page a reader should register — but at 13px against a 56px
+   headline there is no question which is first. No rule, no chip, no fill. */
+.hero-signal {
   font-size: var(--t-label);
   font-weight: 600;
-  color: var(--text-muted);
-  letter-spacing: 0.1em;
+  color: var(--text-primary);
+  letter-spacing: 0.09em;
+  line-height: 1.4;
   text-transform: uppercase;
 }
 
-/* The one dominant idea on the screen. 40px on a phone to 56px on a wide
-   desktop, at a line height tight enough that two lines read as one block.
-   The break after "into" is in the markup — see pages/home.py. */
+.hero-signal + .hero-support {
+  margin-top: var(--space-2);
+}
+
+/* The one dominant idea on the screen, and the first thing on it. 40px on a
+   phone to 56px on a wide desktop, at a line height tight enough that two
+   lines read as one block. The break after "into" is in the markup — see
+   pages/home.py. */
 .hero-headline {
-  margin-top: var(--space-3);
   font-size: clamp(2.5rem, 5vw, 3.5rem);
   font-weight: 650;
   line-height: 1.04;
@@ -803,25 +819,35 @@ button:focus-visible,
   color: var(--text-secondary);
 }
 
+/* One cluster, not four controls. The two buttons sit 8px apart, a middot
+   holds them off the two text links, and everything shares a 44px line box so
+   the four labels sit on one baseline. */
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-1);
   margin-top: var(--space-4);
 }
 
 /* The profiles are destinations, not calls to action. What separates them from
-   the buttons is a hairline, not distance: the two groups sit 16px either side
-   of it so the four read as two and two rather than as a stretched row of
-   four. If the column ever cannot hold them, the pair wraps together. */
+   the buttons is a middot — a hairline rule at this size becomes a third thing
+   in the row, and the point of the row is that it is one thing. If the column
+   ever cannot hold all four, the pair wraps together. */
 .hero-profiles {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
+}
+
+/* The 16px flex gap already sits to the right of the dot; the margin puts the
+   same 16px on its left, so the separator is centred in the break rather than
+   leaning against the button before it. */
+.hero-profiles::before {
+  content: '\00b7';
   margin-left: var(--space-1);
-  padding-left: var(--space-3);
-  border-left: 1px solid var(--border-strong);
+  color: var(--border-strong);
+  font-weight: 600;
 }
 
 .cta-primary,
@@ -871,21 +897,20 @@ button:focus-visible,
   font-size: var(--t-small);
   font-weight: 500;
   text-decoration: none;
-  border-bottom: 1px solid var(--border-strong);
-  transition: color var(--t-fast) var(--ease),
-              border-color var(--t-fast) var(--ease);
+  text-underline-offset: 4px;
+  transition: color var(--t-fast) var(--ease);
 }
 
 .hero-link:hover {
   color: var(--accent-text);
-  border-bottom-color: var(--accent);
+  text-decoration: underline;
 }
 
 /* The work sample. Evidence, not art direction: it is a crop of a dashboard
    whose source is in this repository, and it opens the case study. */
 .hero-visual {
   grid-column: 2;
-  grid-row: 3;
+  grid-row: 2;
   display: block;
   margin-top: var(--space-6);
   text-decoration: none;
@@ -1432,7 +1457,7 @@ button:focus-visible,
 
 .stack-row {
   display: grid;
-  grid-template-columns: 92px minmax(0, 1fr);
+  grid-template-columns: 124px minmax(0, 1fr);
   column-gap: var(--space-4);
   padding: var(--space-2) 0;
   border-bottom: 1px solid var(--border);
@@ -1451,10 +1476,14 @@ button:focus-visible,
   line-height: 1.7;
 }
 
+/* Thirty-six terms across three lines. A notch below body size and opened up
+   vertically, because what makes a long middot-separated run readable is the
+   leading, not the letterform — and because these are supporting evidence, not
+   a claim of their own. */
 .stack-terms {
   color: var(--text-secondary);
-  font-size: var(--t-small);
-  line-height: 1.7;
+  font-size: 0.875rem;
+  line-height: 1.85;
 }
 
 .stack-term + .stack-term::before {
@@ -1475,7 +1504,15 @@ button:focus-visible,
   border-top: 1px solid var(--border-strong);
 }
 
+/* Organisation, what was done there, when. Three tracks at roughly 24 / 58 /
+   18, so the entries read as a composed timeline instead of a paragraph in the
+   left half of a wide page: the organisation is a left rail, the role opens
+   the middle column with its description under it, and the dates close the
+   line on the right margin. Education takes the same grid. */
 .record-entry {
+  display: grid;
+  grid-template-columns: minmax(0, 24fr) minmax(0, 58fr) minmax(0, 18fr);
+  column-gap: var(--space-5);
   padding: var(--space-3) 0;
   border-bottom: 1px solid var(--border);
 }
@@ -1484,14 +1521,16 @@ button:focus-visible,
   border-bottom: 0;
 }
 
+/* The wrapper carries no box of its own — its three parts are grid items on
+   the entry itself, which is what lets the description sit under the role
+   rather than under all three. */
 .record-head {
-  display: grid;
-  grid-template-columns: minmax(0, 260px) minmax(0, 1fr) auto;
-  column-gap: var(--space-4);
-  align-items: baseline;
+  display: contents;
 }
 
 .record-company {
+  grid-column: 1;
+  grid-row: 1;
   font-size: var(--t-body-lg);
   font-weight: 600;
   line-height: 1.3;
@@ -1499,26 +1538,36 @@ button:focus-visible,
 }
 
 .record-role {
-  color: var(--text-secondary);
+  grid-column: 2;
+  grid-row: 1;
+  color: var(--text-primary);
   font-size: var(--t-small);
+  font-weight: 500;
 }
 
 .record-period {
+  grid-column: 3;
+  grid-row: 1;
   color: var(--text-muted);
   font-size: var(--t-label);
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
 
+/* Under the role, in the role's column: the description is what the role was,
+   so it starts where the role starts rather than at the page edge. */
 .record-copy {
-  margin-top: var(--space-2);
-  max-width: 78ch;
+  grid-column: 2;
+  grid-row: 2;
+  margin-top: var(--space-1);
   color: var(--text-secondary);
   font-size: var(--t-small);
 }
 
 .record-note {
-  margin-top: 6px;
+  grid-column: 2;
+  grid-row: 2;
+  margin-top: 4px;
   color: var(--accent-text);
   font-size: var(--t-label);
   font-weight: 500;
@@ -1531,15 +1580,22 @@ button:focus-visible,
 /* --- Affiliations ---------------------------------------------------------
    Employers, schools, partners and funders, integrated into the credentials
    chapter rather than given a section of their own. Knocked back by default,
-   at full strength on hover, where the name also appears. */
+   at full strength on hover, where the name also appears.
+
+   Centred, unlike everything else on the page. Nine marks of different widths
+   ranged left leave a ragged edge that reads as the strip having fallen
+   against the margin; centred, the row closes the chapter as one object. It is
+   the only centred block on the site, which is what keeps it legible as a
+   deliberate close rather than as a lapse. */
 .affiliations {
   margin-top: var(--space-5);
-  padding-top: var(--space-3);
+  padding-top: var(--space-4);
   border-top: 1px solid var(--border);
+  text-align: center;
 }
 
 .affiliations-label {
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
   color: var(--text-muted);
 }
 
@@ -1547,7 +1603,8 @@ button:focus-visible,
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-4) var(--space-5);
+  justify-content: center;
+  gap: var(--space-4) 44px;
 }
 
 .affiliation-mark {
@@ -1559,7 +1616,7 @@ button:focus-visible,
   max-width: 100%;
   height: auto;
   object-fit: contain;
-  object-position: left center;
+  object-position: center;
   filter: grayscale(1);
   opacity: 0.5;
   transition: opacity var(--t-base) var(--ease), filter var(--t-base) var(--ease);
@@ -1588,11 +1645,10 @@ button:focus-visible,
 }
 
 .home-footer-line {
-  max-width: 44ch;
   color: var(--text-primary);
-  font-size: var(--t-body);
+  font-size: var(--t-body-lg);
   font-weight: 600;
-  letter-spacing: -0.012em;
+  letter-spacing: -0.015em;
 }
 
 .home-footer-meta {
@@ -2522,9 +2578,6 @@ button:focus-visible,
     column-gap: var(--space-6);
   }
 
-  .record-head {
-    grid-template-columns: minmax(0, 220px) minmax(0, 1fr) auto;
-  }
 }
 
 /* --- 900px ---------------------------------------------------------------- */
@@ -2690,15 +2743,29 @@ button:focus-visible,
     grid-template-columns: minmax(0, 1fr);
   }
 
-  /* Company, role and dates stack. Right-aligned dates on a phone would sit
-     under nothing. */
-  .record-head {
+  /* One column: organisation, role, dates, description, in that order. A
+     right-aligned date on a phone sits under nothing, and a 24% rail is not a
+     rail at 300px — it is an orphaned word. */
+  .record-entry {
     grid-template-columns: minmax(0, 1fr);
     row-gap: 2px;
   }
 
+  .record-company,
+  .record-role,
+  .record-period,
+  .record-copy,
+  .record-note {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
   .record-period {
     text-align: left;
+  }
+
+  .record-copy {
+    margin-top: var(--space-2);
   }
 
   .stack-row {
@@ -2807,12 +2874,15 @@ button:focus-visible,
     flex: 1 1 auto;
   }
 
-  /* The buttons go full width here, so the rule that separated them from the
-     profile links has nothing left to separate. */
+  /* The buttons go full width here, so the row becomes two rows and the middot
+     that held the two groups apart has nothing left to separate. */
   .hero-profiles {
-    margin-left: 0;
-    padding-left: 0;
-    border-left: 0;
+    flex: 1 0 100%;
+    gap: var(--space-4);
+  }
+
+  .hero-profiles::before {
+    content: none;
   }
 
   .proof {

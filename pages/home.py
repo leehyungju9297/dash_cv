@@ -15,7 +15,7 @@ from typing import Optional
 import dash
 from dash import html
 
-from profile_data import EMAIL, GITHUB_URL, LINKEDIN_URL, LOCATION, PHONE_DISPLAY
+from profile_data import EMAIL, GITHUB_URL, LINKEDIN_URL, LOCATION
 from research_content import RESEARCH_FIGURES
 from work_ui import FEATURED_SLUG, HOME_PRODUCT, HOME_RESEARCH, by_slug, outcome, tags
 
@@ -133,14 +133,30 @@ PRACTICE = [
      'experimentation.'),
 ]
 
-# Two lines: what I work in, and what I work on. Supporting evidence for the
-# systems above, which is why it is a line of text and not a rack of badges.
+# Three ranks: the software, the modelling and research work, and the
+# analytical methods. Supporting evidence for the systems above, which is why
+# each is a line of running text rather than a rack of badges — thirty-six
+# terms set as chips would be the largest thing on the page.
+#
+# The split is by kind, not by strength. Everything a reader would call a tool
+# is in the first line; the second is where modelling lives, so a method that
+# only exists inside a model — calibration, leakage, cross-validation — sits
+# with the libraries it is done in rather than beside cohort analysis.
 STACK = [
-    ('Tools', ['Python', 'SQL', 'R', 'TypeScript', 'Pandas / Polars',
-               'Plotly / Dash', 'React', 'FastAPI', 'Celery', 'deck.gl']),
-    ('Methods', ['ETL & Scheduled Workflows', 'KPI Architecture',
-                 'Retention & Monetization', 'Behavioral Segmentation',
-                 'Benchmark Design', '3D Computer Vision']),
+    ('Tools / Data',
+     ['Python', 'SQL', 'PostgreSQL', 'MySQL', 'Pandas', 'Polars', 'NumPy',
+      'SQLAlchemy', 'Parquet', 'Flask / FastAPI', 'Celery', 'Plotly / Dash',
+      'Matplotlib', 'React / TypeScript', 'deck.gl', 'Jupyter', 'Git']),
+    ('ML / Research',
+     ['scikit-learn', 'PyTorch', 'Feature Engineering', 'Cross-validation',
+      'Leakage Prevention', 'Calibration', 'Model Evaluation',
+      'Benchmark Design', '3D Computer Vision']),
+    ('Methods',
+     ['ETL & Scheduled Workflows', 'KPI Architecture',
+      'Cohort & Retention Analysis', 'Churn & Monetization',
+      'Funnel Analysis', 'Behavioral Segmentation', 'A/B Testing',
+      'Hypothesis Testing', 'Confidence Intervals',
+      'Data Quality & Reconciliation']),
 ]
 
 # --------------------------------------------------------------------------
@@ -180,10 +196,12 @@ EXPERIENCE = [
     },
 ]
 
+# Institution, then what was read there, then when — the same three columns
+# the Experience entries take, so the two chapters share one grid.
 EDUCATION = [
-    ('M.E.Sc., Earth and Space Science & Engineering', 'York University',
+    ('York University', 'M.E.Sc., Earth and Space Science & Engineering',
      '2020 – 2022', 'Best Master’s Thesis Award, 2022'),
-    ('H.B.Sc., Statistics (Quantitative Finance)', 'University of Toronto',
+    ('University of Toronto', 'H.B.Sc., Statistics (Quantitative Finance)',
      '2015 – 2020', None),
 ]
 
@@ -251,10 +269,6 @@ def _hero():
             # into four — which is not a dominant headline, it is a paragraph
             # set large. The supporting copy and the work sample split the row
             # underneath it.
-            html.Div(
-                'Product Analytics · Data Systems · Applied ML',
-                className='hero-eyebrow',
-            ),
             html.H1(
                 className='hero-headline',
                 children=[
@@ -266,9 +280,21 @@ def _hero():
             html.Div(
                 className='hero-lede',
                 children=[
+                    # The scope line. It replaces the eyebrow that used to sit
+                    # above the headline: that read "Product Analytics · Data
+                    # Systems · Applied ML", which this line repeats word for
+                    # word while also saying how long. Two labels a hundred
+                    # pixels apart saying the same three things is a defect,
+                    # and the headline leads the page better with nothing over
+                    # it.
+                    html.Div(
+                        '6+ years across analytics, data systems & applied ML',
+                        className='hero-signal',
+                    ),
                     html.P(
-                        'Product analytics, experimentation, and data systems '
-                        'for real operating decisions.',
+                        'Product analytics, experimentation, and production '
+                        'data systems built across consumer products and '
+                        'applied research.',
                         className='hero-support',
                     ),
                     html.Div(
@@ -664,14 +690,14 @@ def _credentials():
                             html.Div(
                                 className='record-head',
                                 children=[
-                                    html.Div(degree, className='record-company'),
-                                    html.Div(school, className='record-role'),
+                                    html.Div(school, className='record-company'),
+                                    html.Div(degree, className='record-role'),
                                     html.Div(years, className='record-period'),
                                 ],
                             ),
                         ] + ([html.Div(note, className='record-note')] if note else []),
                     )
-                    for degree, school, years, note in EDUCATION
+                    for school, degree, years, note in EDUCATION
                 ],
             ),
             html.Div(
@@ -695,6 +721,13 @@ def _credentials():
 
 
 def _footer():
+    """The close: who, and where to find them.
+
+    No availability line and no phone number. A permanent page cannot keep a
+    statement about what I am currently looking for honest, and a personal
+    number does not belong on a public page that gets scraped — the resume and
+    the Contact page carry it, where reaching it is a deliberate act.
+    """
     return html.Section(
         className='home-footer',
         **{'aria-label': 'Contact'},
@@ -702,11 +735,8 @@ def _footer():
             html.Div(
                 className='home-footer-lede',
                 children=[
-                    html.Div('Open to product analytics, analytics engineering '
-                             'and applied data science roles.',
-                             className='home-footer-line'),
-                    html.Div(f'{LOCATION} · {PHONE_DISPLAY}',
-                             className='home-footer-meta'),
+                    html.Div('Hyungju Lee', className='home-footer-line'),
+                    html.Div(LOCATION, className='home-footer-meta'),
                 ],
             ),
             html.Div(
