@@ -549,13 +549,24 @@ PANELS = {
 # --------------------------------------------------------------------------
 # Page
 # --------------------------------------------------------------------------
+# Three facts about *this* build, and nothing else. The block used to carry a
+# row headed "Experience" listing React, TypeScript, FastAPI and deck.gl —
+# technologies I have worked in, none of which are in this page. Beside a row
+# that said the demo is built with JavaScript and plotly.js, a reader could not
+# tell which of the two lists described the thing in front of them. General
+# capability belongs on the home page; a demo describes itself.
 SPEC_ROWS = (
-    ('Built with', 'JavaScript and plotly.js'),
-    ('Also implemented as', 'Dash app (Python)'),
-    ('Experience', 'React · TypeScript · FastAPI · deck.gl'),
-    ('Dataset', '730 days · 5 brands · 3 rollups · seeded'),
-    ('Functions', ' · '.join(section['label'] for section in SECTIONS)),
+    ('Stack', 'JavaScript · Plotly.js'),
+    ('Data', '730 days · 5 brands · 3 rollups'),
+    ('Covers', ' · '.join(section['label'].split()[0]
+                          for section in SECTIONS)),
 )
+
+# The Dash build is real — it is the app in this repository, and the static
+# twin above is generated from the same section config. It is subordinate
+# information rather than a fourth row, so it hangs under the stack line in
+# muted type.
+STACK_NOTE = 'Python/Dash version also available'
 
 layout = html.Div(
     className='content-stack tp-page',
@@ -594,12 +605,28 @@ layout = html.Div(
                     ],
                     className='tp-hero-copy',
                 ),
-                html.Dl(
+                html.Div(
                     className='tp-spec',
                     children=[
-                        item for label, value in SPEC_ROWS
-                        for item in (html.Dt(label, className='tp-spec-label'),
-                                     html.Dd(value, className='tp-spec-value'))
+                        html.Div('Implementation', className='tp-spec-title'),
+                        html.Dl(
+                            className='tp-spec-list',
+                            children=[
+                                item for label, value in SPEC_ROWS
+                                for item in (
+                                    html.Dt(label, className='tp-spec-label'),
+                                    html.Dd(
+                                        className='tp-spec-value',
+                                        children=(
+                                            [value, html.Span(
+                                                STACK_NOTE,
+                                                className='tp-spec-note')]
+                                            if label == 'Stack' else value
+                                        ),
+                                    ),
+                                )
+                            ],
+                        ),
                     ],
                 ),
             ],
@@ -615,17 +642,14 @@ layout = html.Div(
                 html.Div(
                     className='tp-disclaimer-body',
                     children=[
+                        # One sentence. What the notice has to establish is
+                        # that nothing here is anyone's real data; the lede
+                        # above already says what the demo is for.
                         html.P(
-                            'Every brand, customer, order, and figure is '
-                            'generated. No real customer or commercial data '
-                            'appears anywhere.',
+                            'All brands, customers, orders, and metrics are '
+                            'generated. No proprietary or customer data is '
+                            'used.',
                             className='tp-disclaimer-line',
-                        ),
-                        html.P(
-                            'Built as a self-contained demonstration of the '
-                            'analytical workflow across retention, revenue, '
-                            'customer, and channel analytics.',
-                            className='tp-disclaimer-note',
                         ),
                     ],
                 ),

@@ -125,27 +125,39 @@
   text-wrap: pretty;
 }
 
-/* The specification, as a table of rules rather than as a card. It used to be
-   a filled, bordered, rounded box floating beside the title, which is the one
-   treatment on the route that nothing else shares. Now it is a fixed label
-   column and a hairline under every row, top-aligned with the eyebrow so the
-   band has a single top edge. */
+/* --- Implementation -------------------------------------------------------
+   Three facts about this build, set as type rather than as a table. It has
+   been, in turn, a filled rounded card floating beside the title and a
+   five-row rules table; both read as a specification sheet stapled to the
+   page. What is left is a heading, and under it three label/value pairs with
+   no rules, no fill and no box — the only thing holding them together is
+   alignment, which is what makes it subordinate to the title beside it. */
 .tp-spec {
-  display: grid;
-  grid-template-columns: 116px minmax(0, 1fr);
-  gap: 0;
   margin: 0;
   padding: 0;
   border: 0;
-  border-top: 1px solid var(--tp-border);
   border-radius: 0;
   background: none;
 }
 
-.tp-spec-label,
-.tp-spec-value {
-  padding: 7px 0;
+.tp-spec-title {
+  color: var(--tp-text-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--tp-border);
+}
+
+/* Tight enough that the three facts do not outrun the title beside them: the
+   block is subordinate information, and a right column taller than the left
+   one stops reading as subordinate however small its type is. */
+.tp-spec-list {
+  margin: var(--space-2) 0 0;
+  display: grid;
+  gap: var(--space-2) 0;
 }
 
 .tp-spec-label {
@@ -153,17 +165,27 @@
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.09em;
-  line-height: 1.5;
+  line-height: 1.3;
   text-transform: uppercase;
-  padding-right: var(--space-2);
 }
 
 .tp-spec-value {
   color: var(--tp-text);
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.45;
+  margin: 2px 0 0;
+  text-wrap: pretty;
+}
+
+/* The Dash build, hung under the stack line rather than given a row of its
+   own: it is true, it is worth knowing, and it is not what this page is. */
+.tp-spec-note {
+  display: block;
+  margin-top: 2px;
+  color: var(--tp-text-muted);
   font-size: 0.8125rem;
   line-height: 1.5;
-  margin: 0;
-  text-wrap: pretty;
 }
 
 /* --- Synthetic-data notice ------------------------------------------------
@@ -177,7 +199,7 @@
   display: grid;
   grid-template-columns: minmax(0, 19fr) minmax(0, 81fr);
   column-gap: var(--space-5);
-  padding: var(--space-3) 0;
+  padding: var(--space-2) 0;
   border: 0;
   border-top: 1px solid var(--tp-accent-border);
   border-bottom: 1px solid var(--tp-accent-border);
@@ -204,18 +226,10 @@
 }
 
 .tp-disclaimer-line {
-  color: var(--tp-text);
+  color: var(--tp-text-secondary);
   font-size: 0.875rem;
   line-height: 1.6;
   margin: 0;
-  text-wrap: pretty;
-}
-
-.tp-disclaimer-note {
-  color: var(--tp-text-secondary);
-  font-size: 0.8125rem;
-  line-height: 1.6;
-  margin: var(--space-1) 0 0;
   text-wrap: pretty;
 }
 
@@ -1084,15 +1098,22 @@
     gap: var(--space-4);
   }
 
-  /* Stacked, the specification runs the full measure — so it takes the same
-     label/value proportion as the notice under it, and the two read as one
-     grid rather than as two tables that happen to be adjacent. */
-  .tp-spec {
-    grid-template-columns: minmax(0, 19fr) minmax(0, 81fr);
+  /* Stacked, the three facts run as a row rather than as a column, so the
+     block stays a band under the introduction instead of becoming a list as
+     long as the copy above it. */
+  .tp-spec-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 var(--space-5);
+    grid-auto-flow: column;
+    grid-template-rows: auto auto;
   }
 
   .tp-spec-label {
-    padding-right: var(--space-4);
+    grid-row: 1;
+  }
+
+  .tp-spec-value {
+    grid-row: 2;
   }
 }
 
@@ -1108,8 +1129,16 @@
     padding-top: 0;
   }
 
-  .tp-spec {
-    grid-template-columns: 100px minmax(0, 1fr);
+  .tp-spec-list {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-flow: row;
+    grid-template-rows: none;
+    gap: var(--space-3) 0;
+  }
+
+  .tp-spec-label,
+  .tp-spec-value {
+    grid-row: auto;
   }
 }
 

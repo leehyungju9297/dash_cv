@@ -3,7 +3,7 @@ import json
 import dash
 from dash import Dash, Input, Output, dcc, html
 
-from profile_data import EMAIL_HREF, GITHUB_URL, LINKEDIN_URL, PHONE_SCHEMA
+from profile_data import EMAIL_HREF, GITHUB_URL, LINKEDIN_URL
 
 
 app = Dash(
@@ -113,7 +113,10 @@ PERSON_JSON_LD = {
         'addressCountry': 'CA',
     },
     'email': EMAIL_HREF,
-    'telephone': PHONE_SCHEMA,
+    # No telephone. The number came off the Contact page and the home footer
+    # because a public page should not carry it; leaving it in the structured
+    # data would have kept it in the source of every route, which is the one
+    # place a scraper looks first.
     'url': LINKEDIN_URL,
     'sameAs': [LINKEDIN_URL, GITHUB_URL],
 }

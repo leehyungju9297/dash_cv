@@ -2389,9 +2389,13 @@ button:focus-visible,
 /* ==========================================================================
    Contact
 
-   An invitation with one obvious way to accept it, not a directory of four
-   equally weighted addresses. Email is the action and gets the only button;
-   everything else is a record below it.
+   An invitation with one obvious way to accept it. There used to be a
+   four-row record table under the introduction — primary contact,
+   professional links, location, phone — listing the same destinations the
+   action row already carried, plus a phone number that does not belong on a
+   public page. It is gone, and with it the second, competing reference to the
+   resume. What is left is a statement, a row of actions with one button in
+   it, a face, and a closing strip of two short facts.
    ========================================================================== */
 
 .contact-intro {
@@ -2417,8 +2421,41 @@ button:focus-visible,
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-1) var(--space-3);
+  gap: var(--space-1) var(--space-4);
   margin-top: var(--space-5);
+}
+
+/* One button, three links. The outbound mark is generated so it can move on
+   hover without the label moving with it, and so the three read as one kind
+   of thing beside the one thing that is not. */
+.contact-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  color: var(--text-secondary);
+  font-size: var(--t-small);
+  font-weight: 500;
+  text-decoration: none;
+  text-underline-offset: 4px;
+  transition: color var(--t-fast) var(--ease);
+}
+
+.contact-action::after {
+  content: '\2197';
+  color: var(--border-strong);
+  transition: transform var(--t-fast) var(--ease),
+              color var(--t-fast) var(--ease);
+}
+
+.contact-action:hover {
+  color: var(--accent-text);
+  text-decoration: underline;
+}
+
+.contact-action:hover::after {
+  color: var(--accent);
+  transform: translate(2px, -2px);
 }
 
 /* Level with the introduction, and sized to be recognised rather than to be
@@ -2435,79 +2472,43 @@ button:focus-visible,
   background: #F1EFEA;
 }
 
-/* --- The record ----------------------------------------------------------- */
-.contact-details {
+/* --- The close ------------------------------------------------------------
+   Where the page ends: two columns of plain fact under one rule. Not a
+   section each, not a card each — the whole strip is four lines of type.
+
+   It sits further down than the site's section gap would put it, because it
+   is an endpoint rather than the next thing: the space above it is what makes
+   it read as the foot of the page instead of as a third paragraph. */
+.content-stack--narrow > .contact-closing {
+  margin-top: 96px;
+}
+
+.contact-closing {
   display: grid;
-  border-top: 1px solid var(--border-strong);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
 }
 
-.contact-row {
-  display: grid;
-  grid-template-columns: minmax(0, 152px) minmax(0, 1fr);
-  align-items: center;
-  column-gap: var(--space-4);
-  padding-block: var(--space-1);
-  border-bottom: 1px solid var(--border);
+.contact-closing-column {
+  min-width: 0;
 }
 
-.contact-label {
-  color: var(--text-muted);
+.contact-closing-body {
+  margin-top: var(--space-2);
 }
 
-/* Every value is a 44px row whether or not it is a link, so the records line up
-   and the two that are links carry a real target. */
-.contact-value {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  min-height: 44px;
+.contact-closing-line {
   color: var(--text-primary);
-  font-size: var(--t-body);
-  font-weight: 500;
-  word-break: break-word;
-}
-
-/* The phone is a record, not an invitation. */
-.contact-row--muted .contact-value {
-  color: var(--text-muted);
   font-size: var(--t-small);
-  font-weight: 400;
+  line-height: 1.6;
 }
 
-.contact-value .contact-link {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
+.contact-closing-line + .contact-closing-line {
+  color: var(--text-secondary);
 }
 
-.contact-link {
-  color: var(--text-primary);
-  text-decoration: underline;
-  text-decoration-color: var(--border-strong);
-  text-underline-offset: 4px;
-  transition: color var(--t-fast) var(--ease),
-              text-decoration-color var(--t-fast) var(--ease);
-}
-
-.contact-link:hover {
-  color: var(--accent-text);
-  text-decoration-color: var(--accent);
-}
-
-.contact-sep {
-  margin: 0 0.6ch;
-  color: var(--border-strong);
-}
-
-/* A closing line, so the page ends rather than stops. */
-.content-stack > .contact-close {
-  margin-top: var(--space-5);
-}
-
-.contact-close-note {
-  color: var(--text-muted);
-  font-size: var(--t-small);
-}
 
 /* ==========================================================================
    Chrome
@@ -2829,6 +2830,11 @@ button:focus-visible,
   .stack-row {
     grid-template-columns: minmax(0, 1fr);
     row-gap: 2px;
+  }
+
+  .contact-closing {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-4);
   }
 }
 
