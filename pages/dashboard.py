@@ -551,7 +551,7 @@ PANELS = {
 # --------------------------------------------------------------------------
 SPEC_ROWS = (
     ('Built with', 'JavaScript and plotly.js'),
-    ('Also implemented as', 'a Dash app (Python)'),
+    ('Also implemented as', 'Dash app (Python)'),
     ('Experience', 'React · TypeScript · FastAPI · deck.gl'),
     ('Dataset', '730 days · 5 brands · 3 rollups · seeded'),
     ('Functions', ' · '.join(section['label'] for section in SECTIONS)),
@@ -566,8 +566,23 @@ layout = html.Div(
                 html.Div(
                     [
                         html.P('LIVE DEMO', className='section-hero-eyebrow'),
-                        html.H1(f'{BRAND} — Retail Dashboard',
-                                className='section-hero-title'),
+                        # Two lines by construction rather than by luck: the
+                        # em dash left the title breaking wherever the column
+                        # happened to end, which at this width was after
+                        # "Retail". The name is one line, what it is is the
+                        # next.
+                        html.H1(
+                            className='section-hero-title',
+                            children=[
+                                # The space is for the accessible name: the
+                                # span is a block, so it prints nothing, but
+                                # without it a screen reader says
+                                # "AnalyticsRetail".
+                                BRAND + ' ',
+                                html.Span('Retail Dashboard',
+                                          className='tp-hero-title-kind'),
+                            ],
+                        ),
                         html.P(
                             'A multi-brand direct-to-consumer analytics surface: '
                             'trading performance and revenue drivers, cohort '
@@ -589,22 +604,30 @@ layout = html.Div(
                 ),
             ],
         ),
+        # The notice reads as a label and its statement, not as a paragraph
+        # that happens to start with a bold word. The label takes a fifth of
+        # the measure and the text takes the rest, so a full-width block is
+        # actually using its width.
         html.Aside(
             className='tp-disclaimer',
             children=[
-                html.P(
-                    [
-                        html.Strong('Synthetic data', className='tp-disclaimer-tag'),
-                        ' — every brand, customer, order, and figure on this page is '
-                        'invented for this portfolio. No real name, record, or value '
-                        'appears anywhere.',
-                    ],
+                html.Div('Synthetic data', className='tp-disclaimer-tag'),
+                html.Div(
                     className='tp-disclaimer-body',
-                ),
-                html.P(
-                    'A self-contained demonstration built from generated data to '
-                    'show how I approach retention, revenue, and channel analytics.',
-                    className='tp-disclaimer-note',
+                    children=[
+                        html.P(
+                            'Every brand, customer, order, and figure is '
+                            'generated. No real customer or commercial data '
+                            'appears anywhere.',
+                            className='tp-disclaimer-line',
+                        ),
+                        html.P(
+                            'Built as a self-contained demonstration of the '
+                            'analytical workflow across retention, revenue, '
+                            'customer, and channel analytics.',
+                            className='tp-disclaimer-note',
+                        ),
+                    ],
                 ),
             ],
         ),

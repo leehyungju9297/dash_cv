@@ -40,6 +40,9 @@
   --tp-accent-deep: #9A3412;
   --tp-accent-text: #C2410C;
   --tp-accent-soft: #FFF7ED;
+  /* A hairline warm enough to mark the synthetic-data notice as a notice, and
+     quiet enough not to read as a box. Between --tp-border and the accent. */
+  --tp-accent-border: #EBD3BE;
   --tp-positive: #4E6B4D;
   --tp-negative: #9A3412;
 
@@ -56,13 +59,28 @@
   font-family: var(--tp-sans);
 }
 
-/* --- Hero ----------------------------------------------------------------- */
+/* --- Intro ----------------------------------------------------------------
+   Eyebrow, title, lede and specification are one band, and the synthetic-data
+   notice under them belongs to the same band rather than to a chapter of its
+   own. The route inherits the site's 64px section rhythm, which is right
+   between chapters and wrong inside an introduction — three blocks 96px apart
+   read as three subjects, not as one masthead. */
+.content-stack.tp-page > * + * {
+  margin-top: 44px;
+}
+
+/* The dashboard itself is the next thing, not part of the masthead, so it
+   keeps a little more air than the notice above it. */
+.content-stack.tp-page > .tp-shell {
+  margin-top: var(--space-6);
+}
+
 .tp-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.85fr);
-  gap: var(--space-6);
+  grid-template-columns: minmax(0, 64fr) minmax(0, 36fr);
+  gap: var(--space-5);
   align-items: start;
-  padding: 0 0 var(--space-5);
+  padding: 0;
   border: none;
   background: none;
   box-shadow: none;
@@ -77,18 +95,25 @@
   margin: 0 0 0.7rem;
 }
 
-/* The site's display size, not the demo's own: the dashboard is a route of the
-   portfolio, and its page title should carry the same weight as every other
-   page title. Only the colour token is local. */
+/* A notch under the site's display size, because the title no longer has the
+   full measure: at 63% of the page, 56px cannot hold "Tidepool Commerce
+   Analytics" on one line, and the whole point of the two-line lockup is that
+   the name is one of them. `text-wrap: balance` is deliberately absent — the
+   break is in the markup, and balancing would fight it. */
 .tp-hero .section-hero-title {
   font-family: var(--tp-serif);
-  font-size: var(--t-display);
+  font-size: clamp(2rem, 3.2vw, 2.75rem);
   font-weight: 650;
-  line-height: 1.08;
+  line-height: 1.1;
   letter-spacing: -0.03em;
   color: var(--tp-text);
   margin: 0 0 var(--space-3);
-  text-wrap: balance;
+}
+
+/* The second line of the title: what the thing is, under what it is called. */
+.tp-hero-title-kind {
+  display: block;
+  color: var(--tp-text-secondary);
 }
 
 .tp-hero .section-hero-lede {
@@ -100,68 +125,97 @@
   text-wrap: pretty;
 }
 
+/* The specification, as a table of rules rather than as a card. It used to be
+   a filled, bordered, rounded box floating beside the title, which is the one
+   treatment on the route that nothing else shares. Now it is a fixed label
+   column and a hairline under every row, top-aligned with the eyebrow so the
+   band has a single top edge. */
 .tp-spec {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.5rem 1.1rem;
-  margin: 0.4rem 0 0;
-  padding: 1.05rem 1.2rem;
-  border: 1px solid var(--tp-border);
-  border-radius: var(--tp-radius);
-  background: var(--tp-card);
+  grid-template-columns: 116px minmax(0, 1fr);
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-top: 1px solid var(--tp-border);
+  border-radius: 0;
+  background: none;
+}
+
+.tp-spec-label,
+.tp-spec-value {
+  padding: 7px 0;
+  border-bottom: 1px solid var(--tp-border);
 }
 
 .tp-spec-label {
   color: var(--tp-text-muted);
-  font-size: 0.66rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.09em;
+  line-height: 1.5;
   text-transform: uppercase;
-  padding-top: 0.12rem;
-  white-space: nowrap;
+  padding-right: var(--space-2);
 }
 
 .tp-spec-value {
   color: var(--tp-text);
-  font-size: 0.83rem;
+  font-size: 0.8125rem;
   line-height: 1.5;
   margin: 0;
   text-wrap: pretty;
 }
 
-/* --- Disclaimer ----------------------------------------------------------- */
+/* --- Synthetic-data notice ------------------------------------------------
+   A label and its statement, on the same two-part grid the rest of the route
+   uses. It was a tinted full-width box with every word ranged against its left
+   edge; the tint is gone because it was the only fill in the introduction, and
+   the accent now sits where it does more work — on the label, which is the
+   first thing in the scan. Rules above and below still mark it as a notice
+   rather than as body copy. */
 .tp-disclaimer {
-  padding: 1rem 1.2rem;
-  border: 1px solid var(--tp-border);
-  border-radius: var(--tp-radius);
-  background: var(--tp-accent-soft);
-  margin-bottom: 1.6rem;
+  display: grid;
+  grid-template-columns: minmax(0, 19fr) minmax(0, 81fr);
+  column-gap: var(--space-5);
+  padding: var(--space-3) 0;
+  border: 0;
+  border-top: 1px solid var(--tp-accent-border);
+  border-bottom: 1px solid var(--tp-accent-border);
+  border-radius: 0;
+  background: none;
+  margin-bottom: 0;
+}
+
+/* Padded down to put its cap-height on the first line of the statement beside
+   it: the two type sizes centre in different line boxes, so flush tops would
+   leave the label riding high. */
+.tp-disclaimer-tag {
+  padding-top: 5px;
+  color: var(--tp-accent-text);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.5;
+  text-transform: uppercase;
 }
 
 .tp-disclaimer-body {
-  color: #5C3A2C;
+  min-width: 0;
+}
+
+.tp-disclaimer-line {
+  color: var(--tp-text);
   font-size: 0.875rem;
-  line-height: 1.58;
+  line-height: 1.6;
   margin: 0;
-  max-width: var(--prose-max);
   text-wrap: pretty;
 }
 
-.tp-disclaimer-tag {
-  color: var(--tp-accent-deep);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-right: 0.2rem;
-}
-
 .tp-disclaimer-note {
-  color: #7A5544;
+  color: var(--tp-text-secondary);
   font-size: 0.8125rem;
-  line-height: 1.55;
+  line-height: 1.6;
   margin: var(--space-1) 0 0;
-  max-width: var(--prose-max);
   text-wrap: pretty;
 }
 
@@ -1027,7 +1081,35 @@
 @media (max-width: 1080px) {
   .tp-hero {
     grid-template-columns: minmax(0, 1fr);
-    gap: 1.5rem;
+    gap: var(--space-4);
+  }
+
+  /* Stacked, the specification runs the full measure — so it takes the same
+     label/value proportion as the notice under it, and the two read as one
+     grid rather than as two tables that happen to be adjacent. */
+  .tp-spec {
+    grid-template-columns: minmax(0, 19fr) minmax(0, 81fr);
+  }
+
+  .tp-spec-label {
+    padding-right: var(--space-4);
+  }
+}
+
+/* Below this the label column is too narrow to hold "Synthetic data" on one
+   line, so it takes its own row above the statement. */
+@media (max-width: 700px) {
+  .tp-disclaimer {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-1);
+  }
+
+  .tp-disclaimer-tag {
+    padding-top: 0;
+  }
+
+  .tp-spec {
+    grid-template-columns: 100px minmax(0, 1fr);
   }
 }
 

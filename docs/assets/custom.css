@@ -784,10 +784,21 @@ button:focus-visible,
   min-width: 0;
 }
 
-/* The scope line: how long, and across what. Set in ink rather than in the
-   muted grey the rest of the page's labels take, because it is the second
-   thing on the page a reader should register — but at 13px against a 56px
-   headline there is no question which is first. No rule, no chip, no fill. */
+/* --- The ownership block --------------------------------------------------
+   Four ranks under the headline, each a step down: the seniority line, the
+   claim, the sentence that unpacks it, and the four-step chain that makes it
+   checkable. Together they fill the column beside the work sample, which is
+   the point — the left half used to run out of content two hundred pixels
+   above the picture's foot.
+
+   Nothing here introduces a shape. Eye-tracking says a reader scans the top
+   horizontally and then runs down the left edge, so the four step labels are
+   the leftmost ink on their lines; complexity research says a first
+   impression forms inside 50ms and rewards low visual complexity and familiar
+   structure, so the block is built out of the page's own parts — the label
+   style the stack rows use, the hairline-over-a-column idiom What I Build
+   uses — and adds no border, fill, radius or colour of its own. More
+   information, the same number of visual ideas. */
 .hero-signal {
   font-size: var(--t-label);
   font-weight: 600;
@@ -797,8 +808,15 @@ button:focus-visible,
   text-transform: uppercase;
 }
 
-.hero-signal + .hero-support {
+/* The claim. Large enough to be read as a statement rather than as a caption,
+   small enough that the 56px headline above it is never in question. */
+.hero-punchline {
   margin-top: var(--space-2);
+  font-size: clamp(1.25rem, 1.6vw, 1.375rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
 }
 
 /* The one dominant idea on the screen, and the first thing on it. 40px on a
@@ -813,10 +831,50 @@ button:focus-visible,
   color: var(--text-primary);
 }
 
+/* Ordinary body copy under the claim, deliberately a step down from it in both
+   size and colour so the two do not compete. */
 .hero-support {
-  max-width: 46ch;
-  font-size: var(--t-body-lg);
+  margin-top: var(--space-2);
+  max-width: 56ch;
+  font-size: var(--t-body);
   color: var(--text-secondary);
+}
+
+/* Two by two rather than one by four: the column is 563px, which gives four
+   tracks of 125px and no room for a line of terms — and a 2x2 puts two labels
+   on the left edge for the vertical half of the scan instead of one.
+
+   A hairline over each step and nothing else. It is the same construction as
+   the What I Build columns, which is what stops four blocks in a grid from
+   reading as four cards: a card is an enclosure, and there is no enclosure
+   here. */
+.hero-chain {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3) var(--space-5);
+  margin-top: var(--space-4);
+}
+
+.hero-chain-step {
+  padding-top: var(--space-1);
+  border-top: 1px solid var(--border);
+  min-width: 0;
+}
+
+.hero-chain-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.1em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.hero-chain-copy {
+  margin-top: 2px;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.5;
 }
 
 /* One cluster, not four controls. The two buttons sit 8px apart, a middot

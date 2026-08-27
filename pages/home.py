@@ -26,6 +26,28 @@ dash.register_page(__name__, path='/', order=0, name='Home')
 RESUME_HREF = '/assets/Hyungju_Lee_Resume.pdf'
 
 # --------------------------------------------------------------------------
+# Chapter A — the hero's operating chain
+# --------------------------------------------------------------------------
+# Four steps, in the order the work happens. They exist because the thing a
+# senior product-analytics posting asks for is not a tool list — it is evidence
+# that one person carries a problem from "what should we measure" to "the
+# surface the team opens on Monday". Staff-level postings name the same arc:
+# define and govern the metrics, build the data foundation, run the
+# experiments, ship the thing people use.
+#
+# Every term below is already proved further down this page, which is what
+# makes them worth reading rather than worth skipping: metric contracts and KPI
+# architecture in the Executive KPI system, pipelines and data quality in the
+# 21x figure, retention and churn in the flagship and the methods line,
+# executive reporting in the MySeat entry.
+OPERATING_CHAIN = [
+    ('Measure', 'Instrumentation · metric contracts · KPI architecture'),
+    ('Build', 'SQL/Python pipelines · automation · data quality'),
+    ('Learn', 'Experimentation · retention & churn · behavioral analysis'),
+    ('Ship', 'Dashboards · executive reporting · data products'),
+]
+
+# --------------------------------------------------------------------------
 # Chapter B — proof of scale
 # --------------------------------------------------------------------------
 # Four figures, each one already carried elsewhere on the site: the first three
@@ -280,22 +302,38 @@ def _hero():
             html.Div(
                 className='hero-lede',
                 children=[
-                    # The scope line. It replaces the eyebrow that used to sit
-                    # above the headline: that read "Product Analytics · Data
-                    # Systems · Applied ML", which this line repeats word for
-                    # word while also saying how long. Two labels a hundred
-                    # pixels apart saying the same three things is a defect,
-                    # and the headline leads the page better with nothing over
-                    # it.
+                    # Seniority, then scope, then the claim, then the chain
+                    # that makes the claim checkable. A recruiter scanning for
+                    # about seven seconds reads down the left edge, so the
+                    # four step labels are the leftmost thing on their lines
+                    # and each one is a word a posting for this job uses.
                     html.Div(
-                        '6+ years across analytics, data systems & applied ML',
+                        '6+ years · End-to-end product analytics',
                         className='hero-signal',
                     ),
                     html.P(
-                        'Product analytics, experimentation, and production '
-                        'data systems built across consumer products and '
-                        'applied research.',
+                        'From instrumentation to operating decision.',
+                        className='hero-punchline',
+                    ),
+                    html.P(
+                        'I define what gets measured, build the data path, '
+                        'test what moved, and ship the surfaces teams use.',
                         className='hero-support',
+                    ),
+                    html.Div(
+                        className='hero-chain',
+                        children=[
+                            html.Div(
+                                className='hero-chain-step',
+                                children=[
+                                    html.Div(label,
+                                             className='hero-chain-label'),
+                                    html.Div(copy,
+                                             className='hero-chain-copy'),
+                                ],
+                            )
+                            for label, copy in OPERATING_CHAIN
+                        ],
                     ),
                     html.Div(
                         className='hero-actions',
