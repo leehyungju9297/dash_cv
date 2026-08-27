@@ -490,7 +490,6 @@ button:focus-visible,
   margin-top: var(--section-gap);
 }
 
-
 /* --- Section headings -----------------------------------------------------
    The rule above a section heading is what separates one section from the
    next. It replaces the extra 40px of air that used to do the same job. */
@@ -608,26 +607,28 @@ button:focus-visible,
 /* ==========================================================================
    Hero
 
-   One proposition and the evidence for it. The children are placed straight
-   onto the hero's grid rather than wrapped in a copy column: that is what lets
-   the portrait sit beside the supporting line on desktop and drop into the flow
-   between that line and the proof row on mobile, from one copy of the markup.
+   One column, one proposition, then the evidence for it. The rhythm below is
+   the whole layout — no grid, no reserved side column, no min-height. The
+   portrait moved to the Contact page, where a face is what a reader wants.
+
+   Left-aligned at the container's edge rather than centred in it: every section
+   heading below shares that edge, and a 720px block floated to the middle would
+   put the H1 128px inboard of the H2 under it. Set `margin-inline: auto` here
+   to centre it instead.
    ========================================================================== */
 
 .hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 132px;
-  column-gap: var(--space-6);
-  align-items: start;
-}
+  --hero-eyebrow-to-title: 16px;
+  --hero-title-to-summary: 20px;
+  --hero-summary-to-proof: 40px;
+  --hero-primary-to-secondary: 16px;
+  --hero-secondary-to-actions: 24px;
+  --hero-actions-to-contact: 16px;
 
-.hero > * {
-  grid-column: 1;
-  min-width: 0;
+  max-width: var(--reading-max);
 }
 
 .hero-eyebrow {
-  grid-column: 1 / -1;
   font-size: var(--t-label);
   font-weight: 600;
   color: var(--text-muted);
@@ -637,10 +638,12 @@ button:focus-visible,
 
 /* The one dominant idea on the screen. */
 .hero-headline {
-  grid-column: 1 / -1;
-  margin-top: var(--space-2);
-  max-width: 620px;
-  font-size: var(--t-display);
+  margin-top: var(--hero-eyebrow-to-title);
+  /* A notch below --t-display, which is what the page titles take. At 56px this
+     sentence needs three lines inside a 720px block; at 48px it needs two, and
+     two lines is what keeps the hero inside its height budget without touching
+     the rhythm above. */
+  font-size: clamp(2.5rem, 4vw, 3rem);
   font-weight: 650;
   line-height: 1.08;
   letter-spacing: -0.03em;
@@ -648,37 +651,10 @@ button:focus-visible,
 }
 
 .hero-support {
-  margin-top: var(--space-3);
-  max-width: 560px;
+  margin-top: var(--hero-title-to-summary);
+  max-width: var(--prose-max);
   font-size: var(--t-body-lg);
   color: var(--text-secondary);
-}
-
-/* The formal title, as metadata under the proposition rather than as the
-   proposition itself — and deliberately not three co-equal identities. */
-.hero-role-meta {
-  margin-top: var(--space-2);
-  font-size: var(--t-label);
-  font-weight: 600;
-  color: var(--text-muted);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-/* Small, square, and level with the supporting line rather than the headline,
-   so it never competes with either the proposition or the primary figure. */
-.hero-photo {
-  grid-column: 2;
-  grid-row: 3;
-  align-self: start;
-  margin-top: var(--space-3);
-  width: 132px;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-  object-position: 50% 6%;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: #F1EFEA;
 }
 
 /* ==========================================================================
@@ -690,8 +666,17 @@ button:focus-visible,
    ========================================================================== */
 
 .hero-proof {
-  margin-top: var(--space-3);
-  max-width: 560px;
+  margin-top: var(--hero-summary-to-proof);
+  max-width: var(--prose-max);
+}
+
+.hero-proof-eyebrow {
+  margin-bottom: var(--space-1);
+  font-size: var(--t-label);
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .hero-proof-headline {
@@ -726,7 +711,7 @@ button:focus-visible,
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1) var(--space-5);
-  margin-top: var(--space-3);
+  margin-top: var(--hero-primary-to-secondary);
   padding-top: var(--space-2);
   border-top: 1px solid var(--border);
 }
@@ -750,7 +735,7 @@ button:focus-visible,
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-1) var(--space-3);
-  margin-top: var(--space-4);
+  margin-top: var(--hero-secondary-to-actions);
 }
 
 .cta-primary,
@@ -814,7 +799,7 @@ button:focus-visible,
 }
 
 .hero-contact {
-  margin-top: var(--space-3);
+  margin-top: var(--hero-actions-to-contact);
   color: var(--text-muted);
   font-size: var(--t-label);
   line-height: 1.6;
@@ -827,7 +812,7 @@ button:focus-visible,
    appears. */
 .affiliations {
   border-top: 1px solid var(--border);
-  padding-top: var(--space-4);
+  padding-top: var(--space-3);
 }
 
 .affiliations-label {
@@ -1294,47 +1279,8 @@ button:focus-visible,
 }
 
 /* ==========================================================================
-   Resume tracks and education
+   Education
    ========================================================================== */
-
-.resume-track-grid {
-  counter-reset: track;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--card-gap);
-}
-
-.glass-card.resume-track-card {
-  counter-increment: track;
-  background: none;
-  border: 0;
-  border-top: 1px solid var(--border-strong);
-  border-radius: 0;
-  padding: var(--space-3) 0 0;
-}
-
-.resume-track-card::before {
-  content: counter(track, decimal-leading-zero);
-  display: block;
-  margin-bottom: var(--space-2);
-  color: var(--text-muted);
-  font-size: var(--t-label);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
-}
-
-.resume-track-title {
-  font-size: var(--t-body);
-  font-weight: 600;
-  letter-spacing: -0.012em;
-}
-
-.resume-track-copy {
-  margin-top: var(--space-1);
-  color: var(--text-secondary);
-  font-size: var(--t-small);
-}
 
 .glass-card.edu-card {
   background: none;
@@ -1376,23 +1322,6 @@ button:focus-visible,
    the prose so the lines a reader is scanning for are the ones that carry
    weight.
    ========================================================================== */
-
-/* An inline text link inside running copy — deliberately not a button, so it
-   does not read as a second call to action next to the real ones. */
-.inline-link {
-  color: var(--accent-text);
-  font-weight: 500;
-  text-decoration: underline;
-  text-decoration-color: var(--accent-border);
-  text-underline-offset: 3px;
-  transition: text-decoration-color var(--t-fast) var(--ease),
-              color var(--t-fast) var(--ease);
-}
-
-.inline-link:hover {
-  color: var(--accent-hover);
-  text-decoration-color: currentColor;
-}
 
 .case-study-header {
   max-width: var(--reading-max);
@@ -1925,6 +1854,35 @@ button:focus-visible,
    Contact
    ========================================================================== */
 
+/* The introduction and the portrait, side by side. The portrait is secondary:
+   it takes the space a face needs to be recognised and no more, and the links
+   below it are what the page is for. */
+.contact-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--space-6);
+  align-items: start;
+}
+
+.contact-intro-copy {
+  min-width: 0;
+}
+
+.contact-portrait {
+  width: 136px;
+  /* `height: auto` so the ratio governs: the width and height attributes are
+     there to reserve the box before the file loads, but they map to
+     presentational hints that outrank aspect-ratio, which left the mobile
+     portrait 96px wide and still 136px tall. */
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: 50% 6%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #F1EFEA;
+}
+
 .contact-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2082,9 +2040,6 @@ a.contact-value:hover {
 
 /* --- 1024px --------------------------------------------------------------- */
 @media (max-width: 1024px) {
-  .hero {
-    column-gap: var(--space-5);
-  }
 
   .case-study-body {
     grid-template-columns: minmax(0, 1fr) minmax(0, 200px);
@@ -2100,18 +2055,6 @@ a.contact-value:hover {
 @media (max-width: 900px) {
   :root {
     --section-gap: var(--subsection-gap);
-  }
-
-  .hero {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  /* One column: the portrait keeps its DOM position, which puts it between
-     the supporting line and the proof row exactly as intended. */
-  .hero-photo {
-    grid-column: 1;
-    grid-row: auto;
-    width: 92px;
   }
 
   /* The rail moves directly under the opening summary rather than squeezing
@@ -2132,13 +2075,11 @@ a.contact-value:hover {
   }
 
   .lane-grid,
-  .resume-track-grid,
   .research-theme-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .lane-grid > *:last-child:nth-child(odd),
-  .resume-track-grid > *:last-child:nth-child(odd),
   .research-theme-grid > *:last-child:nth-child(odd) {
     grid-column: 1 / -1;
   }
@@ -2188,6 +2129,17 @@ a.contact-value:hover {
   .glass-card.contact-card:last-child {
     border-bottom: 1px solid var(--border);
   }
+
+  /* The portrait falls below the introduction and above the links, at the size
+     a phone can spare for it. */
+  .contact-intro {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-4);
+  }
+
+  .contact-portrait {
+    width: 96px;
+  }
 }
 
 /* --- 768px ---------------------------------------------------------------- */
@@ -2197,7 +2149,6 @@ a.contact-value:hover {
   }
 
   .lane-grid,
-  .resume-track-grid,
   .research-theme-grid,
   .skill-level-grid {
     grid-template-columns: minmax(0, 1fr);
@@ -2205,7 +2156,6 @@ a.contact-value:hover {
 
   /* The span rule above would otherwise create a phantom second track here. */
   .lane-grid > *:last-child:nth-child(odd),
-  .resume-track-grid > *:last-child:nth-child(odd),
   .research-theme-grid > *:last-child:nth-child(odd) {
     grid-column: auto;
   }

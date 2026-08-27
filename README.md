@@ -15,14 +15,15 @@ Open `http://127.0.0.1:8050`.
 
 ## Public pages
 
-- `/` Home — a recruiter-first summary: role, value proposition, three proof
-  points, two calls to action, then capability lanes and selected work
+- `/` Home — a recruiter-first summary in one scan order: what this person
+  delivers, evidence at scale, selected work, capabilities, experience,
+  education and affiliations
 - `/projects` Selected Work — a project index, not a document. Seven cards, each
   carrying the outcome, the role and the timeframe
 - `/projects/<slug>` one route per project, on one case-study template
 - `/dashboard` Live Demo (interactive analytics dashboard)
 - `/publications` Publications
-- `/contact` Contact
+- `/contact` Contact — carries the portrait, which is secondary to the links
 
 ### Work items and their routes
 

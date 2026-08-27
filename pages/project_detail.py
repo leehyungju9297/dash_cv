@@ -64,7 +64,7 @@ def _sidebar(item):
         **{'aria-label': 'Project metadata'},
         children=[
             _meta_row('Role', item['role']),
-            _meta_row('Timeframe', item['period']),
+            _meta_row('Engagement', item['period']),
             _meta_row('Domain', item['domain']),
             _meta_row('Data / system inputs',
                       html.Ul(className='case-meta-list',
@@ -83,7 +83,7 @@ def _demo_sidebar(item):
         **{'aria-label': 'Project metadata'},
         children=[
             _meta_row('Role', item['role']),
-            _meta_row('Timeframe', item['period']),
+            _meta_row('Engagement', item['period']),
             _meta_row('Domain', item['domain']),
             _meta_row('Tools and methods',
                       html.Div(className='skill-cloud',

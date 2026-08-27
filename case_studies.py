@@ -4,6 +4,11 @@ from typing import Dict, List
 WorkItem = Dict[str, object]
 
 
+# `outcome` is the one-line result a card leads with. It is drawn from the
+# item's own `impact` and `what_i_built` below — the first impact line is often
+# the most general of the three rather than the sharpest, and a card has room
+# for exactly one sentence.
+#
 # Role, timeframe and domain per item, carried as data rather than derived in
 # the page so they can be corrected in one place. These restate facts the site
 # already carries: the roles and engagement periods are the ones the Experience
@@ -13,6 +18,7 @@ WorkItem = Dict[str, object]
 CASE_STUDIES: List[WorkItem] = [
     {
         'slug': 'executive-kpi-monitoring',
+        'outcome': 'One metric contract for DAU, memberships and revenue across 138 client apps, so leadership reads a single source of truth.',
         'role': 'Data Scientist / Analytics Engineer · MySeat Media',
         'period': '2023 – Present',
         'domain': 'Mobile & streaming subscription apps',
@@ -65,6 +71,7 @@ CASE_STUDIES: List[WorkItem] = [
     },
     {
         'slug': 'behavior-geography-correlation',
+        'outcome': 'Location and DAU–membership diagnostics that gave PMs a way to prioritize experiments around high-signal behaviors.',
         'role': 'Data Scientist / Analytics Engineer · MySeat Media',
         'period': '2023 – Present',
         'domain': 'Mobile & streaming subscription apps',
@@ -112,6 +119,7 @@ CASE_STUDIES: List[WorkItem] = [
     },
     {
         'slug': 'geo-segmented-user-intelligence',
+        'outcome': 'Standardized location and segment logic so regional user counts became comparable across all 138 clients.',
         'role': 'Data Scientist / Analytics Engineer · MySeat Media',
         'period': '2023 – Present',
         'domain': 'Mobile & streaming subscription apps',
@@ -172,6 +180,7 @@ CASE_STUDIES: List[WorkItem] = [
 # in this repository.
 LIVE_DEMO: WorkItem = {
     'slug': 'tidepool-commerce-analytics',
+    'outcome': 'Built end to end — the synthetic dataset, the analysis, and two independent front ends that agree to the last digit.',
     'role': 'Designed and built end to end for this portfolio',
     'period': '2026',
     'domain': 'Direct-to-consumer retail',
@@ -225,6 +234,7 @@ LIVE_DEMO: WorkItem = {
 RESEARCH_HIGHLIGHTS: List[WorkItem] = [
     {
         'slug': 'lidar-benchmark-engineering',
+        'outcome': '5,000+ QA’d single-tree annotations and reproducible splits behind the ICPR 2022 benchmark dataset.',
         'role': 'Research Engineer / Computer Vision Researcher · AUSM Lab',
         'period': '2019 – 2024',
         'domain': 'Airborne LiDAR / 3D vision',
@@ -270,6 +280,7 @@ RESEARCH_HIGHLIGHTS: List[WorkItem] = [
     },
     {
         'slug': 'volumetric-3d-vision-evaluation',
+        'outcome': 'A volumetric CNN detection workflow that earned the Best Master’s Thesis award at York University.',
         'role': 'Research Engineer / Computer Vision Researcher · AUSM Lab',
         'period': '2019 – 2024',
         'domain': 'Airborne LiDAR / 3D vision',
@@ -315,6 +326,7 @@ RESEARCH_HIGHLIGHTS: List[WorkItem] = [
     },
     {
         'slug': 'segmentation-scene-understanding',
+        'outcome': 'Dataset and evaluation framing that broadened the lab from detection into published segmentation research.',
         'role': 'Research Engineer / Computer Vision Researcher · AUSM Lab',
         'period': '2019 – 2024',
         'domain': 'Airborne LiDAR / 3D vision',

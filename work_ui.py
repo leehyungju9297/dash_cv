@@ -43,9 +43,12 @@ def is_research(item) -> bool:
 def outcome(item) -> str:
     """The one sentence a card promises.
 
-    The first impact line for a case study; the live demo has no impact list, so
-    it uses the summary it is introduced with everywhere else.
+    `outcome` in case_studies.py when the item has one — it is written to be the
+    sharpest single line rather than the first of three. The fallbacks keep a
+    new item renderable before anyone has written that line.
     """
+    if item.get('outcome'):
+        return item['outcome']
     impact = item.get('impact')
     return impact[0] if impact else item['problem_line']
 

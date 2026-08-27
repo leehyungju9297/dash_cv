@@ -25,41 +25,43 @@ CAPABILITY_LANES = [
     {
         'title': 'Product Analytics / Decision Systems',
         'copy': 'KPI architecture, retention and monetization, and operating reviews.',
-        'tags': ['Metric Contracts', 'Retention', 'Monetization', 'Cohorts', 'Quasi-Experimental Analysis', 'Decision Dashboards'],
+        'tags': ['Metric Contracts', 'Retention', 'Monetization', 'Experimentation'],
     },
     {
         'title': 'Data Systems / Automation',
         'copy': 'SQL and Python analytics engineering: data models, pipelines, automation.',
-        'tags': ['Analytics Engineering', 'Data Modeling', 'ETL Workflows', 'Automation', 'Dash / FastAPI', 'Data Quality'],
+        'tags': ['Analytics Engineering', 'Data Modeling', 'Pipeline Automation', 'Data Quality'],
     },
     {
         'title': 'AI / ML / Research Work',
         'copy': 'LiDAR and 3D vision research: datasets, benchmarks, model evaluation.',
-        'tags': ['Computer Vision', '3D Vision', 'LiDAR', 'Detection', 'Segmentation', 'Benchmarking'],
+        'tags': ['LiDAR / 3D Vision', 'Detection', 'Segmentation', 'Benchmark Design'],
     },
 ]
 
+# Four groups, six to eight terms each: evidence of breadth, not an inventory.
+# The granular vocabulary each of these stands for is in the case studies and in
+# the Tools and methods rail beside them.
 SKILL_GROUPS = [
     (
-        'Languages & Data',
-        ['Python', 'SQL', 'R', 'TypeScript', 'Pandas', 'Polars', 'NumPy',
-         'Dash/Plotly', 'React', 'Flask / FastAPI'],
-    ),
-    (
-        'Product Analytics & Decision Systems',
-        ['KPI Architecture', 'Success Metrics', 'Behavioral Segmentation', 'Retention & Churn', 'Monetization Analytics', 'Executive Review Systems'],
+        'Product Analytics',
+        ['KPI Architecture', 'Retention & Churn', 'Monetization', 'Behavioral Segmentation',
+         'Experimentation', 'Executive Reporting'],
     ),
     (
         'Data Systems & Automation',
-        ['Analytics Engineering', 'Data Modeling', 'Automation Pipelines', 'Scheduled Workflows', 'Data Quality Monitoring', 'Multi-Tenant Reporting'],
+        ['Analytics Engineering', 'Data Modeling', 'ETL Pipelines', 'Scheduled Workflows',
+         'Data Quality Monitoring', 'Multi-Tenant Reporting'],
     ),
     (
-        'AI / ML / Research',
-        ['Computer Vision', '3D Vision', 'LiDAR / Point Clouds', 'Deep Learning Workflows', 'Dataset / Annotation Pipelines', 'Detection & Segmentation'],
+        'AI / ML & Research',
+        ['Computer Vision', '3D Vision / LiDAR', 'Deep Learning Workflows', 'Detection & Segmentation',
+         'Benchmark Design', 'Model Evaluation'],
     ),
     (
-        'Measurement / Evaluation',
-        ['Benchmark Design', 'Comparative Model Analysis', 'Statistical Diagnostics', 'Quasi-Experimental Analysis', 'Error Analysis', 'Research Synthesis'],
+        'Languages & Tools',
+        ['Python', 'SQL', 'R', 'TypeScript', 'Pandas / Polars', 'Plotly / Dash',
+         'React', 'FastAPI'],
     ),
 ]
 
@@ -87,22 +89,6 @@ AFFILIATIONS = [
     ('nserc', 'NSERC', 26, 65),
     ('ausm-lab', 'AUSM Lab', 24, 145),
     ('geoict', 'GeoICT Lab', 22, 156),
-]
-
-
-RESUME_TRACKS = [
-    {
-        'title': 'Product / Analytics',
-        'copy': 'Strongest for product data scientist, growth analytics, monetization, KPI systems, and decision-support roles.',
-    },
-    {
-        'title': 'AI / ML',
-        'copy': 'Signals LiDAR, computer vision, dataset engineering, evaluation methodology, and applied ML research workflows.',
-    },
-    {
-        'title': 'Hybrid Technical',
-        'copy': 'Blends analytics engineering, technical generalist data science, data systems, and research-oriented execution.',
-    },
 ]
 
 
@@ -154,7 +140,7 @@ def _experience_block(title: str, company: str, period: str, location: str, bull
                     html.Div(
                         className='exp-meta',
                         children=[
-                            html.Div(period, className='exp-period'),
+                            html.Div(f'Engagement: {period}', className='exp-period'),
                             html.Div(location, className='exp-location'),
                         ],
                     ),
@@ -223,24 +209,12 @@ def _featured_card():
     )
 
 
-def _resume_track_card(title: str, copy: str):
-    return html.Div(
-        className='glass-card resume-track-card reveal-up',
-        children=[
-            html.H3(title, className='resume-track-title'),
-            html.P(copy, className='resume-track-copy'),
-        ],
-    )
-
-
 layout = html.Div(
     className='content-stack',
     children=[
-        # One proposition, then the evidence for it. The hero's children are
-        # placed straight onto its grid rather than wrapped in a copy column:
-        # that is what lets the portrait sit beside the supporting line on
-        # desktop and drop into the flow between that line and the proof row on
-        # mobile, from a single copy of the markup.
+        # One proposition, then the evidence for it, in one column. The formal
+        # role is in the eyebrow, so it is not repeated above the figure, and
+        # the portrait now lives on the Contact page, where a face belongs.
         html.Section(
             className='hero reveal-up',
             children=[
@@ -257,18 +231,10 @@ layout = html.Div(
                     'measurable operating decisions.',
                     className='hero-support',
                 ),
-                # The formal title, as metadata under the proposition rather than
-                # as the proposition itself.
-                html.Div('Product Data Scientist · Analytics Engineer',
-                         className='hero-role-meta'),
-                html.Img(
-                    src='/assets/my_pic_web.jpg',
-                    className='hero-photo',
-                    alt='Portrait of Hyungju Lee',
-                ),
                 html.Div(
                     className='hero-proof',
                     children=[
+                        html.Div('PROOF OF SCALE', className='hero-proof-eyebrow'),
                         html.Div(
                             className='hero-proof-primary',
                             children=[
@@ -375,16 +341,6 @@ layout = html.Div(
             className='reveal-up',
             children=[
                 html.H2('Selected Work', className='section-title'),
-                html.P(
-                    [
-                        'One build shown in full, four more in brief. All seven are in the ',
-                        html.A('project index', href='/projects', className='inline-link',
-                               **{'data-track': 'work_index_click',
-                                  'data-track-location': 'home_selected_work'}),
-                        '.',
-                    ],
-                    className='section-note',
-                ),
                 # The featured item is the one whose software this repository
                 # actually contains, so it is the only one that gets a picture.
                 _featured_card(),
@@ -394,7 +350,7 @@ layout = html.Div(
                               for slug in HOME_SECONDARY],
                 ),
                 html.A(
-                    'View all seven projects',
+                    'View all projects',
                     href='/projects',
                     className='cta-secondary section-cta',
                     **{'data-track': 'work_index_click',
@@ -423,7 +379,7 @@ layout = html.Div(
                 _experience_block(
                     'Data Scientist / Analytics Engineer',
                     'MySeat Media',
-                    '2023 - Present',
+                    '2023 – Present',
                     'Toronto, ON, Canada',
                     [
                         'Built KPI and decision systems spanning engagement, retention, churn, livestream activity, memberships, and revenue across a 138-client app ecosystem.',
@@ -438,7 +394,7 @@ layout = html.Div(
                 _experience_block(
                     'Research Engineer / Computer Vision Researcher',
                     'AUSM Lab',
-                    '2019 - 2024 (Concurrent Research)',
+                    '2019 – 2024 (concurrent)',
                     'Toronto, ON, Canada',
                     [
                         'Built reproducible dataset, annotation, and experiment workflows for airborne LiDAR research, covering preprocessing, label QA, benchmark splits, and evaluation assets for 3D vision studies.',
@@ -451,26 +407,12 @@ layout = html.Div(
                 _experience_block(
                     'Financial Analyst',
                     'Ontario Ministry of Natural Resources and Forestry',
-                    '2017 - 2018',
+                    '2017 – 2018',
                     'Peterborough, ON, Canada',
                     [
                         'Built Oracle-based reporting workflows to standardize recurring monthly financial reporting across offices.',
                         'Defined reporting guidance and trained teams to improve adoption and interpretation of performance outputs.',
                     ],
-                ),
-            ],
-        ),
-        html.Section(
-            className='reveal-up',
-            children=[
-                html.H2('Resume Track', className='section-title'),
-                html.P(
-                    'The current downloadable PDF is positioned as a broader hybrid technical profile and can credibly support multiple read paths.',
-                    className='section-note',
-                ),
-                html.Div(
-                    className='resume-track-grid',
-                    children=[_resume_track_card(track['title'], track['copy']) for track in RESUME_TRACKS],
                 ),
             ],
         ),
