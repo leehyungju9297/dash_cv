@@ -646,7 +646,7 @@ button:focus-visible,
    text inside still stops at its own measure. */
 .content-stack--home {
   max-width: var(--page-max-wide);
-  padding-block: var(--space-6) var(--space-7);
+  padding-block: var(--space-4) var(--space-7);
 }
 
 .content-stack--home > * + * {
@@ -737,15 +737,29 @@ button:focus-visible,
 /* ==========================================================================
    Hero
 
-   Asymmetric: the proposition takes the wide track, a real work sample takes
-   the narrow one. Nothing else is in it — no contact block, no metrics, no
-   third call to action. The headline is the largest thing on the site.
+   Two rows. The headline takes the full measure and is the largest thing on
+   the site; under it, the supporting line and the calls to action share a row
+   with the work sample. Nothing else is in it — no contact block, no metrics,
+   no third call to action.
+
+   The lower row splits 55/45. The picture is shown whole at its own 1.2:1
+   ratio, so its width sets the height of the whole hero — and the hero's
+   height is what decides whether the proof strip is on screen when the page
+   opens. At 45% of the measure the picture is half again the area it used to
+   be and the strip still breaks the fold on a 1440x900 laptop; much past 50%
+   and one of the two has to give. Both halves of the row start on the same
+   line, 48px under the headline, so it reads as one band rather than as a
+   paragraph with an image floated beside it.
+
+   The vertical gaps are margins on the items rather than a grid row-gap: a
+   row-gap applies to every row boundary, and the eyebrow has to hug the
+   headline while the row beneath it stands clear.
    ========================================================================== */
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
-  column-gap: var(--space-6);
+  grid-template-columns: minmax(0, 55fr) minmax(0, 45fr);
+  column-gap: var(--space-5);
   align-items: start;
 }
 
@@ -759,7 +773,7 @@ button:focus-visible,
 .hero-lede {
   grid-column: 1;
   grid-row: 3;
-  align-self: center;
+  margin-top: var(--space-6);
   min-width: 0;
 }
 
@@ -771,10 +785,11 @@ button:focus-visible,
   text-transform: uppercase;
 }
 
-/* The one dominant idea on the screen. 40px on a phone to 64px on a wide
-   desktop, at a line height tight enough that two lines read as one block. */
+/* The one dominant idea on the screen. 40px on a phone to 56px on a wide
+   desktop, at a line height tight enough that two lines read as one block.
+   The break after "into" is in the markup — see pages/home.py. */
 .hero-headline {
-  margin-top: var(--space-4);
+  margin-top: var(--space-3);
   font-size: clamp(2.5rem, 5vw, 3.5rem);
   font-weight: 650;
   line-height: 1.04;
@@ -792,19 +807,21 @@ button:focus-visible,
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-2) var(--space-3);
+  gap: var(--space-2);
   margin-top: var(--space-4);
 }
 
-/* The profiles are destinations, not calls to action. They are set apart from
-   the two buttons by a gap and a rule rather than by another button. */
+/* The profiles are destinations, not calls to action. What separates them from
+   the buttons is a hairline, not distance: the two groups sit 16px either side
+   of it so the four read as two and two rather than as a stretched row of
+   four. If the column ever cannot hold them, the pair wraps together. */
 .hero-profiles {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-3);
-  margin-left: var(--space-2);
-  padding-left: var(--space-4);
-  border-left: 1px solid var(--border);
+  gap: var(--space-2);
+  margin-left: var(--space-1);
+  padding-left: var(--space-3);
+  border-left: 1px solid var(--border-strong);
 }
 
 .cta-primary,
@@ -870,7 +887,7 @@ button:focus-visible,
   grid-column: 2;
   grid-row: 3;
   display: block;
-  margin-top: var(--space-5);
+  margin-top: var(--space-6);
   text-decoration: none;
   color: inherit;
   min-width: 0;
@@ -880,9 +897,10 @@ button:focus-visible,
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 5 / 4;
+  /* The source's own ratio, so the dashboard is shown whole rather than
+     cropped to fit a frame the layout picked. */
+  aspect-ratio: 1032 / 860;
   object-fit: cover;
-  object-position: 50% 0%;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--surface);
@@ -940,15 +958,21 @@ button:focus-visible,
   color: var(--text-primary);
 }
 
-/* A pair of venue names where the others carry a number. Set smaller and
-   pushed down so its baseline still lands on the row the figures sit on. */
+/* A pair of venue names where the others carry a number. It cannot be set at
+   44px without wrapping, so it is set at the largest size that fits on one
+   line and pushed down until its baseline lands on the row the figures sit
+   on — near enough in weight that the fourth column does not read as the weak
+   one merely for being made of letters. */
 .proof-value--text {
-  font-size: clamp(1.125rem, 1.6vw, 1.375rem);
-  letter-spacing: -0.02em;
-  padding-top: calc(clamp(2rem, 3.4vw, 2.75rem) - clamp(1.125rem, 1.6vw, 1.375rem));
+  font-size: clamp(1.375rem, 2vw, 1.75rem);
+  letter-spacing: -0.025em;
+  padding-top: calc(clamp(2rem, 3.4vw, 2.75rem) - clamp(1.375rem, 2vw, 1.75rem));
 }
 
+/* Two lines' worth of room whether the descriptor fills it or not, so the
+   provenance line sits on the same baseline in all four columns. */
 .proof-label {
+  min-height: 2.8em;
   margin-top: var(--space-2);
   color: var(--text-primary);
   font-size: var(--t-small);
@@ -957,7 +981,6 @@ button:focus-visible,
 }
 
 .proof-source {
-  margin-top: 6px;
   color: var(--text-muted);
   font-size: 0.75rem;
   line-height: 1.5;
@@ -2487,11 +2510,11 @@ button:focus-visible,
     grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
   }
 
-  /* The work sample stops being a work sample below about 340px, so its track
-     tightens rather than shrinking with the page. */
+  /* The copy column has two buttons to hold, so it takes a little back from
+     the picture rather than letting them wrap. */
   .hero {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 350px);
-    column-gap: var(--space-5);
+    grid-template-columns: minmax(0, 50fr) minmax(0, 50fr);
+    column-gap: var(--space-4);
   }
 
   .flagship-body {

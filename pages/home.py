@@ -37,8 +37,8 @@ PROOF = [
      'Production analytics across 17M+ sessions'),
     ('138', 'client apps instrumented',
      'One metric contract across the portfolio'),
-    ('$733K+', 'subscription and IAP revenue measured',
-     'Monetization, membership and acquisition analysis'),
+    ('21\u00d7', 'faster analytics pipeline',
+     '567.6s \u2192 26.7s runtime'),
     ('ICPR / ISPRS', 'peer-reviewed publications',
      'LiDAR 3D detection benchmark research'),
 ]
@@ -57,12 +57,10 @@ FLAGSHIP_EVIDENCE = [
 ]
 
 FLAGSHIP_COPY = (
-    'A multi-brand direct-to-consumer analytics surface, built end to end: the '
-    'synthetic dataset and the assumptions behind it, the analysis, the chart '
-    'craft, and two independent front ends compiled from the same figures. '
-    'Nine views run from sales performance through cohort retention and '
-    'customer value to marketing attribution and fulfillment, and each one is '
-    'built around an operating question rather than around a metric.'
+    'A multi-brand direct-to-consumer analytics surface, owned end to end — '
+    'dataset, analysis, chart craft and front end. Nine views run from sales '
+    'performance to fulfillment, each built around an operating decision '
+    'rather than around a metric.'
 )
 
 # The two supporting frames under the flagship's lead visual. Both are real
@@ -254,7 +252,7 @@ def _hero():
             # set large. The supporting copy and the work sample split the row
             # underneath it.
             html.Div(
-                'Hyungju Lee — Product Analytics · Data Systems · Applied ML',
+                'Product Analytics · Data Systems · Applied ML',
                 className='hero-eyebrow',
             ),
             html.H1(
