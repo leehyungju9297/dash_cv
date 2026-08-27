@@ -302,8 +302,15 @@ def _hero():
                     ),
                 ],
             ),
-            # Not decoration: the crop is the KPI row and the trading chart of a
-            # dashboard in this repository, and it links to the case study.
+            # Not decoration: a crop of a dashboard whose source is in this
+            # repository, linking to the case study.
+            #
+            # It shows the product rather than one of its charts — the brand
+            # selector, the four section tabs, the nine views behind them, the
+            # KPI strip, and the head of one panel. The flagship below opens
+            # with the trading surface in full and two more views under it, so
+            # the page discloses the project rather than showing it twice: no
+            # analytical view appears on this page more than once.
             html.A(
                 href='/projects/tidepool-commerce-analytics',
                 className='hero-visual',
@@ -311,11 +318,13 @@ def _hero():
                          'tidepool-commerce-analytics'),
                 children=[
                     html.Img(
-                        src='/assets/demo_shots/hero-dashboard.jpg',
+                        src='/assets/demo_shots/hero-overview.jpg',
                         className='hero-visual-image',
-                        alt='Tidepool Commerce Analytics: a KPI row above a '
-                            'dual-axis revenue and orders chart with the '
-                            'promotion calendar overlaid.',
+                        alt='The Tidepool Commerce Analytics application: a brand '
+                            'selector and date-window control above four section '
+                            'tabs — sales performance, customers, marketing, '
+                            'operations — a five-metric KPI strip, and the head of '
+                            'the customer value panel.',
                         width=1032,
                         height=860,
                     ),

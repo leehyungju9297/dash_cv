@@ -301,11 +301,18 @@ nine-panel segmentation figure is Mask R-CNN *erring*, not results.
 Re-shoot them after a visual change to the dashboard. The three case-study shots
 are 16:9 because the cards render them with `object-fit: cover`.
 
-`hero-dashboard.jpg` is the home page's work sample and is framed differently:
-1.2:1, cropped to the KPI row and the trading chart together, because that pair
-is what shows the analytical character of the thing at a glance. It is placed
-with `object-fit: cover` in a frame sized by the copy beside it, so the ratio is
-a starting point rather than a contract.
+`hero-overview.jpg` is the home page's work sample and is framed differently:
+1.2:1, cropped to the application itself rather than to one of its charts — the
+brand selector and window control, the four section tabs, the sub-tabs naming
+the views behind them, the KPI strip, and the head of one panel. It is shot with
+the Customers / Customer Value view active, because every other view on the home
+page appears in full inside the flagship below it and the hero must not repeat
+one of them. The crop starts at the top bar's own left edge and runs its own
+width, so the frame holds the app and no page ground.
+
+The rule the home page follows: no analytical view of the demo appears on it
+twice. The hero shows the product, the flagship lead shows the trading surface
+in full, and the two supporting frames show retention and geography.
 
 Shoot the `.tp-card` as an *element*, not as a scrolled viewport: an element
 screenshot frames exactly the panel and cannot silently capture the wrong
