@@ -15,9 +15,11 @@ Open `http://127.0.0.1:8050`.
 
 ## Public pages
 
-- `/` Home — a recruiter-first summary in one scan order: what this person
-  delivers, evidence at scale, selected work, capabilities, experience,
-  education and affiliations
+- `/` Home — seven chapters in the order a hiring reader needs them: the
+  proposition, four figures of proof, the systems in three tiers of weight,
+  what they add up to, the record, the credentials, the way to make contact.
+  It is the one route besides the dashboard that runs at `--page-max-wide`,
+  because it is built around project visuals
 - `/projects` Selected Work — a project index, not a document. Seven cards, each
   carrying the outcome, the role and the timeframe
 - `/projects/<slug>` one route per project, on one case-study template
@@ -271,7 +273,8 @@ leaving the alpha channel — the silhouette — alone.
 
 ### Affiliation marks
 
-`assets/logos/` holds the employer, school, partner and funder marks in the hero.
+`assets/logos/` holds the employer, school, partner and funder marks in the
+credentials chapter.
 They are single-colour ink-on-transparent PNGs, not the source brand files: ten
 brand palettes, several of them on their own coloured rectangles, would fight
 everything else on the page.

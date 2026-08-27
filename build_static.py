@@ -98,9 +98,13 @@ def _render(node, rewrite, depth=0) -> str:
     tag = TAGS.get(kind, kind.lower())
 
     # The static build can lazy-load images; dash.html.Img rejects the
-    # attribute, so it is added here rather than in the page.
+    # attribute, so it is added here rather than in the page. The home page's
+    # two lead visuals are exempt: they are what a reader sees first, and
+    # deferring the largest element on the page defers the page.
     if tag == 'img':
-        props.setdefault('loading', 'lazy')
+        eager = {'hero-visual-image', 'flagship-image'}
+        classes = set(str(props.get('className', '')).split())
+        props.setdefault('loading', 'eager' if classes & eager else 'lazy')
 
     attrs = _attrs(props, rewrite)
     if tag in VOID:

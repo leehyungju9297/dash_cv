@@ -16,7 +16,7 @@ app = Dash(
         {'name': 'viewport', 'content': 'width=device-width, initial-scale=1'},
         {
             'name': 'description',
-            'content': 'Hyungju Lee — product data scientist and analytics engineer. KPI architecture, event instrumentation, and the pipelines and reporting behind a 138-client subscription portfolio, plus peer-reviewed LiDAR 3D detection research.',
+            'content': 'I turn product data into decision systems teams actually use. Hyungju Lee — product analytics, data systems and applied ML: KPI architecture and the reporting behind a 138-client app portfolio, plus peer-reviewed LiDAR 3D detection research.',
         },
     ],
 )
@@ -95,8 +95,10 @@ VISIBLE_PATHS = {'/projects', '/dashboard', '/publications', '/contact'}
 
 # The header is a sibling of the page container, so it cannot inherit the page's
 # max-width. The shell carries the route's width as a modifier instead, which is
-# what keeps the brand mark on the same left edge as the H1 under it.
-SHELL_WIDTH = {'/dashboard': 'site-shell site-shell--wide',
+# what keeps the brand mark on the same left edge as the H1 under it. Home and
+# the dashboard both run wide — one for project visuals, one for charts.
+SHELL_WIDTH = {'/': 'site-shell site-shell--wide',
+               '/dashboard': 'site-shell site-shell--wide',
                '/contact': 'site-shell site-shell--narrow'}
 
 PERSON_JSON_LD = {

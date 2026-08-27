@@ -17,10 +17,12 @@ from case_studies import CASE_STUDIES, LIVE_DEMO, RESEARCH_HIGHLIGHTS
 # software this repository actually contains, then product work, then research.
 WORK: List[dict] = [LIVE_DEMO] + CASE_STUDIES + RESEARCH_HIGHLIGHTS
 
-# The four the home page shows as secondary cards beside the featured one. The
-# home page is a summary, not an inventory — the index carries all seven.
-HOME_SECONDARY = ['executive-kpi-monitoring', 'geo-segmented-user-intelligence',
-                  'lidar-benchmark-engineering', 'volumetric-3d-vision-evaluation']
+# What the home page shows under the flagship, in two tiers. The order is the
+# hierarchy the page reads in: production product systems first, then the
+# research infrastructure that establishes technical depth. The home page is a
+# summary, not an inventory — the index carries all seven.
+HOME_PRODUCT = ['executive-kpi-monitoring', 'geo-segmented-user-intelligence']
+HOME_RESEARCH = ['lidar-benchmark-engineering', 'volumetric-3d-vision-evaluation']
 
 FEATURED_SLUG = 'tidepool-commerce-analytics'
 

@@ -179,7 +179,10 @@ li,
 .section-note,
 .research-figure-caption,
 .case-study-caption,
-.lane-copy,
+.chapter-note,
+.practice-copy,
+.record-copy,
+.system-outcome,
 .research-theme-copy,
 .paper-abstract {
   text-wrap: pretty;
@@ -244,9 +247,10 @@ button:focus-visible,
   padding-inline: var(--page-gutter);
 }
 
-/* The dashboard is the one route that earns extra width: it is a grid of
-   charts, and charts lose resolution before text does. The dashboard page
-   carries both classes on one element, so this is a compound selector. */
+/* Two routes earn extra width, and for the same reason: pictures lose more to
+   a narrow column than text does. The dashboard is a grid of charts; the home
+   page is built around project visuals. Both carry the modifier on the same
+   element as .content-stack, so these are compound selectors. */
 .content-stack.tp-page {
   max-width: var(--page-max-wide);
 }
@@ -534,7 +538,6 @@ button:focus-visible,
 .case-detail-label,
 .case-meta-label,
 .affiliations-label,
-.skill-level-title,
 .work-card-meta {
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -610,36 +613,153 @@ button:focus-visible,
 }
 
 /* ==========================================================================
+   Home
+
+   The home page is the only route built as chapters rather than as sections.
+   A section is a heading with content under it; a chapter is a change of
+   subject, and it is spaced like one. The rhythm below is the whole argument
+   of the page:
+
+     hero            the proposition
+     + 48px          — the proof belongs to the hero, so it sits close
+     proof
+     + 88-128px      — the widest gap on the page: claim ends, evidence begins
+     Selected Systems
+     + 88-128px
+     What I Build
+     + 72px          — supporting chapters, set tighter
+     Experience
+     + 72px
+     Education
+     + 72px
+     footer
+
+   Inside Selected Systems the same idea repeats one level down: 64-88px
+   between the flagship and each tier, 24-48px between a tier's heading and
+   its projects.
+
+   Inside a chapter the spacing runs the other way: metadata, records and the
+   stack line are dense, and only the flagship is given room.
+   ========================================================================== */
+
+/* Project visuals are the reason this route is wider than the others. The
+   text inside still stops at its own measure. */
+.content-stack--home {
+  max-width: var(--page-max-wide);
+  padding-block: var(--space-6) var(--space-7);
+}
+
+.content-stack--home > * + * {
+  margin-top: 72px;
+}
+
+/* The proof strip is the foot of the hero, not the chapter after it. */
+.content-stack--home > .proof {
+  margin-top: var(--space-6);
+}
+
+.content-stack--home > .chapter--major {
+  margin-top: clamp(88px, 9vw, 128px);
+}
+
+/* --- Chapter headings -----------------------------------------------------
+   Two weights, so the page has a hierarchy of headings rather than five
+   identical ones. A major chapter is announced by scale and by the space
+   above it; a supporting chapter is announced by a rule. */
+.chapter-title {
+  font-size: clamp(1.75rem, 2.2vw, 1.875rem);
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+
+.chapter--major .chapter-title {
+  font-size: clamp(2rem, 2.8vw, 2.25rem);
+  letter-spacing: -0.03em;
+}
+
+.chapter:not(.chapter--major) .chapter-title {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+
+.chapter-note {
+  margin-top: var(--space-2);
+  max-width: 62ch;
+  color: var(--text-secondary);
+  font-size: var(--t-body);
+}
+
+.chapter-head + * {
+  margin-top: var(--space-5);
+}
+
+/* --- Arrow links ----------------------------------------------------------
+   One link style for every "read more" on the page. The arrow is generated,
+   not typed, so it can move on hover without dragging the label with it. */
+.arrow-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 40px;
+  color: var(--accent-text);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.arrow-link::after {
+  content: '\2192';
+  transition: transform var(--t-fast) var(--ease);
+}
+
+.arrow-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.arrow-link:hover::after {
+  transform: translateX(3px);
+}
+
+.arrow-link--quiet {
+  color: var(--text-secondary);
+}
+
+.arrow-link--quiet:hover {
+  color: var(--accent-text);
+}
+
+.chapter-cta {
+  margin-top: var(--space-5);
+}
+
+/* ==========================================================================
    Hero
 
-   One column, one proposition, then the evidence for it. The rhythm below is
-   the whole layout — no grid, no reserved side column, no min-height. The
-   portrait moved to the Contact page, where a face is what a reader wants.
-
-   The copy column keeps its own rhythm; the work sample beside it starts level
-   with the headline and runs to the foot of the proof block.
+   Asymmetric: the proposition takes the wide track, a real work sample takes
+   the narrow one. Nothing else is in it — no contact block, no metrics, no
+   third call to action. The headline is the largest thing on the site.
    ========================================================================== */
 
 .hero {
-  --hero-eyebrow-to-title: 16px;
-  --hero-title-to-summary: 20px;
-  --hero-summary-to-proof: 40px;
-  --hero-primary-to-secondary: 16px;
-  --hero-secondary-to-actions: 24px;
-  --hero-actions-to-contact: 16px;
-
   display: grid;
-  /* Roughly 60/40, but the visual's track is sized in pixels rather than as a
-     fraction: at 40% of a 1040px page it resolved to 371px, and a work sample
-     reads as a thumbnail below about 400. */
   grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
-  column-gap: var(--space-5);
+  column-gap: var(--space-6);
   align-items: start;
 }
 
-/* Every copy element stays in the left track; only the work sample crosses. */
-.hero > * {
+/* The eyebrow and the headline take the whole measure; only the third row
+   splits into copy and work sample. */
+.hero-eyebrow,
+.hero-headline {
+  grid-column: 1 / -1;
+}
+
+.hero-lede {
   grid-column: 1;
+  grid-row: 3;
+  align-self: center;
   min-width: 0;
 }
 
@@ -647,156 +767,44 @@ button:focus-visible,
   font-size: var(--t-label);
   font-weight: 600;
   color: var(--text-muted);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
-/* The work sample: level with the headline, and as tall as the headline and the
-   proof block together. Large enough to read as a work sample rather than as a
-   card thumbnail. */
-.hero-visual {
-  grid-column: 2;
-  /* Rows 2 to 4 are the headline, the supporting line and the proof block. The
-     margin matches the headline's own, because a grid row starts at the top of
-     its item's margin box and without it the frame sat 16px high. */
-  grid-row: 2 / span 3;
-  align-self: stretch;
-  margin-top: var(--hero-eyebrow-to-title);
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  text-decoration: none;
-  color: inherit;
-}
-
-/* Fills the span rather than keeping the source's ratio: the frame is defined
-   by the copy it sits beside, and `cover` is what lets it. */
-.hero-visual-image {
-  display: block;
-  width: 100%;
-  height: 100%;
-  min-height: 260px;
-  object-fit: cover;
-  object-position: 50% 0%;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg);
-  transition: border-color var(--t-base) var(--ease);
-}
-
-.hero-visual:hover .hero-visual-image {
-  border-color: var(--accent-border);
-}
-
-.hero-visual-caption {
-  display: block;
-  margin-top: var(--space-2);
-  color: var(--text-muted);
-  font-size: var(--t-label);
-  line-height: 1.5;
-}
-
-.hero-visual:hover .hero-visual-caption {
-  color: var(--accent-text);
-}
-
-/* The one dominant idea on the screen. */
+/* The one dominant idea on the screen. 40px on a phone to 64px on a wide
+   desktop, at a line height tight enough that two lines read as one block. */
 .hero-headline {
-  margin-top: var(--hero-eyebrow-to-title);
-  /* A notch below --t-display, which is what the page titles take. At 56px this
-     sentence needs three lines inside a 720px block; at 48px it needs two, and
-     two lines is what keeps the hero inside its height budget without touching
-     the rhythm above. */
-  font-size: clamp(2.5rem, 4vw, 3rem);
+  margin-top: var(--space-4);
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
   font-weight: 650;
-  line-height: 1.08;
-  letter-spacing: -0.03em;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
   color: var(--text-primary);
 }
 
 .hero-support {
-  margin-top: var(--hero-title-to-summary);
+  max-width: 46ch;
   font-size: var(--t-body-lg);
   color: var(--text-secondary);
 }
 
-/* ==========================================================================
-   Hero proof points
-
-   Evidence for the headline, not a metrics strip. One figure carries it and the
-   other two support: the primary is set at display size with a qualifier, the
-   secondary pair sit under a hairline at body size.
-   ========================================================================== */
-
-.hero-proof {
-  margin-top: var(--hero-summary-to-proof);
-}
-
-.hero-proof-eyebrow {
-  margin-bottom: var(--space-1);
-  font-size: var(--t-label);
-  font-weight: 600;
-  color: var(--text-muted);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.hero-proof-headline {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0 var(--space-2);
-}
-
-.hero-proof-value {
-  font-size: 2.5rem;
-  font-weight: 650;
-  line-height: 1.05;
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-primary);
-}
-
-.hero-proof-label {
-  font-size: var(--t-body-lg);
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.hero-proof-note {
-  margin-top: 2px;
-  color: var(--text-muted);
-  font-size: var(--t-label);
-}
-
-.hero-proof-secondary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1) var(--space-5);
-  margin-top: var(--hero-primary-to-secondary);
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--border);
-}
-
-.hero-proof-item {
-  display: flex;
-  align-items: baseline;
-  gap: 0.4ch;
-  font-size: 0.875rem;
-  color: var(--text-muted);
-}
-
-.hero-proof-figure {
-  font-weight: 650;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-primary);
-}
-
-.hero-cta {
+.hero-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-1) var(--space-3);
-  margin-top: var(--hero-secondary-to-actions);
+  gap: var(--space-2) var(--space-3);
+  margin-top: var(--space-4);
+}
+
+/* The profiles are destinations, not calls to action. They are set apart from
+   the two buttons by a gap and a rule rather than by another button. */
+.hero-profiles {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: var(--space-2);
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--border);
 }
 
 .cta-primary,
@@ -838,13 +846,10 @@ button:focus-visible,
   color: var(--accent-text);
 }
 
-/* The third and fourth destinations are profiles, not calls to action; they are
-   set as text links so the two real CTAs stay legible as the only buttons. */
 .hero-link {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  padding: 0 var(--space-1);
   color: var(--text-secondary);
   font-size: var(--t-small);
   font-weight: 500;
@@ -859,48 +864,681 @@ button:focus-visible,
   border-bottom-color: var(--accent);
 }
 
-.hero-contact {
-  margin-top: var(--hero-actions-to-contact);
-  color: var(--text-muted);
-  font-size: var(--t-label);
-  line-height: 1.6;
+/* The work sample. Evidence, not art direction: it is a crop of a dashboard
+   whose source is in this repository, and it opens the case study. */
+.hero-visual {
+  grid-column: 2;
+  grid-row: 3;
+  display: block;
+  margin-top: var(--space-5);
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
 }
 
-/* --- Affiliations ---------------------------------------------------------
-   Employers, schools, partners and funders, as one quiet strip at the foot of
-   the page. They are supporting credibility, not the central proof of value:
-   knocked back by default, at full strength on hover, where the name also
-   appears. */
-.affiliations {
-  border-top: 1px solid var(--border);
+.hero-visual-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 5 / 4;
+  object-fit: cover;
+  object-position: 50% 0%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  transition: border-color var(--t-base) var(--ease);
+}
+
+.hero-visual:hover .hero-visual-image {
+  border-color: var(--accent-border);
+}
+
+.hero-visual-caption {
+  display: block;
+  margin-top: var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--t-label);
+  line-height: 1.5;
+}
+
+.hero-visual:hover .hero-visual-caption {
+  color: var(--accent-text);
+}
+
+/* ==========================================================================
+   Proof of scale
+
+   Four figures under one near-black rule. Not KPI cards: no boxes, no fills,
+   no icons — a figure, what it counts, and where it comes from. The third
+   line is the point of the strip, because a number without a source is a
+   claim and this chapter exists to stop making claims.
+   ========================================================================== */
+
+.proof {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--text-primary);
   padding-top: var(--space-3);
 }
 
-.affiliations-label {
+.proof-item {
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--border);
+}
+
+.proof-item:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.proof-value {
+  font-size: clamp(2rem, 3.4vw, 2.75rem);
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+/* A pair of venue names where the others carry a number. Set smaller and
+   pushed down so its baseline still lands on the row the figures sit on. */
+.proof-value--text {
+  font-size: clamp(1.125rem, 1.6vw, 1.375rem);
+  letter-spacing: -0.02em;
+  padding-top: calc(clamp(2rem, 3.4vw, 2.75rem) - clamp(1.125rem, 1.6vw, 1.375rem));
+}
+
+.proof-label {
+  margin-top: var(--space-2);
+  color: var(--text-primary);
+  font-size: var(--t-small);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.proof-source {
+  margin-top: 6px;
   color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   Selected Systems
+
+   Three tiers, and they are meant to be read as three: the flagship takes a
+   full-width visual and a two-column brief, the production systems take half
+   the width each, and the research pair sit under a teal rule so the change
+   of register is visible before the copy is read.
+   ========================================================================== */
+
+/* --- The flagship --------------------------------------------------------- */
+.flagship {
+  display: block;
+}
+
+.flagship-figure {
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--surface);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--t-base) var(--ease);
+}
+
+.flagship-figure:hover {
+  border-color: var(--accent-border);
+}
+
+.flagship-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: 50% 0%;
+  transition: transform 400ms var(--ease);
+}
+
+.flagship-figure:hover .flagship-image {
+  transform: scale(1.015);
+}
+
+.flagship-image-caption {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: var(--t-label);
+  line-height: 1.5;
+}
+
+/* The brief. Wide column for the argument, narrow one for the four things it
+   is evidence of. */
+.flagship-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
+  column-gap: var(--space-8);
+  margin-top: var(--space-6);
+}
+
+.flagship-lede .project-scope {
+  margin-top: var(--space-1);
+}
+
+.flagship-title {
+  margin-top: var(--space-2);
+  font-size: clamp(1.5rem, 2vw, 1.75rem);
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: -0.028em;
+}
+
+.flagship-subtitle {
+  margin-top: 4px;
+  color: var(--text-secondary);
+  font-size: var(--t-body-lg);
+  font-weight: 500;
+}
+
+.flagship-copy {
+  margin-top: var(--space-3);
+  max-width: var(--prose-max);
+  color: var(--text-primary);
+  font-size: var(--t-body);
+}
+
+.flagship-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-1);
+  margin-top: var(--space-3);
+  color: var(--text-muted);
+  font-size: var(--t-label);
+}
+
+.flagship-period {
+  font-variant-numeric: tabular-nums;
+}
+
+.flagship-period::before {
+  content: '\00b7';
+  margin-right: var(--space-1);
+  color: var(--border-strong);
+}
+
+.flagship-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-5);
+  margin-top: var(--space-2);
+}
+
+.evidence-label {
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border-strong);
+  color: var(--accent-text);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  font-size: var(--t-label);
+}
+
+.evidence-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.evidence-list li {
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: var(--t-small);
+  line-height: 1.45;
+}
+
+.evidence-list li:last-child {
+  border-bottom: 0;
+}
+
+/* Two more frames from the same build, at half width. They are why the
+   flagship reads as a product rather than as a screenshot. */
+.flagship-shots {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+.flagship-shot {
+  margin: 0;
+}
+
+.flagship-shot-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  object-position: 50% 0%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.flagship-shot-caption {
+  display: block;
+  margin-top: var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--t-label);
+  line-height: 1.5;
+}
+
+/* --- Tiers ---------------------------------------------------------------- */
+.tier {
+  margin-top: clamp(64px, 6vw, 88px);
+}
+
+/* A tier is announced the way a table column is: a rule, a name, and the one
+   line of context the reader needs before the projects under it. Two tracks
+   rather than a flex row with space-between, so the note's left edge lands in
+   the same place in both tiers instead of moving with its own length. */
+.tier-head {
+  display: grid;
+  grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+  column-gap: var(--space-4);
+  align-items: baseline;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border-strong);
+}
+
+.tier-label {
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-weight: 600;
+  font-size: var(--t-label);
+  color: var(--accent-text);
+}
+
+.tier--research .tier-label {
+  color: var(--secondary-accent);
+}
+
+.tier--research .tier-head {
+  border-top-color: var(--secondary-accent-border);
+}
+
+.tier-note {
+  max-width: 52ch;
+  color: var(--text-muted);
+  font-size: var(--t-label);
+}
+
+.system-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6) var(--space-5);
+  margin-top: var(--space-4);
+}
+
+/* --- A system ------------------------------------------------------------
+   Open composition: a framed visual, then type. No card, no padding box, no
+   shadow — the frame around the visual is the only border in it. */
+.system-card {
+  display: block;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.system-visual {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  transition: border-color var(--t-base) var(--ease);
+}
+
+.system-card:hover .system-visual {
+  border-color: var(--accent-border);
+}
+
+.system-card--research:hover .system-visual {
+  border-color: var(--secondary-accent-border);
+}
+
+.system-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  transition: transform 400ms var(--ease);
+}
+
+.system-card:hover .system-image {
+  transform: scale(1.02);
+}
+
+/* Two lines' worth of room whether the caption fills it or not, so the two
+   cards in a row start their titles on the same line. The padding is in the
+   figure because the box is border-box: a bare 2.9em would be swallowed by
+   it and a one-line caption would still come up short. */
+.system-visual-caption {
+  display: block;
+  min-height: calc(2.9em + 20px);
+  padding: 10px var(--space-2);
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.system-body {
+  margin-top: var(--space-3);
+}
+
+.system-title {
+  margin-top: var(--space-1);
+  font-size: 1.3125rem;
+  font-weight: 600;
+  line-height: 1.22;
+  letter-spacing: -0.02em;
+}
+
+.system-card:hover .system-title {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.system-outcome {
+  margin-top: var(--space-1);
+  max-width: 48ch;
+  color: var(--text-primary);
+  font-size: var(--t-small);
+}
+
+.system-card .skill-cloud {
+  margin-top: var(--space-2);
+}
+
+.system-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: var(--space-3);
+  color: var(--accent-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.system-card--research .system-link {
+  color: var(--secondary-accent);
+}
+
+.system-link::after {
+  content: '\2192';
+  transition: transform var(--t-fast) var(--ease);
+}
+
+.system-card:hover .system-link::after {
+  transform: translateX(3px);
+}
+
+/* --- The schematic -------------------------------------------------------
+   The two production systems belong to a client, so there is no screenshot to
+   publish. What stands in its place is the system's shape — inputs, the layer
+   in the middle, the surface a person reads — drawn in type and hairlines
+   rather than in boxes and arrows. */
+.system-visual--schematic {
+  display: flex;
+  flex-direction: column;
+}
+
+.schematic {
+  display: grid;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  flex: 1;
+  min-height: 232px;
+}
+
+.schematic-stage {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  column-gap: var(--space-2);
+  align-content: center;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.schematic-stage:last-child {
+  border-bottom: 0;
+}
+
+.schematic-index {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  color: var(--border-strong);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+}
+
+/* The surface is the end of the system and the part that gets used, so it is
+   the one stage marked in the accent. */
+.schematic-stage:last-child .schematic-index {
+  color: var(--accent);
+}
+
+.schematic-label {
+  grid-column: 2;
+  grid-row: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-weight: 600;
+  font-size: var(--t-label);
+  color: var(--text-primary);
+}
+
+.schematic-body {
+  grid-column: 2;
+  grid-row: 2;
+  margin-top: 4px;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+/* ==========================================================================
+   What I Build
+
+   A summary of the three chapters above it, not a claim ahead of them. Three
+   short columns and a two-line stack, both set tight: the projects are the
+   argument, this is the caption.
+   ========================================================================== */
+
+.practice-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-6);
+}
+
+.practice-item {
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border-strong);
+}
+
+.practice-index {
+  color: var(--accent);
+  font-size: var(--t-label);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+/* The applied ML column takes the research accent, the same way the research
+   tier above it does. */
+.practice-item:nth-child(3) .practice-index {
+  color: var(--secondary-accent);
+}
+
+.practice-title {
+  margin-top: var(--space-2);
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+
+.practice-copy {
+  margin-top: 6px;
+  color: var(--text-secondary);
+  font-size: var(--t-small);
+}
+
+/* Two lines, not a badge rack: tools are supporting evidence. */
+.stack {
+  margin-top: var(--space-6);
+  border-top: 1px solid var(--border);
+}
+
+.stack-row {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  column-gap: var(--space-4);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.stack-row:last-child {
+  border-bottom: 0;
+}
+
+.stack-label {
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-weight: 600;
+  font-size: var(--t-label);
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.stack-terms {
+  color: var(--text-secondary);
+  font-size: var(--t-small);
+  line-height: 1.7;
+}
+
+.stack-term + .stack-term::before {
+  content: '\00b7';
+  margin: 0 0.6ch;
+  color: var(--border-strong);
+}
+
+/* ==========================================================================
+   The record
+
+   Experience and education on one dense list: a rule, a row per entry, and
+   at most two sentences. The full account is the resume, which is one link
+   away from here.
+   ========================================================================== */
+
+.record {
+  border-top: 1px solid var(--border-strong);
+}
+
+.record-entry {
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.record-entry:last-child {
+  border-bottom: 0;
+}
+
+.record-head {
+  display: grid;
+  grid-template-columns: minmax(0, 260px) minmax(0, 1fr) auto;
+  column-gap: var(--space-4);
+  align-items: baseline;
+}
+
+.record-company {
+  font-size: var(--t-body-lg);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+}
+
+.record-role {
+  color: var(--text-secondary);
+  font-size: var(--t-small);
+}
+
+.record-period {
+  color: var(--text-muted);
+  font-size: var(--t-label);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.record-copy {
+  margin-top: var(--space-2);
+  max-width: 78ch;
+  color: var(--text-secondary);
+  font-size: var(--t-small);
+}
+
+.record-note {
+  margin-top: 6px;
+  color: var(--accent-text);
+  font-size: var(--t-label);
+  font-weight: 500;
+}
+
+.record--education .record-entry {
+  padding: var(--space-2) 0;
+}
+
+/* --- Affiliations ---------------------------------------------------------
+   Employers, schools, partners and funders, integrated into the credentials
+   chapter rather than given a section of their own. Knocked back by default,
+   at full strength on hover, where the name also appears. */
+.affiliations {
+  margin-top: var(--space-5);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+
+.affiliations-label {
   margin-bottom: var(--space-3);
+  color: var(--text-muted);
 }
 
 .affiliations-grid {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-4) var(--space-6);
+  gap: var(--space-4) var(--space-5);
 }
 
 .affiliation-mark {
   display: block;
   /* The size comes from the width and height attributes — see AFFILIATIONS in
      pages/home.py for why one shared height does not work, and why both
-     dimensions are carried. A max-width here used to clamp the four widest
-     wordmarks, which silently undid the per-mark heights it exists to protect;
-     the cap is proportional now, so a narrow screen scales them instead. */
+     dimensions are carried. The cap here is proportional so a narrow screen
+     scales the marks rather than clamping the widest four. */
   max-width: 100%;
   height: auto;
   object-fit: contain;
   object-position: left center;
   filter: grayscale(1);
-  opacity: 0.55;
+  opacity: 0.5;
   transition: opacity var(--t-base) var(--ease), filter var(--t-base) var(--ease);
 }
 
@@ -910,22 +1548,58 @@ button:focus-visible,
 }
 
 /* ==========================================================================
+   Home footer
+
+   The page ends with a way to act on it. One near-black rule, one line of
+   availability, one row of addresses.
+   ========================================================================== */
+
+.home-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-2) var(--space-5);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--text-primary);
+}
+
+.home-footer-line {
+  max-width: 44ch;
+  color: var(--text-primary);
+  font-size: var(--t-body);
+  font-weight: 600;
+  letter-spacing: -0.012em;
+}
+
+.home-footer-meta {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: var(--t-label);
+}
+
+.home-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-4);
+}
+
+
+/* ==========================================================================
    Work cards
 
-   One card, used by the home page and the index. Category, title, outcome,
-   role and year, tags, a way in — in that order, every time. The outcome is
-   set heavier than the metadata under it, because it is the line the card
-   exists to deliver.
+   The card the project index is built from. Category, title, outcome, role
+   and year, tags, a way in — in that order, every time. The outcome is set
+   heavier than the metadata under it, because it is the line the card exists
+   to deliver. The home page composes its own systems instead: it needs three
+   tiers of weight, and one card cannot carry three.
    ========================================================================== */
 
 .work-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--card-gap);
-}
-
-.work-grid--secondary {
-  margin-top: var(--card-gap);
 }
 
 .work-card {
@@ -1009,154 +1683,6 @@ button:focus-visible,
   text-underline-offset: 3px;
 }
 
-/* --- The featured project -------------------------------------------------
-   The same card, given a picture and a row of its own. It is the only item on
-   the home page with a screenshot, because it is the only one whose software
-   this repository contains. */
-.featured-work {
-  display: grid;
-  grid-template-columns: minmax(0, 46%) minmax(0, 1fr);
-  overflow: hidden;
-}
-
-.featured-work-image-link {
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  background: var(--bg);
-  border-right: 1px solid var(--border);
-}
-
-.featured-work-image {
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  object-position: 50% 0%;
-  transition: transform 400ms var(--ease);
-}
-
-.featured-work:hover .featured-work-image {
-  transform: scale(1.02);
-}
-
-.featured-work-body {
-  padding: var(--card-padding);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.featured-work-body .project-scope {
-  margin-top: var(--space-1);
-}
-
-.featured-work-title {
-  margin-top: var(--space-1);
-  font-size: 1.375rem;
-  font-weight: 650;
-  line-height: 1.22;
-  letter-spacing: -0.02em;
-}
-
-.featured-work-outcome {
-  margin-top: var(--space-2);
-  max-width: var(--prose-max);
-  color: var(--text-primary);
-  font-size: var(--t-body);
-}
-
-.featured-work-body .skill-cloud {
-  margin-top: var(--space-2);
-}
-
-.featured-work-link {
-  align-self: flex-start;
-  margin-top: var(--space-3);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  min-height: 40px;
-  color: var(--accent-text);
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.featured-work-link::after {
-  content: '\2192';
-  transition: transform var(--t-fast) var(--ease);
-}
-
-.featured-work-link:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.featured-work-link:hover::after {
-  transform: translateX(3px);
-}
-
-/* A quiet way out of a section that deliberately shows only part of the work. */
-.section-cta {
-  margin-top: var(--space-3);
-  align-self: flex-start;
-}
-
-/* ==========================================================================
-   Capability lanes
-   ========================================================================== */
-
-.lane-grid {
-  counter-reset: lane;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--card-gap);
-}
-
-.glass-card.lane-card {
-  counter-increment: lane;
-  background: none;
-  border: 0;
-  border-top: 1px solid var(--border-strong);
-  border-radius: 0;
-  padding: var(--space-3) 0 0;
-}
-
-.lane-card::before {
-  content: counter(lane, decimal-leading-zero);
-  display: block;
-  margin-bottom: var(--space-2);
-  color: var(--accent);
-  font-size: var(--t-label);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
-}
-
-/* The third lane is the research lane; its index is marked in the research
-   accent so the two colour families stay consistent across the page. */
-.lane-card:nth-child(3)::before {
-  color: var(--secondary-accent);
-}
-
-.lane-title {
-  font-size: var(--t-h3);
-  font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: -0.015em;
-}
-
-.lane-copy {
-  margin-top: var(--space-1);
-  color: var(--text-secondary);
-  font-size: var(--t-small);
-}
-
-.lane-card .skill-cloud {
-  margin-top: var(--space-2);
-}
-
 /* ==========================================================================
    Tags
    ========================================================================== */
@@ -1185,194 +1711,6 @@ button:focus-visible,
 .skill-pill:hover {
   border-color: var(--border-strong);
   color: var(--text-primary);
-}
-
-/* ==========================================================================
-   Skills
-   ========================================================================== */
-
-.skill-level-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: var(--space-6);
-}
-
-.glass-card.skill-level-card {
-  background: none;
-  border: 0;
-  border-top: 1px solid var(--border);
-  border-radius: 0;
-  padding: var(--space-3) 0;
-}
-
-.skill-level-title {
-  color: var(--text-muted);
-}
-
-/* Structured text, not a pill rack: the terms run as one line separated by
-   middots, so the section stays subordinate to the work above it. */
-.skill-level-card .skill-cloud {
-  display: block;
-  margin-top: var(--space-1);
-  color: var(--text-secondary);
-  font-size: var(--t-small);
-  line-height: 1.7;
-}
-
-.skill-level-card .skill-pill {
-  display: inline;
-  border: 0;
-  background: none;
-  padding: 0;
-  border-radius: 0;
-  font-size: inherit;
-  font-weight: 400;
-  color: inherit;
-  white-space: normal;
-}
-
-.skill-level-card .skill-pill + .skill-pill::before {
-  content: '·';
-  margin: 0 0.5ch;
-  color: var(--border-strong);
-}
-
-.skill-level-card .skill-pill:hover {
-  color: inherit;
-}
-
-/* ==========================================================================
-   Experience
-   ========================================================================== */
-
-/* An entry is one editorial block, not a two-column layout with a rail. The
-   header splits — role and company left, period and location right — and the
-   bullets underneath span both columns. Before this the header ran the full
-   container while the bullets stopped at their reading measure, which left a
-   430px void down the right of every entry.
-
-   The entry itself is narrower than the container and centred in it, so the
-   right-aligned metadata sits close enough to the bullets to read as the same
-   block. */
-.glass-card.experience-card {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  column-gap: var(--space-5);
-  row-gap: var(--space-4);
-  max-width: 840px;
-  margin-inline: auto;
-  background: none;
-  border: 0;
-  border-left: 1px solid var(--border-strong);
-  border-radius: 0;
-  padding: 0 0 var(--space-5) var(--space-4);
-}
-
-.experience-card:last-child {
-  padding-bottom: 0;
-}
-
-/* The marker on the rule. A square rather than a dot: it reads as a tick on an
-   axis, which is what the rule is. */
-.experience-card::before {
-  content: '';
-  position: absolute;
-  left: -4px;
-  top: 8px;
-  width: 7px;
-  height: 7px;
-  background: var(--accent);
-  border-radius: 1px;
-}
-
-.experience-card:not(:first-child)::before {
-  background: var(--border-strong);
-}
-
-/* The wrapper carries no box of its own — its two halves are the grid items. */
-.exp-head {
-  display: contents;
-}
-
-.exp-identity {
-  grid-column: 1;
-  grid-row: 1;
-  min-width: 0;
-}
-
-.exp-title {
-  font-size: var(--t-h3);
-  font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: -0.015em;
-}
-
-.exp-company {
-  margin-top: 4px;
-  color: var(--text-secondary);
-  font-size: var(--t-small);
-  font-weight: 500;
-}
-
-.exp-meta {
-  grid-column: 2;
-  grid-row: 1;
-  text-align: right;
-  color: var(--text-muted);
-  font-size: var(--t-label);
-  font-variant-numeric: tabular-nums;
-}
-
-/* Full entry width, left edge shared with the role above it. Capping the text
-   at 700px leaves a normal rag rather than a column. */
-.exp-bullets {
-  grid-column: 1 / -1;
-  grid-row: 2;
-  padding-left: 1.05rem;
-  max-width: 700px;
-  color: var(--text-secondary);
-  font-size: var(--t-small);
-}
-
-.exp-bullets li {
-  margin-bottom: var(--space-1);
-}
-
-/* ==========================================================================
-   Education
-   ========================================================================== */
-
-.glass-card.edu-card {
-  background: none;
-  border: 0;
-  border-radius: 0;
-  padding: 0;
-  max-width: var(--reading-max);
-}
-
-.edu-title {
-  color: var(--text-primary);
-  font-size: var(--t-body);
-  font-weight: 600;
-  letter-spacing: -0.012em;
-}
-
-.edu-meta,
-.edu-note {
-  color: var(--text-muted);
-  font-size: var(--t-small);
-}
-
-.edu-note {
-  color: var(--accent-text);
-  font-weight: 500;
-}
-
-.edu-card hr {
-  margin: var(--space-3) 0;
-  border: 0;
-  border-top: 1px solid var(--border);
 }
 
 /* ==========================================================================
@@ -2100,10 +2438,6 @@ button:focus-visible,
   animation: revealUp 320ms var(--ease) both;
 }
 
-.lane-grid > .reveal-up:nth-child(2) { animation-delay: 50ms; }
-
-.lane-grid > .reveal-up:nth-child(n + 3) { animation-delay: 100ms; }
-
 @keyframes revealUp {
   from {
     opacity: 0;
@@ -2152,6 +2486,22 @@ button:focus-visible,
   .glass-card.field-work-card {
     grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
   }
+
+  /* The work sample stops being a work sample below about 340px, so its track
+     tightens rather than shrinking with the page. */
+  .hero {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 350px);
+    column-gap: var(--space-5);
+  }
+
+  .flagship-body {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 280px);
+    column-gap: var(--space-6);
+  }
+
+  .record-head {
+    grid-template-columns: minmax(0, 220px) minmax(0, 1fr) auto;
+  }
 }
 
 /* --- 900px ---------------------------------------------------------------- */
@@ -2177,46 +2527,71 @@ button:focus-visible,
     gap: var(--space-3) var(--space-4);
   }
 
-  .lane-grid,
   .research-theme-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .lane-grid > *:last-child:nth-child(odd),
   .research-theme-grid > *:last-child:nth-child(odd) {
     grid-column: 1 / -1;
+  }
+
+  /* The home page's chapter rhythm steps down once, keeping the proportion
+     between a chapter break and a major one rather than flattening both. */
+  .content-stack--home > * + * {
+    margin-top: 56px;
+  }
+
+  .content-stack--home > .chapter--major {
+    margin-top: 76px;
   }
 
   .hero {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .hero-lede {
+    grid-row: auto;
+  }
+
   /* One column: the work sample takes its DOM position, which is last — under
-     the calls to action, above the next section. */
+     the calls to action, above the proof strip. It stays wide enough to read
+     as a dashboard rather than as a thumbnail. */
   .hero-visual {
     grid-column: 1;
     grid-row: auto;
-    align-self: start;
-    margin-top: var(--space-6);
-    max-width: 520px;
+    max-width: 560px;
   }
 
   .hero-visual-image {
-    aspect-ratio: 1.2 / 1;
-    height: auto;
+    aspect-ratio: 16 / 11;
+  }
+
+  /* Two by two. The vertical rules follow the columns, so the one that used to
+     divide items 3 and 4 has to come off the new first column. */
+  .proof {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: var(--space-4);
+  }
+
+  .proof-item:nth-child(odd) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .flagship-body {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-5);
+  }
+
+  .system-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
   }
 
   .work-grid,
-  .featured-work,
   .research-figure-grid,
   .field-work-card {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .featured-work-image-link {
-    border-right: 0;
-    border-bottom: 1px solid var(--border);
-    display: block;
   }
 
   /* One column: the placement hints would otherwise fabricate a second track. */
@@ -2265,35 +2640,47 @@ button:focus-visible,
     padding-block: var(--space-5) var(--space-7);
   }
 
-  .lane-grid,
-  .research-theme-grid,
-  .skill-level-grid {
+  .content-stack--home {
+    padding-block: var(--space-5) var(--space-6);
+  }
+
+  .research-theme-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
   /* The span rule above would otherwise create a phantom second track here. */
-  .lane-grid > *:last-child:nth-child(odd),
   .research-theme-grid > *:last-child:nth-child(odd) {
     grid-column: auto;
   }
 
-  /* One column: role, company, period and location stack, and the bullets keep
-     the full width beneath them. No rail, no blank column. */
-  .glass-card.experience-card {
+  .practice-row {
     grid-template-columns: minmax(0, 1fr);
-    row-gap: var(--space-1);
-    max-width: none;
+    gap: var(--space-4);
   }
 
-  .exp-meta {
-    grid-column: 1;
-    grid-row: auto;
+  .tier-head {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 4px;
+  }
+
+  .flagship-shots {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Company, role and dates stack. Right-aligned dates on a phone would sit
+     under nothing. */
+  .record-head {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 2px;
+  }
+
+  .record-period {
     text-align: left;
   }
 
-  .exp-bullets {
-    grid-row: auto;
-    margin-top: var(--space-2);
+  .stack-row {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 2px;
   }
 }
 
@@ -2303,6 +2690,13 @@ button:focus-visible,
    100px, so they move behind a disclosure and the closed header holds at
    64px. */
 @media (max-width: 760px) {
+  /* The headline is written to break after "into". Below this the measure
+     cannot hold the second half on one line anyway, so the forced break only
+     adds a short line. */
+  .hero-headline br {
+    display: none;
+  }
+
   .header-inner {
     min-height: 64px;
     gap: var(--space-2);
@@ -2390,8 +2784,20 @@ button:focus-visible,
     flex: 1 1 auto;
   }
 
-  .hero-proof {
-    gap: var(--space-3) var(--space-5);
+  /* The buttons go full width here, so the rule that separated them from the
+     profile links has nothing left to separate. */
+  .hero-profiles {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .proof {
+    column-gap: var(--space-3);
+  }
+
+  .proof-item {
+    padding-left: var(--space-3);
   }
 
   .case-pager {
