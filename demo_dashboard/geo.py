@@ -17,7 +17,9 @@ in ``docs/assets/demo/tidepool.js``.
 
 from __future__ import annotations
 
-from typing import Dict, List, Sequence
+import base64
+import pathlib
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from demo_dashboard.config import VALUE_TIER_NAMES
 
@@ -52,6 +54,97 @@ class Lcg:
         """
         u = (self.next_float() + self.next_float() + self.next_float()) / 3.0
         return (u * 2.0 - 1.0) * spread
+
+
+# --------------------------------------------------------------------------
+# Land
+# --------------------------------------------------------------------------
+# A boolean world grid, so a generated order can be tested against real
+# geography instead of being trusted to land somewhere sensible. Built offline
+# from Natural Earth land and lakes by ``tools/build_land_mask.py``; see that
+# module for why this is a raster rather than the polygons themselves.
+_LAND_MASK_FILE = pathlib.Path(__file__).parent / 'land_mask.txt'
+
+
+def decode_land_mask(encoded: str, width: int, height: int) -> bytearray:
+    """Run-length varint bitmap -> packed bits, row-major from 90N/180W.
+
+    The JavaScript mirror runs the identical loop over the identical string, so
+    both sides get the same bits and therefore the same points.
+    """
+    payload = base64.b64decode(encoded)
+    bits = bytearray((width * height + 7) // 8)
+    index = 0
+    value = 0
+    cursor = 0
+    length = len(payload)
+    while cursor < length:
+        run = 0
+        shift = 0
+        while True:
+            byte = payload[cursor]
+            cursor += 1
+            run |= (byte & 0x7F) << shift
+            if byte < 0x80:
+                break
+            shift += 7
+        if value:
+            for position in range(index, index + run):
+                bits[position >> 3] |= 1 << (position & 7)
+        index += run
+        value ^= 1
+    return bits
+
+
+class LandMask:
+    """O(1) "is this point on land?"."""
+
+    __slots__ = ('cells_per_degree', 'width', 'height', 'bits')
+
+    def __init__(self, cells_per_degree: int, width: int, height: int,
+                 bits: bytearray):
+        self.cells_per_degree = cells_per_degree
+        self.width = width
+        self.height = height
+        self.bits = bits
+
+    def contains(self, lat: float, lon: float) -> bool:
+        column = int((lon + 180.0) * self.cells_per_degree)
+        row = int((90.0 - lat) * self.cells_per_degree)
+        if column < 0 or column >= self.width or row < 0 or row >= self.height:
+            return False
+        index = row * self.width + column
+        return bool(self.bits[index >> 3] & (1 << (index & 7)))
+
+
+def _read_land_mask() -> Tuple[str, int, int, int]:
+    header, encoded = _LAND_MASK_FILE.read_text().split('\n', 1)
+    cells_per_degree, width, height = (int(part) for part in header.split())
+    return encoded.strip(), cells_per_degree, width, height
+
+
+_LAND_ENCODED, _LAND_CELLS, _LAND_WIDTH, _LAND_HEIGHT = _read_land_mask()
+
+_LAND: Optional[LandMask] = None
+
+
+def land_mask() -> LandMask:
+    """The decoded mask, built once on first use."""
+    global _LAND
+    if _LAND is None:
+        _LAND = LandMask(_LAND_CELLS, _LAND_WIDTH, _LAND_HEIGHT,
+                         decode_land_mask(_LAND_ENCODED, _LAND_WIDTH, _LAND_HEIGHT))
+    return _LAND
+
+
+def land_mask_payload() -> Dict[str, object]:
+    """What the JavaScript twin needs to rebuild the same mask."""
+    return {
+        'cells_per_degree': _LAND_CELLS,
+        'width': _LAND_WIDTH,
+        'height': _LAND_HEIGHT,
+        'runs': _LAND_ENCODED,
+    }
 
 
 def string_seed(text: str) -> int:
@@ -151,6 +244,20 @@ _SPREAD_INTERNATIONAL = 1.35
 # below — the extra digit only inflated the payload.
 _COORD_DECIMALS = 3
 
+# How a point that lands in water is brought back. The offset is scaled down and
+# re-tested, which walks the point along its own bearing towards the city centre
+# rather than teleporting it somewhere unrelated: an order that wanted to be
+# north-east of Boston ends up north-east of Boston, on land. Six steps at 0.55
+# reduce the offset to three per cent of its original length, and a market
+# centroid is a real city, so the last resort is always valid.
+#
+# Nothing here draws from the generator. Every candidate reuses the direction,
+# the reach and the centre already drawn for this order, so the random stream is
+# untouched and the order values and arrival months are bit-for-bit what they
+# were before this test existed.
+_LAND_RETRIES = 6
+_LAND_SHRINK = 0.55
+
 
 def _market_shape(rng: Lcg, base: float):
     """Delivery geometry for one market, drawn once.
@@ -215,8 +322,14 @@ def scatter_orders(rows: Sequence[Dict], salt: str = '',
     When ``ramp`` is supplied each marker also gets the month it was placed in,
     which is what lets the replay show orders accumulating rather than a set of
     blobs resizing.
+
+    Every marker is tested against the land mask and pulled back towards its
+    market until it is on land. A delivery in the Atlantic is not a rendering
+    artefact to be hidden under a basemap layer — it is invalid data, and it
+    would still be invalid in any aggregate computed from these points.
     """
     points: List[Dict] = []
+    mask = land_mask()
 
     for row in rows:
         rng = Lcg(row['seed'] ^ string_seed(salt))
@@ -262,11 +375,29 @@ def scatter_orders(rows: Sequence[Dict], salt: str = '',
             if rng.next_float() < 0.04:
                 value *= 1.8 + rng.next_float() * 2.2
 
+            # The rounded coordinate is the one tested, because the rounded
+            # coordinate is the one shipped: a hundred metres is enough to cross
+            # a cell boundary on a shoreline, and testing the unrounded value
+            # left a few hundred orders sitting just off Chicago and Milwaukee.
+            lat = round(row['lat'], _COORD_DECIMALS)
+            lon = round(row['lon'], _COORD_DECIMALS)
+            scale = 1.0
+            for _ in range(_LAND_RETRIES):
+                candidate_lat = round(row['lat'] + centre[0] * scale
+                                      + dy * base * reach * scale * stretch_y,
+                                      _COORD_DECIMALS)
+                candidate_lon = round(row['lon'] + centre[1] * scale
+                                      + dx * base * reach * scale * stretch_x * 1.3,
+                                      _COORD_DECIMALS)
+                if mask.contains(candidate_lat, candidate_lon):
+                    lat = candidate_lat
+                    lon = candidate_lon
+                    break
+                scale *= _LAND_SHRINK
+
             point = {
-                'lat': round(row['lat'] + centre[0]
-                             + dy * base * reach * stretch_y, _COORD_DECIMALS),
-                'lon': round(row['lon'] + centre[1]
-                             + dx * base * reach * stretch_x * 1.3, _COORD_DECIMALS),
+                'lat': lat,
+                'lon': lon,
                 'value': round(value, 2),
             }
             if arrival:
@@ -397,5 +528,6 @@ RFM_QUADRANTS = [
 
 
 __all__ = [
-    'Lcg', 'aggregate_by_level', 'rfm_points', 'scatter_orders', 'string_seed',
+    'Lcg', 'LandMask', 'aggregate_by_level', 'decode_land_mask', 'land_mask',
+    'land_mask_payload', 'rfm_points', 'scatter_orders', 'string_seed',
 ]

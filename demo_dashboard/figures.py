@@ -1480,7 +1480,7 @@ def _order_marker_map(markets, brand: str) -> go.Figure:
             lat=[point['lat'] for point in members],
             lon=[point['lon'] for point in members],
             mode='markers', name=label,
-            marker={'size': 3.4, 'color': colour, 'opacity': 0.5},
+            marker={'size': 2.8, 'color': colour, 'opacity': 0.38},
             hoverinfo='skip',
         ))
     fig.update_layout(**_map_layout(
@@ -1496,18 +1496,91 @@ def _order_marker_map(markets, brand: str) -> go.Figure:
     return fig
 
 
+# --- Order density ---------------------------------------------------------
+# The density view answers one question — where is demand concentrated — and it
+# used to answer it by drawing a third of a million blurred discs on top of each
+# other until every metropolitan area was one flat orange mass. Two things fix
+# that.
+#
+# The first is binning. Points are counted into a fixed geographic grid and the
+# grid is what the density layer smooths, so the layer is drawing a few thousand
+# weighted cells rather than 320,000 identical ones. Each order still counts
+# once, and only once — the weight is a count, never a value.
+#
+# The second is the range. The scale is capped at a high percentile rather than
+# at the maximum, because one city with ten times the orders of the next would
+# otherwise compress every other market into the bottom of the ramp. Above the
+# cap the colour simply saturates, which is the correct reading: this is the
+# densest kind of place there is.
+
+# About 9 km at the latitudes that matter here. At the map's default zoom a cell
+# is well under a pixel, so the grid can never be seen as a grid; it only starts
+# to show if a reader zooms past a metropolitan area, which is far past what this
+# view is for.
+_DENSITY_CELL = 0.08
+
+# The kernel width, in pixels. At the default continental zoom a pixel is about
+# 14 km, so this is a smoothing radius of roughly 70 km — wide enough to read as
+# a surface rather than as dots, narrow enough that Los Angeles and San Diego
+# stay two places and that the heat reaching past a coastline is a thin halo
+# rather than a bay of its own. The 11-pixel kernel this replaces spread every
+# order over 120 km and welded the Northeast into one shape.
+_DENSITY_RADIUS = 5
+
+# Where the colour ramp tops out, as a share of the sorted cell counts. At 1.0
+# the ramp is set by whichever single cell happens to be busiest.
+_DENSITY_CAP_PERCENTILE = 0.985
+
+# Transparent at the bottom, and it has to be: an opaque first stop paints every
+# cell that contains a single order, which is what turned the whole country into
+# haze. The ramp is the portfolio's own accent, from the palest paper through
+# burnt orange to a dark rust.
+DENSITY_SCALE = [
+    [0.00, 'rgba(255, 247, 237, 0.00)'],
+    [0.08, 'rgba(253, 186, 116, 0.28)'],
+    [0.28, 'rgba(234, 88, 12, 0.55)'],
+    [0.60, 'rgba(194, 65, 12, 0.78)'],
+    [1.00, 'rgba(124, 45, 18, 0.92)'],
+]
+
+
+def _density_cells(points, cell: float = _DENSITY_CELL):
+    """Count orders into a fixed grid, returning cell centres and counts."""
+    counts: Dict[tuple, int] = {}
+    for point in points:
+        key = (int(math.floor(point['lat'] / cell)),
+               int(math.floor(point['lon'] / cell)))
+        counts[key] = counts.get(key, 0) + 1
+    half = cell / 2.0
+    lats = []
+    lons = []
+    weights = []
+    for (row, column), count in counts.items():
+        lats.append(row * cell + half)
+        lons.append(column * cell + half)
+        weights.append(count)
+    return lats, lons, weights
+
+
 def _density_map(markets, brand: str) -> go.Figure:
-    """Order density, with the market boundaries dropped."""
+    """Order density: where demand concentrates, with market outlines dropped."""
     points = scatter_orders(markets, brand)
     if not points:
         return empty_figure('No orders in this view.', CHART_HEIGHTS['map'])
+
+    lats, lons, weights = _density_cells(points)
+    ordered = sorted(weights)
+    cap_index = min(int(len(ordered) * _DENSITY_CAP_PERCENTILE), len(ordered) - 1)
+    cap = max(ordered[cap_index], 1)
+
     fig = go.Figure(go.Densitymap(
-        lat=[point['lat'] for point in points],
-        lon=[point['lon'] for point in points],
-        radius=11,
-        colorscale=[[position, colour] for position, colour
-                    in zip([index / (len(SEQUENTIAL) - 1) for index in range(len(SEQUENTIAL))],
-                           list(reversed(SEQUENTIAL)))],
+        lat=lats,
+        lon=lons,
+        z=weights,
+        radius=_DENSITY_RADIUS,
+        zmin=0,
+        zmax=cap,
+        colorscale=DENSITY_SCALE,
         showscale=False,
         hoverinfo='skip',
     ))
@@ -1552,7 +1625,7 @@ def growth_map(dataset, brand: str, level: str = 'city',
             lat=[point['lat'] for point in members],
             lon=[point['lon'] for point in members],
             mode='markers', name=label,
-            marker={'size': 3.2, 'color': colour, 'opacity': 0.5},
+            marker={'size': 2.6, 'color': colour, 'opacity': 0.34},
             hoverinfo='skip',
         ))
     fig.update_layout(**_map_layout(

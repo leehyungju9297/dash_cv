@@ -953,8 +953,8 @@ _DISPLAY_HINTS = {
     'market': 'One bubble per market, sized by orders and coloured by average '
               'order value.',
     'orders': 'One marker per order, banded by order value.',
-    'density': 'Market boundaries dropped, so only where orders concentrate '
-               'remains.',
+    'density': 'Aggregated order density reveals where demand concentrates '
+               'across markets.',
 }
 
 

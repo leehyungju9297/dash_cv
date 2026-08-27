@@ -61,6 +61,7 @@ from demo_dashboard.geo import (
     FREQUENCY_CUT,
     RECENCY_CUT,
     RFM_QUADRANTS,
+    land_mask_payload,
 )
 
 
@@ -154,6 +155,10 @@ def build_payload() -> dict:
                              for value, label in MAP_DISPLAYS],
             },
         },
+        # The land mask the order scatter is tested against. It travels with
+        # the dataset because the twin generates the same points in the browser
+        # and has to reach the same verdict on every one of them.
+        'landMask': land_mask_payload(),
         'dates': dataset['dates'],
         'startDate': dataset['start'],
         'endDate': dataset['end'],

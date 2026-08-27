@@ -87,8 +87,10 @@ demo_dashboard/
   assumptions.py  the retail shape parameters the generator is built on
   data.py         seeded synthetic dataset (standard library only)
   geo.py          shared PRNG, map aggregation, point generation (mirrored in JS)
+  land_mask.txt   the land raster the order scatter is tested against
   figures.py      Plotly figure builders used by the Dash page
   export.py       dumps the dataset + shared assets for the static twin
+tools/build_land_mask.py      rebuilds land_mask.txt from Natural Earth
 pages/dashboard.py            the Dash page (server-side callbacks)
 assets/dashboard.css          the dashboard visual system (shared)
 docs/dashboard/index.html     static twin scaffolding
@@ -131,6 +133,33 @@ match across languages: jitter is a sum of uniforms, directions come from
 rejection sampling, and heavy tails come from repeated multiplication rather than
 an inverse CDF. The two builds therefore draw the identical cloud, verified
 coordinate for coordinate.
+
+### Keeping orders on land
+
+Scattering a marker around a market centroid puts orders in the Atlantic, the
+Gulf and the Great Lakes. Hiding them under an opaque land layer would not help:
+the coordinates would still be wrong, and anything computed from them — the
+density surface, the monthly footprint — would still be wrong with them.
+
+So every generated point is tested against a land raster and, while it is in
+water, pulled back along its own bearing towards its market. It keeps the
+direction it was given and loses only distance, so an order that wanted to be
+north-east of Boston ends up north-east of Boston, on land. A market centroid is
+a real city, so the last resort is always valid.
+
+The raster is `demo_dashboard/land_mask.txt`: Natural Earth's 1:10m land and
+lakes, rasterised at 0.05° (about 5.5 km) into a run-length-encoded bitmap,
+cleared everywhere no order can reach so the encoding stays around 70 KB. It is
+built offline by `tools/build_land_mask.py` and checked in, so neither build
+needs the polygons or a network. A cell is land when the majority of it is —
+except the cells holding a market centroid, which are forced to land, because
+four of the cities the demo ships to sit on a shoreline and would otherwise come
+out of the vote as sea.
+
+The test takes no draw from the generator: every candidate reuses the direction,
+reach and centre already drawn for that order. The random stream is therefore
+untouched, and order values and arrival months are bit-for-bit what they were
+before the test existed — only the coordinates move.
 
 Because GitHub Pages cannot run Dash callbacks, the demo ships twice from one
 dataset: `pages/dashboard.py` is the runnable Python implementation, and

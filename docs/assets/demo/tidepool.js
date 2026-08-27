@@ -530,6 +530,56 @@
   var SPREAD_INTERNATIONAL = 1.35;
   var COORD_DECIMALS = 3;
 
+  // Land. The mirror of demo_dashboard/geo.py — see that module for why the
+  // order scatter is tested against a raster rather than against polygons, and
+  // tools/build_land_mask.py for how the raster is made.
+  var LAND_RETRIES = 6;
+  var LAND_SHRINK = 0.55;
+  var landMask = null;
+
+  function decodeLandMask(spec) {
+    var payload = atob(spec.runs);
+    var cells = spec.width * spec.height;
+    var bits = new Uint8Array((cells + 7) >> 3);
+    var index = 0;
+    var value = 0;
+    var cursor = 0;
+    while (cursor < payload.length) {
+      var run = 0;
+      var shift = 0;
+      for (;;) {
+        var byte = payload.charCodeAt(cursor);
+        cursor += 1;
+        run |= (byte & 0x7F) << shift;
+        if (byte < 0x80) break;
+        shift += 7;
+      }
+      if (value) {
+        for (var position = index; position < index + run; position += 1) {
+          bits[position >> 3] |= 1 << (position & 7);
+        }
+      }
+      index += run;
+      value ^= 1;
+    }
+    return {
+      cellsPerDegree: spec.cells_per_degree,
+      width: spec.width,
+      height: spec.height,
+      bits: bits,
+    };
+  }
+
+  function isLand(lat, lon) {
+    if (!landMask) return true;
+    var column = Math.floor((lon + 180) * landMask.cellsPerDegree);
+    var row = Math.floor((90 - lat) * landMask.cellsPerDegree);
+    if (column < 0 || column >= landMask.width) return false;
+    if (row < 0 || row >= landMask.height) return false;
+    var index = row * landMask.width + column;
+    return (landMask.bits[index >> 3] & (1 << (index & 7))) !== 0;
+  }
+
   function marketShape(rng, base) {
     var stretchX = 0.75 + rng.nextFloat() * 0.9;
     var stretchY = 0.75 + rng.nextFloat() * 0.9;
@@ -610,11 +660,32 @@
         var value = aov * (0.45 + spread * 1.1);
         if (rng.nextFloat() < 0.04) value *= 1.8 + rng.nextFloat() * 2.2;
 
+        // Pull the order back towards its market until it is on land. No
+        // draw is taken here: every candidate reuses the direction, reach and
+        // centre already drawn, so the stream — and therefore every order
+        // value and arrival month — is exactly what it was without the test.
+        var lat = roundHalfUp(row.lat, COORD_DECIMALS);
+        var lon = roundHalfUp(row.lon, COORD_DECIMALS);
+        var scale = 1;
+        for (var tryIndex = 0; tryIndex < LAND_RETRIES; tryIndex += 1) {
+          var candidateLat = roundHalfUp(
+            row.lat + centre[0] * scale + dy * base * reach * scale * shape.stretchY,
+            COORD_DECIMALS);
+          var candidateLon = roundHalfUp(
+            row.lon + centre[1] * scale
+              + dx * base * reach * scale * shape.stretchX * 1.3,
+            COORD_DECIMALS);
+          if (isLand(candidateLat, candidateLon)) {
+            lat = candidateLat;
+            lon = candidateLon;
+            break;
+          }
+          scale *= LAND_SHRINK;
+        }
+
         var point = {
-          lat: roundHalfUp(row.lat + centre[0] + dy * base * reach * shape.stretchY,
-                           COORD_DECIMALS),
-          lon: roundHalfUp(row.lon + centre[1] + dx * base * reach * shape.stretchX * 1.3,
-                           COORD_DECIMALS),
+          lat: lat,
+          lon: lon,
           value: roundHalfUp(value, 2),
         };
         if (arrival) {
@@ -2034,6 +2105,42 @@
     return [mid - reach, mid + reach, mid];
   }
 
+  // Order density. The mirror of _density_map in demo_dashboard/figures.py:
+  // orders are counted into a fixed grid and the grid is what the layer
+  // smooths, and the ramp is capped at a high percentile so one enormous city
+  // does not flatten every other market into the bottom of the scale.
+  var DENSITY_CELL = 0.08;
+  var DENSITY_RADIUS = 5;
+  var DENSITY_CAP_PERCENTILE = 0.985;
+  var DENSITY_SCALE = [
+    [0.00, 'rgba(255, 247, 237, 0.00)'],
+    [0.08, 'rgba(253, 186, 116, 0.28)'],
+    [0.28, 'rgba(234, 88, 12, 0.55)'],
+    [0.60, 'rgba(194, 65, 12, 0.78)'],
+    [1.00, 'rgba(124, 45, 18, 0.92)'],
+  ];
+
+  function densityCells(points) {
+    var counts = Object.create(null);
+    var half = DENSITY_CELL / 2;
+    points.forEach(function (point) {
+      var row = Math.floor(point.lat / DENSITY_CELL);
+      var column = Math.floor(point.lon / DENSITY_CELL);
+      var key = row + ',' + column;
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    var lats = [];
+    var lons = [];
+    var weights = [];
+    Object.keys(counts).forEach(function (key) {
+      var parts = key.split(',');
+      lats.push(Number(parts[0]) * DENSITY_CELL + half);
+      lons.push(Number(parts[1]) * DENSITY_CELL + half);
+      weights.push(counts[key]);
+    });
+    return { lats: lats, lons: lons, weights: weights };
+  }
+
   var ORDER_VALUE_BANDS = 5;
 
   function bandPoints(points) {
@@ -2071,7 +2178,7 @@
     var hints = {
       market: 'One bubble per market, sized by orders and coloured by average order value.',
       orders: 'One marker per order, banded by order value.',
-      density: 'Market boundaries dropped, so only where orders concentrate remains.',
+      density: 'Aggregated order density reveals where demand concentrates across markets.',
     };
     if (hint) hint.textContent = hints[display] || '';
 
@@ -2111,15 +2218,20 @@
 
     var cloud = orderCloud(level, null);
     if (display === 'density') {
-      var reversed = CFG.sequential.slice().reverse();
+      var cells = densityCells(cloud.points);
+      var sorted = cells.weights.slice().sort(function (a, b) { return a - b; });
+      var capIndex = Math.min(Math.floor(sorted.length * DENSITY_CAP_PERCENTILE),
+                              sorted.length - 1);
+      var cap = Math.max(sorted.length ? sorted[capIndex] : 1, 1);
       draw('tp-map', [{
         type: 'densitymap',
-        lat: cloud.points.map(function (p) { return p.lat; }),
-        lon: cloud.points.map(function (p) { return p.lon; }),
-        radius: 11,
-        colorscale: reversed.map(function (colour, index) {
-          return [index / (reversed.length - 1), colour];
-        }),
+        lat: cells.lats,
+        lon: cells.lons,
+        z: cells.weights,
+        radius: DENSITY_RADIUS,
+        zmin: 0,
+        zmax: cap,
+        colorscale: DENSITY_SCALE,
         showscale: false, hoverinfo: 'skip',
       }], mapLayout(markets, null, 'map-' + state.brand + '-density'));
       return;
@@ -2130,7 +2242,7 @@
         type: 'scattermap', mode: 'markers', name: band.label,
         lat: band.members.map(function (p) { return p.lat; }),
         lon: band.members.map(function (p) { return p.lon; }),
-        marker: { size: 3.4, color: band.color, opacity: 0.5 },
+        marker: { size: 2.8, color: band.color, opacity: 0.38 },
         hoverinfo: 'skip',
       };
     }), mapLayout(markets, null, 'map-' + state.brand + '-orders', {
@@ -2208,7 +2320,7 @@
         type: 'scattermap', mode: 'markers', name: band.label,
         lat: band.members.map(function (p) { return p.lat; }),
         lon: band.members.map(function (p) { return p.lon; }),
-        marker: { size: 3.2, color: band.color, opacity: 0.5 },
+        marker: { size: 2.6, color: band.color, opacity: 0.34 },
         hoverinfo: 'skip',
       };
     }), mapLayout(cloud.markets, CFG.chartHeights.growth_map,
@@ -2484,6 +2596,7 @@
   function boot(payload) {
     DB = payload;
     CFG = payload.config;
+    if (payload.landMask) landMask = decodeLandMask(payload.landMask);
     state.brand = CFG.defaultBrand;
     state.preset = CFG.defaultPreset;
     state.view = CFG.defaultView;
